@@ -1,0 +1,27 @@
+[android:id/content]
+[] Back
+[] Review & Lock
+[] Experiential Entrepreneurship Spring 2026
+Locking finalises Team AI-04 and sends it to the FPT Academic Office for mentor matching.
+[] Review & lock team
+[banner_pool_joined] Khanh Vo joined from the Waiting Pool
+Team AI-04 now has 4 of 5 members.
+[card_lock_checks] Verification requirements
+All passed
+[check_size] Team size: PASSED. 4 of 4 minimum members
+[check_leader] Leader elected: PASSED. Đạt Duy · 2 votes
+[check_mentor] Supervisor assigned: PASSED. Dr. Nguyen Thanh (AI Lab)
+[] Roster
+4 of 5
+[member_F5KSMg0wLGXf8PiZAstfjzjtUDa2] ĐD
+Đạt Duy
+megalit2578 · Frontend Lead
+Leader
+Flutter
+Firebase
+[member_s_hoang] HT
+Hoang Tran
+SE170456 · AI / Vision Specialist
+Python
+TensorFlow
+OpenCV

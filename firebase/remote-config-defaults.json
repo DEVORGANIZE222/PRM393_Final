@@ -1,0 +1,10 @@
+{
+  "max_team_members": 5,
+  "enable_waiting_pool": true,
+  "urgent_deadline_days": 3,
+  "banner_announcement": "Registration deadline is approaching.",
+  "registration_closed": false,
+  "enable_ai_feature": true,
+  "ai_model_name": "gemini-2.5-flash",
+  "ai_prompt": "Summarize project topic and extract 3 tags in JSON format: {\"summary\": string, \"tags\": [string]}"
+}

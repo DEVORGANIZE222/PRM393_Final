@@ -1,0 +1,36 @@
+[android:id/content]
+[] Back
+[] Review & Lock
+[] Experiential Entrepreneurship Spring 2026
+Locking finalises Team AI-04 and sends it to the FPT Academic Office for mentor matching.
+[card_lock_checks] Verification requirements
+1 issue
+[] How to resolve this blocker
+[card_recovery] Invite from the Waiting Pool
+Students without a team who match your open roles: Embedded / IoT, DevOps. The first to accept joins automatically.
+[btn_invite_pool]
+[] Invite from Waiting Pool
+[btn_share_invite]
+[] Share Team Link
+[] Roster
+3 of 5
+[member_F5KSMg0wLGXf8PiZAstfjzjtUDa2] ĐD
+Đạt Duy
+megalit2578 · Frontend Lead
+Leader
+Flutter
+Firebase
+[member_s_hoang] HT
+Hoang Tran
+SE170456 · AI / Vision Specialist
+Python
+TensorFlow
+OpenCV
+[member_s_quynh] QN
+Quynh Nguyen
+SE170189 · Backend Developer
+FastAPI
+Docker
+PostgreSQL
+[btn_lock_roster]
+[] Lock Roster

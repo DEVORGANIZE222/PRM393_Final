@@ -1,0 +1,28 @@
+[android:id/content]
+[] EXEMatching
+[] Home
+[btn_open_alerts] Alerts
+[] Alerts
+[btn_open_profile]
+[] Profile
+[] danghoang862
+[] Hi, Hoang! 👋
+[card_deadline] 81 percent remaining, Registration deadline
+29 days 23:58:21 left
+System locks on Fri, 4 Dec 2026 · 11:51
+Spring 2026 Timeline
+81% time left
+Registration period
+[] My team
+[card_no_team] You're not in a team yet
+Teams with open slots are waiting. Join one before the deadline.
+[btn_browse_teams]
+[] Browse Available Teams
+[nav_home] Home
+Tab 1 of 4
+[nav_browse] Browse
+Tab 2 of 4
+[nav_team] My Team
+Tab 3 of 4
+[nav_settings] Settings
+Tab 4 of 4

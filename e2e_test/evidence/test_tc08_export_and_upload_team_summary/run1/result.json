@@ -1,0 +1,14 @@
+{
+  "test": "test_alerts_profile.py::test_tc08_export_and_upload_team_summary[run1]",
+  "attempt": 1,
+  "profile": "flash",
+  "trace_id": "fbc83c2b-e343-4b0a-9534-2f6f16905311",
+  "status": "completed",
+  "turns": null,
+  "started": "2026-11-03T18:45:02",
+  "seconds": 29.3,
+  "goal": "Open your profile from the avatar at the top right. Under Team summary, tap 'Export & Upload PDF' and wait until the upload finishes. Report the uploaded file name and its size.",
+  "expected_output": "Return JSON: {\"uploaded\": bool, \"file_name\": string, \"size_kb\": int}",
+  "output": "{\"uploaded\": true, \"file_name\": \"team-ai-04-20261103-1845.pdf\", \"size_kb\": 6}",
+  "error": null
+}

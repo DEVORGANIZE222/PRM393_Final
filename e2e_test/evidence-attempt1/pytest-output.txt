@@ -1,0 +1,2204 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\PRM393\artemis\.venv\Scripts\python.exe
+rootdir: C:\Users\LENOVO\OneDrive\Máy tính\Lab3_Cloud-Enabled_Mobile_App\e2e_test
+configfile: pyproject.toml
+plugins: anyio-4.14.2, langsmith-0.11.0, asyncio-1.4.0, cov-7.1.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
+collecting ... collected 39 items
+
+test_alerts_profile.py::test_tc12_decline_invite_then_undo[run1] FAILED  [  2%]
+test_alerts_profile.py::test_tc12_decline_invite_then_undo[run2] FAILED  [  5%]
+test_alerts_profile.py::test_tc12_decline_invite_then_undo[run3] FAILED  [  7%]
+test_alerts_profile.py::test_tc13_export_and_upload_team_summary[run1] FAILED [ 10%]
+test_alerts_profile.py::test_tc13_export_and_upload_team_summary[run2] FAILED [ 12%]
+test_alerts_profile.py::test_tc13_export_and_upload_team_summary[run3] FAILED [ 15%]
+test_auth.py::test_tc01_account_not_on_roster_is_rejected[run1] PASSED   [ 17%]
+test_auth.py::test_tc01_account_not_on_roster_is_rejected[run2] PASSED   [ 20%]
+test_auth.py::test_tc01_account_not_on_roster_is_rejected[run3] PASSED   [ 23%]
+test_auth.py::test_tc02_sign_in_with_roster_account[run1] PASSED         [ 25%]
+test_auth.py::test_tc02_sign_in_with_roster_account[run2] PASSED         [ 28%]
+test_auth.py::test_tc02_sign_in_with_roster_account[run3] PASSED         [ 30%]
+test_browse.py::test_tc03_search_and_filter[run1] FAILED                 [ 33%]
+test_browse.py::test_tc03_search_and_filter[run2] FAILED                 [ 35%]
+test_browse.py::test_tc03_search_and_filter[run3] FAILED                 [ 38%]
+test_browse.py::test_tc04_empty_state_and_clear_filters[run1] FAILED     [ 41%]
+test_browse.py::test_tc04_empty_state_and_clear_filters[run2] FAILED     [ 43%]
+test_browse.py::test_tc04_empty_state_and_clear_filters[run3] FAILED     [ 46%]
+test_browse.py::test_tc05_offline_error_and_retry[run1] FAILED           [ 48%]
+test_browse.py::test_tc05_offline_error_and_retry[run2] FAILED           [ 51%]
+test_browse.py::test_tc05_offline_error_and_retry[run3] FAILED           [ 53%]
+test_join.py::test_tc06_join_team_with_open_slot[run1] FAILED            [ 56%]
+test_join.py::test_tc06_join_team_with_open_slot[run2] FAILED            [ 58%]
+test_join.py::test_tc06_join_team_with_open_slot[run3] FAILED            [ 61%]
+test_join.py::test_tc07_team_fills_before_confirming[run1] FAILED        [ 64%]
+test_join.py::test_tc07_team_fills_before_confirming[run2] FAILED        [ 66%]
+test_join.py::test_tc07_team_fills_before_confirming[run3] FAILED        [ 69%]
+test_lock.py::test_tc10_lock_blocked_then_recovered_from_pool[run1] FAILED [ 71%]
+test_lock.py::test_tc10_lock_blocked_then_recovered_from_pool[run2] FAILED [ 74%]
+test_lock.py::test_tc10_lock_blocked_then_recovered_from_pool[run3] FAILED [ 76%]
+test_lock.py::test_tc11_share_team_link_opens_android_share_sheet[run1] FAILED [ 79%]
+test_lock.py::test_tc11_share_team_link_opens_android_share_sheet[run2] FAILED [ 82%]
+test_lock.py::test_tc11_share_team_link_opens_android_share_sheet[run3] FAILED [ 84%]
+test_vote.py::test_tc08_tallies_hidden_until_voting[run1] FAILED         [ 87%]
+test_vote.py::test_tc08_tallies_hidden_until_voting[run2] FAILED         [ 89%]
+test_vote.py::test_tc08_tallies_hidden_until_voting[run3] FAILED         [ 92%]
+test_vote.py::test_tc09_vote_elects_leader[run1] FAILED                  [ 94%]
+test_vote.py::test_tc09_vote_elects_leader[run2] FAILED                  [ 97%]
+test_vote.py::test_tc09_vote_elects_leader[run3] FAILED                  [100%]
+
+================================== FAILURES ===================================
+__________________ test_tc12_decline_invite_then_undo[run1] ___________________
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759A50FE0>
+
+    async def test_tc12_decline_invite_then_undo(device, backend, me, artemis):
+        backend.reset(me)
+        invite = backend.add_invite(me, "team_fin02", "FinTech Guard")
+>       device.sign_in(ACCOUNT)
+
+test_alerts_profile.py:11: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+device.py:155: in sign_in
+    self.wait_for(id="nav_home", timeout=40)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <device.Device object at 0x0000021758A08980>, id = 'nav_home'
+text = None, timeout = 40
+
+    def wait_for(self, *, id: str | None = None, text: str | None = None, timeout: float = 20) -> Node:
+        end = time.monotonic() + timeout
+        while time.monotonic() < end:
+            node = self.find(id=id, text=text)
+            if node:
+                return node
+            time.sleep(0.7)
+>       raise AssertionError(f"Timed out waiting for id={id!r} text={text!r}")
+E       AssertionError: Timed out waiting for id='nav_home' text=None
+
+device.py:101: AssertionError
+__________________ test_tc12_decline_invite_then_undo[run2] ___________________
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021758A07F60>
+
+    async def test_tc12_decline_invite_then_undo(device, backend, me, artemis):
+        backend.reset(me)
+        invite = backend.add_invite(me, "team_fin02", "FinTech Guard")
+        device.sign_in(ACCOUNT)
+    
+        run = await artemis(
+            "Open the Alerts tab and switch to the Invites filter. Decline the invite from FinTech Guard, "
+            "then use Undo in the message at the bottom of the screen. Report how many invites are listed "
+            "right after declining and after undoing.",
+            'Return JSON: {"invites_after_decline": int, "invites_after_undo": int, "invite_team": string}',
+        )
+    
+        assert run.data["invites_after_decline"] == 0
+        assert run.data["invites_after_undo"] == 1
+        assert "FinTech Guard" in run.data["invite_team"]
+>       assert "Invites (1)" in run.screen
+E       assert 'Invites (1)' in "[android:id/content]\n[] Alerts\n[btn_open_profile]\n[] ĐD\n[alert_filters]\n[] All (0)\n[] Invites (0)\n[] Updates (0)\n[state_empty] You're all caught up\nTeam invites will show up here.\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_alerts] Alerts\nTab 4 of 4"
+E        +  where "[android:id/content]\n[] Alerts\n[btn_open_profile]\n[] ĐD\n[alert_filters]\n[] All (0)\n[] Invites (0)\n[] Updates (0)\n[state_empty] You're all caught up\nTeam invites will show up here.\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_alerts] Alerts\nTab 4 of 4" = Run(result=TaskResult(task_id='2219e61c-13f4-457b-b425-539e2c91fddf', status='completed', goal='Open the Alerts tab and switch to the Invites filter. Decline the invite from FinTech Guard, then use Undo in the message at the bottom of the screen. Report how many invites are listed right after declining and after undoing.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"invites_after_decline": int, "invites_after_undo": int, "invite_team": string}', profile=None, device_serial='emulator-5554', output=None, error=None, turns=None), data={'invites_after_decline': 0, 'invites_after_undo': 1, 'invite_team': 'FinTech Guard'}, screen="[android:id/content]\n[] Alerts\n[btn_open_profile]\n[] ĐD\n[alert_filters]\n[] All (0)\n[] Invites (0)\n[] Updates (0)\n[state_empty] You're all caught up\nTeam invites will show up here.\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_alerts] Alerts\nTab 4 of 4", folder=WindowsPath('C:/Users/LENOVO/OneDrive/Máy tính/Lab3_Cloud-Enabled_Mobile_App/e2e_test/evidence/test_tc12_decline_invite_then_undo/run2')).screen
+
+test_alerts_profile.py:23: AssertionError
+__________________ test_tc12_decline_invite_then_undo[run3] ___________________
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759A98400>
+
+    async def test_tc12_decline_invite_then_undo(device, backend, me, artemis):
+        backend.reset(me)
+        invite = backend.add_invite(me, "team_fin02", "FinTech Guard")
+        device.sign_in(ACCOUNT)
+    
+        run = await artemis(
+            "Open the Alerts tab and switch to the Invites filter. Decline the invite from FinTech Guard, "
+            "then use Undo in the message at the bottom of the screen. Report how many invites are listed "
+            "right after declining and after undoing.",
+            'Return JSON: {"invites_after_decline": int, "invites_after_undo": int, "invite_team": string}',
+        )
+    
+        assert run.data["invites_after_decline"] == 0
+>       assert run.data["invites_after_undo"] == 1
+E       assert 0 == 1
+
+test_alerts_profile.py:21: AssertionError
+_______________ test_tc13_export_and_upload_team_summary[run1] ________________
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759A98AE0>
+
+    async def test_tc13_export_and_upload_team_summary(device, backend, me, artemis):
+        backend.reset(me, team="team_ai04")
+        device.sign_in(ACCOUNT)
+        before = backend.storage_objects(f"reports/{me.uid}/")
+    
+        run = await artemis(
+            "Open your profile from the avatar at the top right. Under Team summary, tap 'Export & Upload PDF' "
+            "and wait until the upload finishes. Report the uploaded file name and its size.",
+            'Return JSON: {"uploaded": bool, "file_name": string, "size_kb": int}',
+        )
+    
+        assert run.data["uploaded"] is True
+        assert re.fullmatch(r"team-ai-04-\d{8}-\d{4}\.pdf", run.data["file_name"])
+        assert run.data["size_kb"] > 0
+>       assert f"[export_done] Uploaded {run.data['file_name']}" in run.screen
+E       assert '[export_done] Uploaded team-ai-04-20261102-0551.pdf' in '[android:id/content]\n[] Back\n[] Profile\n[card_account] ĐD\nĐạt Duy\nmegalit2578@gmail.com\nmegalit2578 ·  ·\n[] Team summary\n[card_export] Create a PDF of your team, its status and roster, then save it to your account.\nSaved as reports/{your ID}/team-{code}-{date}.pdf\n[export_done] https://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261102-0551.pdf?alt=media&token=9b06bd3c-d300-4a04-90b8-c13ff09468b3\n[btn_export_upload]\n[] Export Again\n[] App settings\n[card_remote_config] Values the server can change without an app update.\n[config_max_team_members] max_team_members: 5\n[config_enable_waiting_pool] enable_waiting_pool: true\n[config_registration_closed] registration_closed: false\n[btn_refresh_config]\n[] Check for Updates'
+E        +  where '[android:id/content]\n[] Back\n[] Profile\n[card_account] ĐD\nĐạt Duy\nmegalit2578@gmail.com\nmegalit2578 ·  ·\n[] Team summary\n[card_export] Create a PDF of your team, its status and roster, then save it to your account.\nSaved as reports/{your ID}/team-{code}-{date}.pdf\n[export_done] https://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261102-0551.pdf?alt=media&token=9b06bd3c-d300-4a04-90b8-c13ff09468b3\n[btn_export_upload]\n[] Export Again\n[] App settings\n[card_remote_config] Values the server can change without an app update.\n[config_max_team_members] max_team_members: 5\n[config_enable_waiting_pool] enable_waiting_pool: true\n[config_registration_closed] registration_closed: false\n[btn_refresh_config]\n[] Check for Updates' = Run(result=TaskResult(task_id='829e3d16-cd4e-43fc-9598-fd739d5440c3', status='completed', goal='Open your profile from the avatar at the top right. Under Team summary, tap \'Export & Upload PDF\' and wait until the upload finishes. Report the uploaded file name and its size.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"uploaded": bool, "file_name": string, "size_kb": int}', profile=None, device_serial='emulator-5554', output=None, error=None, turns=None), data={'uploaded': True, 'file_name': 'team-ai-04-20261102-0551.pdf', 'size_kb': 6}, screen='[android:id/content]\n[] Back\n[] Profile\n[card_account] ĐD\nĐạt Duy\nmegalit2578@gmail.com\nmegalit2578 ·  ·\n[] Team summary\n[card_export] Create a PDF of your team, its status and roster, then save it to your account.\nSaved as reports/{your ID}/team-{code}-{date}.pdf\n[export_done] https://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261102-0551.pdf?alt=media&token=9b06bd3c-d300-4a04-90b8-c13ff09468b3\n[btn_export_upload]\n[] Export Again\n[] App settings\n[card_remote_config] Values the server can change without an app update.\n[config_max_team_members] max_team_members: 5\n[config_enable_waiting_pool] enable_waiting_pool: true\n[config_registration_closed] registration_closed: false\n[btn_refresh_config]\n[] Check for Updates', folder=WindowsPath('C:/Users/LENOVO/OneDrive/Máy tính/Lab3_Cloud-Enabled_Mobile_App/e2e_test/evidence/test_tc13_export_and_upload_team_summary/run1')).screen
+
+test_alerts_profile.py:42: AssertionError
+_______________ test_tc13_export_and_upload_team_summary[run2] ________________
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759A996C0>
+
+    async def test_tc13_export_and_upload_team_summary(device, backend, me, artemis):
+        backend.reset(me, team="team_ai04")
+        device.sign_in(ACCOUNT)
+        before = backend.storage_objects(f"reports/{me.uid}/")
+    
+        run = await artemis(
+            "Open your profile from the avatar at the top right. Under Team summary, tap 'Export & Upload PDF' "
+            "and wait until the upload finishes. Report the uploaded file name and its size.",
+            'Return JSON: {"uploaded": bool, "file_name": string, "size_kb": int}',
+        )
+    
+        assert run.data["uploaded"] is True
+        assert re.fullmatch(r"team-ai-04-\d{8}-\d{4}\.pdf", run.data["file_name"])
+        assert run.data["size_kb"] > 0
+>       assert f"[export_done] Uploaded {run.data['file_name']}" in run.screen
+E       assert '[export_done] Uploaded team-ai-04-20261102-0552.pdf' in '[android:id/content]\n[] Back\n[] Profile\n[card_account] ĐD\nĐạt Duy\nmegalit2578@gmail.com\nmegalit2578 ·  ·\n[] Team summary\n[card_export] Create a PDF of your team, its status and roster, then save it to your account.\nSaved as reports/{your ID}/team-{code}-{date}.pdf\n[export_done] https://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261102-0552.pdf?alt=media&token=fbd698b2-039f-4441-8a7a-a64b3611557d\n[btn_export_upload]\n[] Export Again\n[] App settings\n[card_remote_config] Values the server can change without an app update.\n[config_max_team_members] max_team_members: 5\n[config_enable_waiting_pool] enable_waiting_pool: true\n[config_registration_closed] registration_closed: false\n[btn_refresh_config]\n[] Check for Updates'
+E        +  where '[android:id/content]\n[] Back\n[] Profile\n[card_account] ĐD\nĐạt Duy\nmegalit2578@gmail.com\nmegalit2578 ·  ·\n[] Team summary\n[card_export] Create a PDF of your team, its status and roster, then save it to your account.\nSaved as reports/{your ID}/team-{code}-{date}.pdf\n[export_done] https://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261102-0552.pdf?alt=media&token=fbd698b2-039f-4441-8a7a-a64b3611557d\n[btn_export_upload]\n[] Export Again\n[] App settings\n[card_remote_config] Values the server can change without an app update.\n[config_max_team_members] max_team_members: 5\n[config_enable_waiting_pool] enable_waiting_pool: true\n[config_registration_closed] registration_closed: false\n[btn_refresh_config]\n[] Check for Updates' = Run(result=TaskResult(task_id='23db8424-2655-4778-a584-91ff6d253e39', status='completed', goal='Open your profile from the avatar at the top right. Under Team summary, tap \'Export & Upload PDF\' and wait until the upload finishes. Report the uploaded file name and its size.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"uploaded": bool, "file_name": string, "size_kb": int}', profile=None, device_serial='emulator-5554', output=None, error=None, turns=None), data={'uploaded': True, 'file_name': 'team-ai-04-20261102-0552.pdf', 'size_kb': 6}, screen='[android:id/content]\n[] Back\n[] Profile\n[card_account] ĐD\nĐạt Duy\nmegalit2578@gmail.com\nmegalit2578 ·  ·\n[] Team summary\n[card_export] Create a PDF of your team, its status and roster, then save it to your account.\nSaved as reports/{your ID}/team-{code}-{date}.pdf\n[export_done] https://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261102-0552.pdf?alt=media&token=fbd698b2-039f-4441-8a7a-a64b3611557d\n[btn_export_upload]\n[] Export Again\n[] App settings\n[card_remote_config] Values the server can change without an app update.\n[config_max_team_members] max_team_members: 5\n[config_enable_waiting_pool] enable_waiting_pool: true\n[config_registration_closed] registration_closed: false\n[btn_refresh_config]\n[] Check for Updates', folder=WindowsPath('C:/Users/LENOVO/OneDrive/Máy tính/Lab3_Cloud-Enabled_Mobile_App/e2e_test/evidence/test_tc13_export_and_upload_team_summary/run2')).screen
+
+test_alerts_profile.py:42: AssertionError
+_______________ test_tc13_export_and_upload_team_summary[run3] ________________
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759A99F80>
+
+    async def test_tc13_export_and_upload_team_summary(device, backend, me, artemis):
+        backend.reset(me, team="team_ai04")
+        device.sign_in(ACCOUNT)
+        before = backend.storage_objects(f"reports/{me.uid}/")
+    
+        run = await artemis(
+            "Open your profile from the avatar at the top right. Under Team summary, tap 'Export & Upload PDF' "
+            "and wait until the upload finishes. Report the uploaded file name and its size.",
+            'Return JSON: {"uploaded": bool, "file_name": string, "size_kb": int}',
+        )
+    
+        assert run.data["uploaded"] is True
+        assert re.fullmatch(r"team-ai-04-\d{8}-\d{4}\.pdf", run.data["file_name"])
+        assert run.data["size_kb"] > 0
+>       assert f"[export_done] Uploaded {run.data['file_name']}" in run.screen
+E       assert '[export_done] Uploaded team-ai-04-20261102-0553.pdf' in '[android:id/content]\n[] Back\n[] Profile\n[card_account] ĐD\nĐạt Duy\nmegalit2578@gmail.com\nmegalit2578 ·  ·\n[] Team summary\n[card_export] Create a PDF of your team, its status and roster, then save it to your account.\nSaved as reports/{your ID}/team-{code}-{date}.pdf\n[export_done] https://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261102-0553.pdf?alt=media&token=9e821603-e182-4346-a483-96c73c822969\n[btn_export_upload]\n[] Export Again\n[] App settings\n[card_remote_config] Values the server can change without an app update.\n[config_max_team_members] max_team_members: 5\n[config_enable_waiting_pool] enable_waiting_pool: true\n[config_registration_closed] registration_closed: false\n[btn_refresh_config]\n[] Check for Updates'
+E        +  where '[android:id/content]\n[] Back\n[] Profile\n[card_account] ĐD\nĐạt Duy\nmegalit2578@gmail.com\nmegalit2578 ·  ·\n[] Team summary\n[card_export] Create a PDF of your team, its status and roster, then save it to your account.\nSaved as reports/{your ID}/team-{code}-{date}.pdf\n[export_done] https://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261102-0553.pdf?alt=media&token=9e821603-e182-4346-a483-96c73c822969\n[btn_export_upload]\n[] Export Again\n[] App settings\n[card_remote_config] Values the server can change without an app update.\n[config_max_team_members] max_team_members: 5\n[config_enable_waiting_pool] enable_waiting_pool: true\n[config_registration_closed] registration_closed: false\n[btn_refresh_config]\n[] Check for Updates' = Run(result=TaskResult(task_id='9961c723-2b0f-45af-9236-0680625fbf86', status='completed', goal='Open your profile from the avatar at the top right. Under Team summary, tap \'Export & Upload PDF\' and wait until the upload finishes. Report the uploaded file name and its size.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"uploaded": bool, "file_name": string, "size_kb": int}', profile=None, device_serial='emulator-5554', output=None, error=None, turns=None), data={'uploaded': True, 'file_name': 'team-ai-04-20261102-0553.pdf', 'size_kb': 6}, screen='[android:id/content]\n[] Back\n[] Profile\n[card_account] ĐD\nĐạt Duy\nmegalit2578@gmail.com\nmegalit2578 ·  ·\n[] Team summary\n[card_export] Create a PDF of your team, its status and roster, then save it to your account.\nSaved as reports/{your ID}/team-{code}-{date}.pdf\n[export_done] https://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261102-0553.pdf?alt=media&token=9e821603-e182-4346-a483-96c73c822969\n[btn_export_upload]\n[] Export Again\n[] App settings\n[card_remote_config] Values the server can change without an app update.\n[config_max_team_members] max_team_members: 5\n[config_enable_waiting_pool] enable_waiting_pool: true\n[config_registration_closed] registration_closed: false\n[btn_refresh_config]\n[] Check for Updates', folder=WindowsPath('C:/Users/LENOVO/OneDrive/Máy tính/Lab3_Cloud-Enabled_Mobile_App/e2e_test/evidence/test_tc13_export_and_upload_team_summary/run3')).screen
+
+test_alerts_profile.py:42: AssertionError
+______________________ test_tc03_search_and_filter[run1] ______________________
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759A98AE0>
+
+    @pytest.mark.flow1
+    async def test_tc03_search_and_filter(device, backend, me, artemis):
+        backend.reset(me)  # a student with no team
+        device.sign_in(ACCOUNT)
+    
+        run = await artemis(
+            "Open the Browse tab. Turn on the 'AI/ML' filter chip and keep 'Open Slots' on. "
+            "Then search for 'drone'. Report the number of teams the list says it found and the name of each team.",
+            'Return JSON: {"result_count": int, "team_names": [string]}',
+        )
+    
+>       assert run.data["result_count"] == 1
+E       assert 2 == 1
+
+test_browse.py:19: AssertionError
+______________________ test_tc03_search_and_filter[run2] ______________________
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759A98F40>
+
+    @pytest.mark.flow1
+    async def test_tc03_search_and_filter(device, backend, me, artemis):
+        backend.reset(me)  # a student with no team
+        device.sign_in(ACCOUNT)
+    
+        run = await artemis(
+            "Open the Browse tab. Turn on the 'AI/ML' filter chip and keep 'Open Slots' on. "
+            "Then search for 'drone'. Report the number of teams the list says it found and the name of each team.",
+            'Return JSON: {"result_count": int, "team_names": [string]}',
+        )
+    
+>       assert run.data["result_count"] == 1
+E       assert 2 == 1
+
+test_browse.py:19: AssertionError
+______________________ test_tc03_search_and_filter[run3] ______________________
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759A9B1A0>
+
+    @pytest.mark.flow1
+    async def test_tc03_search_and_filter(device, backend, me, artemis):
+        backend.reset(me)  # a student with no team
+>       device.sign_in(ACCOUNT)
+
+test_browse.py:11: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+device.py:147: in sign_in
+    self.tap(id="btn_google_sign_in", timeout=40)
+device.py:108: in tap
+    again = self.wait_for(id=id, text=text, timeout=timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <device.Device object at 0x0000021758A08980>, id = 'btn_google_sign_in'
+text = None, timeout = 40
+
+    def wait_for(self, *, id: str | None = None, text: str | None = None, timeout: float = 20) -> Node:
+        end = time.monotonic() + timeout
+        while time.monotonic() < end:
+            node = self.find(id=id, text=text)
+            if node:
+                return node
+            time.sleep(0.7)
+>       raise AssertionError(f"Timed out waiting for id={id!r} text={text!r}")
+E       AssertionError: Timed out waiting for id='btn_google_sign_in' text=None
+
+device.py:101: AssertionError
+________________ test_tc04_empty_state_and_clear_filters[run1] ________________
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759A9B9C0>
+
+    @pytest.mark.flow1
+    async def test_tc04_empty_state_and_clear_filters(device, backend, me, artemis):
+        backend.reset(me)
+        device.sign_in(ACCOUNT)
+        open_teams = backend.open_team_count()  # ground truth from Firestore
+    
+        run = await artemis(
+            "Open the Browse tab and search for 'quantum'. Read the message shown when nothing matches. "
+            "Then use the button in that message to clear the filters, and count the teams listed afterwards.",
+            'Return JSON: {"empty_title": string, "teams_after_clearing": int}',
+        )
+    
+>       assert run.data["empty_title"] == "No teams match your search"
+E       AssertionError: assert 'Không có Reader nào khớp' == 'No teams match your search'
+E         
+E         - No teams match your search
+E         + Không có Reader nào khớp
+
+test_browse.py:37: AssertionError
+________________ test_tc04_empty_state_and_clear_filters[run2] ________________
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759A9A8E0>
+
+    @pytest.mark.flow1
+    async def test_tc04_empty_state_and_clear_filters(device, backend, me, artemis):
+        backend.reset(me)
+        device.sign_in(ACCOUNT)
+        open_teams = backend.open_team_count()  # ground truth from Firestore
+    
+>       run = await artemis(
+            "Open the Browse tab and search for 'quantum'. Read the message shown when nothing matches. "
+            "Then use the button in that message to clear the filters, and count the teams listed afterwards.",
+            'Return JSON: {"empty_title": string, "teams_after_clearing": int}',
+        )
+
+test_browse.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+conftest.py:127: in run
+    result = await client.run(
+C:\PRM393\artemis\packages\artemis-client\src\artemis_client\client.py:328: in run
+    return await self.wait_for_task(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <artemis_client.client.ArtemisClient object at 0x0000021758A09A90>
+task_id = '2ad96828-fc87-4691-8c24-4162633db727', timeout = 900
+poll_interval = None
+
+    async def wait_for_task(
+        self,
+        task_id: str,
+        *,
+        timeout: float = 1800.0,
+        poll_interval: float | None = None,
+    ) -> TaskResult:
+        """Wait until a task reaches a terminal state."""
+        if timeout <= 0:
+            raise ValueError("timeout must be greater than zero")
+        interval = self.poll_interval if poll_interval is None else float(poll_interval)
+        if interval <= 0:
+            raise ValueError("poll_interval must be greater than zero")
+    
+        started = time.monotonic()
+        while True:
+            result = await self.get_task(task_id)
+            if result.done:
+                return result
+            elapsed = time.monotonic() - started
+            if elapsed >= timeout:
+>               raise TaskTimeoutError(task_id, timeout)
+E               artemis_client.errors.TaskTimeoutError: Task 2ad96828-fc87-4691-8c24-4162633db727 did not finish within 900 seconds
+
+C:\PRM393\artemis\packages\artemis-client\src\artemis_client\client.py:292: TaskTimeoutError
+________________ test_tc04_empty_state_and_clear_filters[run3] ________________
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759A9ADE0>
+
+    @pytest.mark.flow1
+    async def test_tc04_empty_state_and_clear_filters(device, backend, me, artemis):
+        backend.reset(me)
+>       device.sign_in(ACCOUNT)
+
+test_browse.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+device.py:147: in sign_in
+    self.tap(id="btn_google_sign_in", timeout=40)
+device.py:105: in tap
+    node = self.wait_for(id=id, text=text, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <device.Device object at 0x0000021758A08980>, id = 'btn_google_sign_in'
+text = None, timeout = 40
+
+    def wait_for(self, *, id: str | None = None, text: str | None = None, timeout: float = 20) -> Node:
+        end = time.monotonic() + timeout
+        while time.monotonic() < end:
+            node = self.find(id=id, text=text)
+            if node:
+                return node
+            time.sleep(0.7)
+>       raise AssertionError(f"Timed out waiting for id={id!r} text={text!r}")
+E       AssertionError: Timed out waiting for id='btn_google_sign_in' text=None
+
+device.py:101: AssertionError
+___________________ test_tc05_offline_error_and_retry[run1] ___________________
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759A9A840>
+
+    @pytest.mark.flow1
+    async def test_tc05_offline_error_and_retry(device, backend, me, artemis):
+        backend.reset(me)
+        device.sign_in(ACCOUNT)
+        open_teams = backend.open_team_count()
+        device.set_network(False)
+    
+>       first = await artemis(
+            "Open the Browse tab and wait for it to finish loading. Report the error title and message shown.",
+            'Return JSON: {"error_title": string, "error_message": string, "has_try_again_button": bool}',
+        )
+
+test_browse.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = 'Open the Browse tab and wait for it to finish loading. Report the error title and message shown.'
+expected_output = 'Return JSON: {"error_title": string, "error_message": string, "has_try_again_button": bool}'
+timeout = 900
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -> Run:
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+>       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task 7d51cde1-1ba5-4c7a-9c51-4bf50995d71d ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='7d51cde1-1ba5-4c7a-9c51-4bf50995d71d', status='failed', goal='Open the Browse tab and wait for it to finish loading. Report the error title and message shown.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"error_title": string, "error_message": string, "has_try_again_button": bool}', profile=None, device_serial='emulator-5554', output=None, error=None, turns=None).succeeded
+
+conftest.py:157: AssertionError
+___________________ test_tc05_offline_error_and_retry[run2] ___________________
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759A9A520>
+
+    @pytest.mark.flow1
+    async def test_tc05_offline_error_and_retry(device, backend, me, artemis):
+        backend.reset(me)
+        device.sign_in(ACCOUNT)
+        open_teams = backend.open_team_count()
+        device.set_network(False)
+    
+>       first = await artemis(
+            "Open the Browse tab and wait for it to finish loading. Report the error title and message shown.",
+            'Return JSON: {"error_title": string, "error_message": string, "has_try_again_button": bool}',
+        )
+
+test_browse.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = 'Open the Browse tab and wait for it to finish loading. Report the error title and message shown.'
+expected_output = 'Return JSON: {"error_title": string, "error_message": string, "has_try_again_button": bool}'
+timeout = 900
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -> Run:
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+>       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task 10123c33-a26b-45a5-a5e0-8157635da416 ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='10123c33-a26b-45a5-a5e0-8157635da416', status='failed', goal='Open the Browse tab and wait for it to finish loading. Report the error title and message shown.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"error_title": string, "error_message": string, "has_try_again_button": bool}', profile=None, device_serial='emulator-5554', output=None, error=None, turns=None).succeeded
+
+conftest.py:157: AssertionError
+___________________ test_tc05_offline_error_and_retry[run3] ___________________
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759E3C900>
+
+    @pytest.mark.flow1
+    async def test_tc05_offline_error_and_retry(device, backend, me, artemis):
+        backend.reset(me)
+        device.sign_in(ACCOUNT)
+        open_teams = backend.open_team_count()
+        device.set_network(False)
+    
+>       first = await artemis(
+            "Open the Browse tab and wait for it to finish loading. Report the error title and message shown.",
+            'Return JSON: {"error_title": string, "error_message": string, "has_try_again_button": bool}',
+        )
+
+test_browse.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = 'Open the Browse tab and wait for it to finish loading. Report the error title and message shown.'
+expected_output = 'Return JSON: {"error_title": string, "error_message": string, "has_try_again_button": bool}'
+timeout = 900
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -> Run:
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+>       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task 8d7735fb-2da7-4dee-b583-c40d22540306 ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='8d7735fb-2da7-4dee-b583-c40d22540306', status='failed', goal='Open the Browse tab and wait for it to finish loading. Report the error title and message shown.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"error_title": string, "error_message": string, "has_try_again_button": bool}', profile=None, device_serial='emulator-5554', output=None, error=None, turns=None).succeeded
+
+conftest.py:157: AssertionError
+__________________ test_tc06_join_team_with_open_slot[run1] ___________________
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759E3D1C0>
+
+    @pytest.mark.flow1
+    async def test_tc06_join_team_with_open_slot(device, backend, me, artemis):
+        backend.reset(me)  # FinTech Guard has 2 of 5 members
+        device.sign_in(ACCOUNT)
+    
+>       run = await artemis(
+            "Find the team 'FinTech Guard' on the Browse tab, open its details and join it, "
+            "confirming in the dialog. After joining, report the team shown on My Team and its member count.",
+            'Return JSON: {"joined": bool, "my_team_name": string, "members_text": string}',
+        )
+
+test_join.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = "Find the team 'FinTech Guard' on the Browse tab, open its details and join it, confirming in the dialog. After joining, report the team shown on My Team and its member count."
+expected_output = 'Return JSON: {"joined": bool, "my_team_name": string, "members_text": string}'
+timeout = 900
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -> Run:
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+>       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task 448a9b95-b55a-4b00-bb3b-944a0ac03c6b ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='448a9b95-b55a-4b00-bb3b-944a0ac03c6b', status='failed', goal='Find the team \'FinTech Guard\' on the Browse tab, open its details and join it, confirming in the dialog. After joining, report the team shown on My Team and its member count.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"joined": bool, "my_team_name": string, "members_text": string}', profile=None, device_serial='emulator-5554', output=None, error=None, turns=None).succeeded
+
+conftest.py:157: AssertionError
+__________________ test_tc06_join_team_with_open_slot[run2] ___________________
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759E3DDA0>
+
+    @pytest.mark.flow1
+    async def test_tc06_join_team_with_open_slot(device, backend, me, artemis):
+        backend.reset(me)  # FinTech Guard has 2 of 5 members
+        device.sign_in(ACCOUNT)
+    
+>       run = await artemis(
+            "Find the team 'FinTech Guard' on the Browse tab, open its details and join it, "
+            "confirming in the dialog. After joining, report the team shown on My Team and its member count.",
+            'Return JSON: {"joined": bool, "my_team_name": string, "members_text": string}',
+        )
+
+test_join.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = "Find the team 'FinTech Guard' on the Browse tab, open its details and join it, confirming in the dialog. After joining, report the team shown on My Team and its member count."
+expected_output = 'Return JSON: {"joined": bool, "my_team_name": string, "members_text": string}'
+timeout = 900
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -> Run:
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+>       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task cf5379c2-f70a-459a-9c7d-94d52a93f5cf ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='cf5379c2-f70a-459a-9c7d-94d52a93f5cf', status='failed', goal='Find the team \'FinTech Guard\' on the Browse tab, open its details and join it, confirming in the dialog. After joining, report the team shown on My Team and its member count.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"joined": bool, "my_team_name": string, "members_text": string}', profile=None, device_serial='emulator-5554', output=None, error=None, turns=None).succeeded
+
+conftest.py:157: AssertionError
+__________________ test_tc06_join_team_with_open_slot[run3] ___________________
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759E3DEE0>
+
+    @pytest.mark.flow1
+    async def test_tc06_join_team_with_open_slot(device, backend, me, artemis):
+        backend.reset(me)  # FinTech Guard has 2 of 5 members
+        device.sign_in(ACCOUNT)
+    
+>       run = await artemis(
+            "Find the team 'FinTech Guard' on the Browse tab, open its details and join it, "
+            "confirming in the dialog. After joining, report the team shown on My Team and its member count.",
+            'Return JSON: {"joined": bool, "my_team_name": string, "members_text": string}',
+        )
+
+test_join.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = "Find the team 'FinTech Guard' on the Browse tab, open its details and join it, confirming in the dialog. After joining, report the team shown on My Team and its member count."
+expected_output = 'Return JSON: {"joined": bool, "my_team_name": string, "members_text": string}'
+timeout = 900
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -> Run:
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+>       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task 9baf04b1-269c-4915-9ef2-6e099d40ea32 ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='9baf04b1-269c-4915-9ef2-6e099d40ea32', status='failed', goal='Find the team \'FinTech Guard\' on the Browse tab, open its details and join it, confirming in the dialog. After joining, report the team shown on My Team and its member count.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"joined": bool, "my_team_name": string, "members_text": string}', profile=None, device_serial='emulator-5554', output=None, error=None, turns=None).succeeded
+
+conftest.py:157: AssertionError
+________________ test_tc07_team_fills_before_confirming[run1] _________________
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+>           with urllib.request.urlopen(request, timeout=30) as response:
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:189: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:495: in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:604: in http_response
+    response = self.parent.error(
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:533: in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:466: in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <urllib.request.HTTPDefaultErrorHandler object at 0x0000021758A09160>
+req = <urllib.request.Request object at 0x000002175882B950>
+fp = <http.client.HTTPResponse object at 0x0000021759E7B070>, code = 401
+msg = 'Unauthorized'
+hdrs = <http.client.HTTPMessage object at 0x0000021759E3FBB0>
+
+    def http_error_default(self, req, fp, code, msg, hdrs):
+>       raise HTTPError(req.full_url, code, msg, hdrs, fp)
+E       urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:613: HTTPError
+
+The above exception was the direct cause of the following exception:
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759E3F380>
+
+    @pytest.mark.flow1
+    async def test_tc07_team_fills_before_confirming(device, backend, me, artemis):
+>       backend.reset(me)  # EduSmart Analytics has 4 of 5 members
+        ^^^^^^^^^^^^^^^^^
+
+test_join.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend.py:170: in reset
+    for team_id, data in self.list("teams").items():
+                         ^^^^^^^^^^^^^^^^^^
+backend.py:132: in list
+    out = self._call("GET", f"{API}/{collection}?pageSize=300") or {}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as error:
+            if error.code == 404 and method == "GET":
+                return None
+>           raise AssertionError(f"Firestore {method} {url} failed: {error.code} {error.read()[:300]!r}") from error
+E           AssertionError: Firestore GET https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300 failed: 401 b'{\n  "error": {\n    "code": 401,\n    "message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.",\n    "status": "UNAUTHENTICATED",\n    "det'
+
+backend.py:125: AssertionError
+________________ test_tc07_team_fills_before_confirming[run2] _________________
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+>           with urllib.request.urlopen(request, timeout=30) as response:
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:189: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:495: in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:604: in http_response
+    response = self.parent.error(
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:533: in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:466: in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <urllib.request.HTTPDefaultErrorHandler object at 0x0000021758A09160>
+req = <urllib.request.Request object at 0x0000021759A78950>
+fp = <http.client.HTTPResponse object at 0x0000021759E790F0>, code = 401
+msg = 'Unauthorized'
+hdrs = <http.client.HTTPMessage object at 0x0000021759ED4B90>
+
+    def http_error_default(self, req, fp, code, msg, hdrs):
+>       raise HTTPError(req.full_url, code, msg, hdrs, fp)
+E       urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:613: HTTPError
+
+The above exception was the direct cause of the following exception:
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759ED4680>
+
+    @pytest.mark.flow1
+    async def test_tc07_team_fills_before_confirming(device, backend, me, artemis):
+>       backend.reset(me)  # EduSmart Analytics has 4 of 5 members
+        ^^^^^^^^^^^^^^^^^
+
+test_join.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend.py:170: in reset
+    for team_id, data in self.list("teams").items():
+                         ^^^^^^^^^^^^^^^^^^
+backend.py:132: in list
+    out = self._call("GET", f"{API}/{collection}?pageSize=300") or {}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as error:
+            if error.code == 404 and method == "GET":
+                return None
+>           raise AssertionError(f"Firestore {method} {url} failed: {error.code} {error.read()[:300]!r}") from error
+E           AssertionError: Firestore GET https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300 failed: 401 b'{\n  "error": {\n    "code": 401,\n    "message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.",\n    "status": "UNAUTHENTICATED",\n    "det'
+
+backend.py:125: AssertionError
+________________ test_tc07_team_fills_before_confirming[run3] _________________
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+>           with urllib.request.urlopen(request, timeout=30) as response:
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:189: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:495: in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:604: in http_response
+    response = self.parent.error(
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:533: in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:466: in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <urllib.request.HTTPDefaultErrorHandler object at 0x0000021758A09160>
+req = <urllib.request.Request object at 0x0000021759A79D90>
+fp = <http.client.HTTPResponse object at 0x0000021759AD4F70>, code = 401
+msg = 'Unauthorized'
+hdrs = <http.client.HTTPMessage object at 0x0000021759ED56D0>
+
+    def http_error_default(self, req, fp, code, msg, hdrs):
+>       raise HTTPError(req.full_url, code, msg, hdrs, fp)
+E       urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:613: HTTPError
+
+The above exception was the direct cause of the following exception:
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759ED4FE0>
+
+    @pytest.mark.flow1
+    async def test_tc07_team_fills_before_confirming(device, backend, me, artemis):
+>       backend.reset(me)  # EduSmart Analytics has 4 of 5 members
+        ^^^^^^^^^^^^^^^^^
+
+test_join.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend.py:170: in reset
+    for team_id, data in self.list("teams").items():
+                         ^^^^^^^^^^^^^^^^^^
+backend.py:132: in list
+    out = self._call("GET", f"{API}/{collection}?pageSize=300") or {}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as error:
+            if error.code == 404 and method == "GET":
+                return None
+>           raise AssertionError(f"Firestore {method} {url} failed: {error.code} {error.read()[:300]!r}") from error
+E           AssertionError: Firestore GET https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300 failed: 401 b'{\n  "error": {\n    "code": 401,\n    "message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.",\n    "status": "UNAUTHENTICATED",\n    "det'
+
+backend.py:125: AssertionError
+____________ test_tc10_lock_blocked_then_recovered_from_pool[run1] ____________
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+>           with urllib.request.urlopen(request, timeout=30) as response:
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:189: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:495: in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:604: in http_response
+    response = self.parent.error(
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:533: in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:466: in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <urllib.request.HTTPDefaultErrorHandler object at 0x0000021758A09160>
+req = <urllib.request.Request object at 0x000002175882B950>
+fp = <http.client.HTTPResponse object at 0x0000021759E79630>, code = 401
+msg = 'Unauthorized'
+hdrs = <http.client.HTTPMessage object at 0x0000021759E3D310>
+
+    def http_error_default(self, req, fp, code, msg, hdrs):
+>       raise HTTPError(req.full_url, code, msg, hdrs, fp)
+E       urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:613: HTTPError
+
+The above exception was the direct cause of the following exception:
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759E3DF80>
+
+    @pytest.mark.flow3
+    async def test_tc10_lock_blocked_then_recovered_from_pool(device, backend, me, artemis):
+        # The test account is the elected leader of Team AI-04 (3 of 5); Khanh Vo waits in the pool.
+>       backend.reset(me, team="team_ai04", leader=True)
+
+test_lock.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend.py:170: in reset
+    for team_id, data in self.list("teams").items():
+                         ^^^^^^^^^^^^^^^^^^
+backend.py:132: in list
+    out = self._call("GET", f"{API}/{collection}?pageSize=300") or {}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as error:
+            if error.code == 404 and method == "GET":
+                return None
+>           raise AssertionError(f"Firestore {method} {url} failed: {error.code} {error.read()[:300]!r}") from error
+E           AssertionError: Firestore GET https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300 failed: 401 b'{\n  "error": {\n    "code": 401,\n    "message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.",\n    "status": "UNAUTHENTICATED",\n    "det'
+
+backend.py:125: AssertionError
+____________ test_tc10_lock_blocked_then_recovered_from_pool[run2] ____________
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+>           with urllib.request.urlopen(request, timeout=30) as response:
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:189: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:495: in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:604: in http_response
+    response = self.parent.error(
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:533: in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:466: in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <urllib.request.HTTPDefaultErrorHandler object at 0x0000021758A09160>
+req = <urllib.request.Request object at 0x000002175882B050>
+fp = <http.client.HTTPResponse object at 0x0000021759E79DE0>, code = 401
+msg = 'Unauthorized'
+hdrs = <http.client.HTTPMessage object at 0x0000021759ED4D70>
+
+    def http_error_default(self, req, fp, code, msg, hdrs):
+>       raise HTTPError(req.full_url, code, msg, hdrs, fp)
+E       urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:613: HTTPError
+
+The above exception was the direct cause of the following exception:
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759A99BC0>
+
+    @pytest.mark.flow3
+    async def test_tc10_lock_blocked_then_recovered_from_pool(device, backend, me, artemis):
+        # The test account is the elected leader of Team AI-04 (3 of 5); Khanh Vo waits in the pool.
+>       backend.reset(me, team="team_ai04", leader=True)
+
+test_lock.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend.py:170: in reset
+    for team_id, data in self.list("teams").items():
+                         ^^^^^^^^^^^^^^^^^^
+backend.py:132: in list
+    out = self._call("GET", f"{API}/{collection}?pageSize=300") or {}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as error:
+            if error.code == 404 and method == "GET":
+                return None
+>           raise AssertionError(f"Firestore {method} {url} failed: {error.code} {error.read()[:300]!r}") from error
+E           AssertionError: Firestore GET https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300 failed: 401 b'{\n  "error": {\n    "code": 401,\n    "message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.",\n    "status": "UNAUTHENTICATED",\n    "det'
+
+backend.py:125: AssertionError
+____________ test_tc10_lock_blocked_then_recovered_from_pool[run3] ____________
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+>           with urllib.request.urlopen(request, timeout=30) as response:
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:189: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:495: in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:604: in http_response
+    response = self.parent.error(
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:533: in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:466: in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <urllib.request.HTTPDefaultErrorHandler object at 0x0000021758A09160>
+req = <urllib.request.Request object at 0x0000021759A7A450>
+fp = <http.client.HTTPResponse object at 0x00000217589A3CA0>, code = 401
+msg = 'Unauthorized'
+hdrs = <http.client.HTTPMessage object at 0x0000021759ED5E50>
+
+    def http_error_default(self, req, fp, code, msg, hdrs):
+>       raise HTTPError(req.full_url, code, msg, hdrs, fp)
+E       urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:613: HTTPError
+
+The above exception was the direct cause of the following exception:
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759ED5260>
+
+    @pytest.mark.flow3
+    async def test_tc10_lock_blocked_then_recovered_from_pool(device, backend, me, artemis):
+        # The test account is the elected leader of Team AI-04 (3 of 5); Khanh Vo waits in the pool.
+>       backend.reset(me, team="team_ai04", leader=True)
+
+test_lock.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend.py:170: in reset
+    for team_id, data in self.list("teams").items():
+                         ^^^^^^^^^^^^^^^^^^
+backend.py:132: in list
+    out = self._call("GET", f"{API}/{collection}?pageSize=300") or {}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as error:
+            if error.code == 404 and method == "GET":
+                return None
+>           raise AssertionError(f"Firestore {method} {url} failed: {error.code} {error.read()[:300]!r}") from error
+E           AssertionError: Firestore GET https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300 failed: 401 b'{\n  "error": {\n    "code": 401,\n    "message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.",\n    "status": "UNAUTHENTICATED",\n    "det'
+
+backend.py:125: AssertionError
+__________ test_tc11_share_team_link_opens_android_share_sheet[run1] __________
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+>           with urllib.request.urlopen(request, timeout=30) as response:
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:189: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:495: in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:604: in http_response
+    response = self.parent.error(
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:533: in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:466: in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <urllib.request.HTTPDefaultErrorHandler object at 0x0000021758A09160>
+req = <urllib.request.Request object at 0x0000021759A79FD0>
+fp = <http.client.HTTPResponse object at 0x0000021759A1EFB0>, code = 401
+msg = 'Unauthorized'
+hdrs = <http.client.HTTPMessage object at 0x0000021759ED63F0>
+
+    def http_error_default(self, req, fp, code, msg, hdrs):
+>       raise HTTPError(req.full_url, code, msg, hdrs, fp)
+E       urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:613: HTTPError
+
+The above exception was the direct cause of the following exception:
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759ED5D00>
+
+    @pytest.mark.flow3
+    @pytest.mark.native
+    async def test_tc11_share_team_link_opens_android_share_sheet(device, backend, me, artemis):
+>       backend.reset(me, team="team_ai04", leader=True)
+
+test_lock.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend.py:170: in reset
+    for team_id, data in self.list("teams").items():
+                         ^^^^^^^^^^^^^^^^^^
+backend.py:132: in list
+    out = self._call("GET", f"{API}/{collection}?pageSize=300") or {}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as error:
+            if error.code == 404 and method == "GET":
+                return None
+>           raise AssertionError(f"Firestore {method} {url} failed: {error.code} {error.read()[:300]!r}") from error
+E           AssertionError: Firestore GET https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300 failed: 401 b'{\n  "error": {\n    "code": 401,\n    "message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.",\n    "status": "UNAUTHENTICATED",\n    "det'
+
+backend.py:125: AssertionError
+__________ test_tc11_share_team_link_opens_android_share_sheet[run2] __________
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+>           with urllib.request.urlopen(request, timeout=30) as response:
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:189: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:495: in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:604: in http_response
+    response = self.parent.error(
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:533: in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:466: in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <urllib.request.HTTPDefaultErrorHandler object at 0x0000021758A09160>
+req = <urllib.request.Request object at 0x0000021759A799D0>
+fp = <http.client.HTTPResponse object at 0x0000021759AD7C70>, code = 401
+msg = 'Unauthorized'
+hdrs = <http.client.HTTPMessage object at 0x0000021759ED6D50>
+
+    def http_error_default(self, req, fp, code, msg, hdrs):
+>       raise HTTPError(req.full_url, code, msg, hdrs, fp)
+E       urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:613: HTTPError
+
+The above exception was the direct cause of the following exception:
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759ED6A20>
+
+    @pytest.mark.flow3
+    @pytest.mark.native
+    async def test_tc11_share_team_link_opens_android_share_sheet(device, backend, me, artemis):
+>       backend.reset(me, team="team_ai04", leader=True)
+
+test_lock.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend.py:170: in reset
+    for team_id, data in self.list("teams").items():
+                         ^^^^^^^^^^^^^^^^^^
+backend.py:132: in list
+    out = self._call("GET", f"{API}/{collection}?pageSize=300") or {}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as error:
+            if error.code == 404 and method == "GET":
+                return None
+>           raise AssertionError(f"Firestore {method} {url} failed: {error.code} {error.read()[:300]!r}") from error
+E           AssertionError: Firestore GET https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300 failed: 401 b'{\n  "error": {\n    "code": 401,\n    "message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.",\n    "status": "UNAUTHENTICATED",\n    "det'
+
+backend.py:125: AssertionError
+__________ test_tc11_share_team_link_opens_android_share_sheet[run3] __________
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+>           with urllib.request.urlopen(request, timeout=30) as response:
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:189: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:495: in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:604: in http_response
+    response = self.parent.error(
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:533: in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:466: in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <urllib.request.HTTPDefaultErrorHandler object at 0x0000021758A09160>
+req = <urllib.request.Request object at 0x0000021759A78C50>
+fp = <http.client.HTTPResponse object at 0x0000021759AD7730>, code = 401
+msg = 'Unauthorized'
+hdrs = <http.client.HTTPMessage object at 0x0000021759ED76B0>
+
+    def http_error_default(self, req, fp, code, msg, hdrs):
+>       raise HTTPError(req.full_url, code, msg, hdrs, fp)
+E       urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:613: HTTPError
+
+The above exception was the direct cause of the following exception:
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759ED4B80>
+
+    @pytest.mark.flow3
+    @pytest.mark.native
+    async def test_tc11_share_team_link_opens_android_share_sheet(device, backend, me, artemis):
+>       backend.reset(me, team="team_ai04", leader=True)
+
+test_lock.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend.py:170: in reset
+    for team_id, data in self.list("teams").items():
+                         ^^^^^^^^^^^^^^^^^^
+backend.py:132: in list
+    out = self._call("GET", f"{API}/{collection}?pageSize=300") or {}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as error:
+            if error.code == 404 and method == "GET":
+                return None
+>           raise AssertionError(f"Firestore {method} {url} failed: {error.code} {error.read()[:300]!r}") from error
+E           AssertionError: Firestore GET https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300 failed: 401 b'{\n  "error": {\n    "code": 401,\n    "message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.",\n    "status": "UNAUTHENTICATED",\n    "det'
+
+backend.py:125: AssertionError
+_________________ test_tc08_tallies_hidden_until_voting[run1] _________________
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+>           with urllib.request.urlopen(request, timeout=30) as response:
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:189: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:495: in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:604: in http_response
+    response = self.parent.error(
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:533: in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:466: in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <urllib.request.HTTPDefaultErrorHandler object at 0x0000021758A09160>
+req = <urllib.request.Request object at 0x000002175882B050>
+fp = <http.client.HTTPResponse object at 0x0000021759A27F10>, code = 401
+msg = 'Unauthorized'
+hdrs = <http.client.HTTPMessage object at 0x0000021759ED7430>
+
+    def http_error_default(self, req, fp, code, msg, hdrs):
+>       raise HTTPError(req.full_url, code, msg, hdrs, fp)
+E       urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:613: HTTPError
+
+The above exception was the direct cause of the following exception:
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759E3ECA0>
+
+    @pytest.mark.flow2
+    async def test_tc08_tallies_hidden_until_voting(device, backend, me, artemis):
+>       backend.reset(me, team="team_ai04")
+
+test_vote.py:15: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend.py:170: in reset
+    for team_id, data in self.list("teams").items():
+                         ^^^^^^^^^^^^^^^^^^
+backend.py:132: in list
+    out = self._call("GET", f"{API}/{collection}?pageSize=300") or {}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as error:
+            if error.code == 404 and method == "GET":
+                return None
+>           raise AssertionError(f"Firestore {method} {url} failed: {error.code} {error.read()[:300]!r}") from error
+E           AssertionError: Firestore GET https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300 failed: 401 b'{\n  "error": {\n    "code": 401,\n    "message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.",\n    "status": "UNAUTHENTICATED",\n    "det'
+
+backend.py:125: AssertionError
+_________________ test_tc08_tallies_hidden_until_voting[run2] _________________
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+>           with urllib.request.urlopen(request, timeout=30) as response:
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:189: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:495: in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:604: in http_response
+    response = self.parent.error(
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:533: in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:466: in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <urllib.request.HTTPDefaultErrorHandler object at 0x0000021758A09160>
+req = <urllib.request.Request object at 0x0000021759A78350>
+fp = <http.client.HTTPResponse object at 0x0000021759A26080>, code = 401
+msg = 'Unauthorized'
+hdrs = <http.client.HTTPMessage object at 0x0000021759ED79D0>
+
+    def http_error_default(self, req, fp, code, msg, hdrs):
+>       raise HTTPError(req.full_url, code, msg, hdrs, fp)
+E       urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:613: HTTPError
+
+The above exception was the direct cause of the following exception:
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759ED7880>
+
+    @pytest.mark.flow2
+    async def test_tc08_tallies_hidden_until_voting(device, backend, me, artemis):
+>       backend.reset(me, team="team_ai04")
+
+test_vote.py:15: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend.py:170: in reset
+    for team_id, data in self.list("teams").items():
+                         ^^^^^^^^^^^^^^^^^^
+backend.py:132: in list
+    out = self._call("GET", f"{API}/{collection}?pageSize=300") or {}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as error:
+            if error.code == 404 and method == "GET":
+                return None
+>           raise AssertionError(f"Firestore {method} {url} failed: {error.code} {error.read()[:300]!r}") from error
+E           AssertionError: Firestore GET https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300 failed: 401 b'{\n  "error": {\n    "code": 401,\n    "message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.",\n    "status": "UNAUTHENTICATED",\n    "det'
+
+backend.py:125: AssertionError
+_________________ test_tc08_tallies_hidden_until_voting[run3] _________________
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+>           with urllib.request.urlopen(request, timeout=30) as response:
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:189: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:495: in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:604: in http_response
+    response = self.parent.error(
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:533: in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:466: in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <urllib.request.HTTPDefaultErrorHandler object at 0x0000021758A09160>
+req = <urllib.request.Request object at 0x0000021759A79A90>
+fp = <http.client.HTTPResponse object at 0x00000217589A3BB0>, code = 401
+msg = 'Unauthorized'
+hdrs = <http.client.HTTPMessage object at 0x0000021759ED7C50>
+
+    def http_error_default(self, req, fp, code, msg, hdrs):
+>       raise HTTPError(req.full_url, code, msg, hdrs, fp)
+E       urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:613: HTTPError
+
+The above exception was the direct cause of the following exception:
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759ED6DE0>
+
+    @pytest.mark.flow2
+    async def test_tc08_tallies_hidden_until_voting(device, backend, me, artemis):
+>       backend.reset(me, team="team_ai04")
+
+test_vote.py:15: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend.py:170: in reset
+    for team_id, data in self.list("teams").items():
+                         ^^^^^^^^^^^^^^^^^^
+backend.py:132: in list
+    out = self._call("GET", f"{API}/{collection}?pageSize=300") or {}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as error:
+            if error.code == 404 and method == "GET":
+                return None
+>           raise AssertionError(f"Firestore {method} {url} failed: {error.code} {error.read()[:300]!r}") from error
+E           AssertionError: Firestore GET https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300 failed: 401 b'{\n  "error": {\n    "code": 401,\n    "message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.",\n    "status": "UNAUTHENTICATED",\n    "det'
+
+backend.py:125: AssertionError
+_____________________ test_tc09_vote_elects_leader[run1] ______________________
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+>           with urllib.request.urlopen(request, timeout=30) as response:
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:189: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:495: in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:604: in http_response
+    response = self.parent.error(
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:533: in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:466: in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <urllib.request.HTTPDefaultErrorHandler object at 0x0000021758A09160>
+req = <urllib.request.Request object at 0x0000021759A799D0>
+fp = <http.client.HTTPResponse object at 0x0000021759E796C0>, code = 401
+msg = 'Unauthorized'
+hdrs = <http.client.HTTPMessage object at 0x0000021759ED5D10>
+
+    def http_error_default(self, req, fp, code, msg, hdrs):
+>       raise HTTPError(req.full_url, code, msg, hdrs, fp)
+E       urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:613: HTTPError
+
+The above exception was the direct cause of the following exception:
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759ED5260>
+
+    @pytest.mark.flow2
+    async def test_tc09_vote_elects_leader(device, backend, me, artemis):
+>       backend.reset(me, team="team_ai04")
+
+test_vote.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend.py:170: in reset
+    for team_id, data in self.list("teams").items():
+                         ^^^^^^^^^^^^^^^^^^
+backend.py:132: in list
+    out = self._call("GET", f"{API}/{collection}?pageSize=300") or {}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as error:
+            if error.code == 404 and method == "GET":
+                return None
+>           raise AssertionError(f"Firestore {method} {url} failed: {error.code} {error.read()[:300]!r}") from error
+E           AssertionError: Firestore GET https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300 failed: 401 b'{\n  "error": {\n    "code": 401,\n    "message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.",\n    "status": "UNAUTHENTICATED",\n    "det'
+
+backend.py:125: AssertionError
+_____________________ test_tc09_vote_elects_leader[run2] ______________________
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+>           with urllib.request.urlopen(request, timeout=30) as response:
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:189: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:495: in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:604: in http_response
+    response = self.parent.error(
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:533: in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:466: in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <urllib.request.HTTPDefaultErrorHandler object at 0x0000021758A09160>
+req = <urllib.request.Request object at 0x0000021759A79850>
+fp = <http.client.HTTPResponse object at 0x0000021759E79D50>, code = 401
+msg = 'Unauthorized'
+hdrs = <http.client.HTTPMessage object at 0x0000021759EFC690>
+
+    def http_error_default(self, req, fp, code, msg, hdrs):
+>       raise HTTPError(req.full_url, code, msg, hdrs, fp)
+E       urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:613: HTTPError
+
+The above exception was the direct cause of the following exception:
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759ED49A0>
+
+    @pytest.mark.flow2
+    async def test_tc09_vote_elects_leader(device, backend, me, artemis):
+>       backend.reset(me, team="team_ai04")
+
+test_vote.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend.py:170: in reset
+    for team_id, data in self.list("teams").items():
+                         ^^^^^^^^^^^^^^^^^^
+backend.py:132: in list
+    out = self._call("GET", f"{API}/{collection}?pageSize=300") or {}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as error:
+            if error.code == 404 and method == "GET":
+                return None
+>           raise AssertionError(f"Firestore {method} {url} failed: {error.code} {error.read()[:300]!r}") from error
+E           AssertionError: Firestore GET https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300 failed: 401 b'{\n  "error": {\n    "code": 401,\n    "message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.",\n    "status": "UNAUTHENTICATED",\n    "det'
+
+backend.py:125: AssertionError
+_____________________ test_tc09_vote_elects_leader[run3] ______________________
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+>           with urllib.request.urlopen(request, timeout=30) as response:
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:189: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:495: in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:604: in http_response
+    response = self.parent.error(
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:533: in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:466: in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <urllib.request.HTTPDefaultErrorHandler object at 0x0000021758A09160>
+req = <urllib.request.Request object at 0x0000021759A7A2D0>
+fp = <http.client.HTTPResponse object at 0x0000021759EB9750>, code = 401
+msg = 'Unauthorized'
+hdrs = <http.client.HTTPMessage object at 0x0000021759EFC4B0>
+
+    def http_error_default(self, req, fp, code, msg, hdrs):
+>       raise HTTPError(req.full_url, code, msg, hdrs, fp)
+E       urllib.error.HTTPError: HTTP Error 401: Unauthorized
+
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\urllib\request.py:613: HTTPError
+
+The above exception was the direct cause of the following exception:
+
+device = <device.Device object at 0x0000021758A08980>
+backend = <backend.Backend object at 0x0000021758A08C20>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000021759EFCA40>
+
+    @pytest.mark.flow2
+    async def test_tc09_vote_elects_leader(device, backend, me, artemis):
+>       backend.reset(me, team="team_ai04")
+
+test_vote.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend.py:170: in reset
+    for team_id, data in self.list("teams").items():
+                         ^^^^^^^^^^^^^^^^^^
+backend.py:132: in list
+    out = self._call("GET", f"{API}/{collection}?pageSize=300") or {}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.Backend object at 0x0000021758A08C20>, method = 'GET'
+url = 'https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300'
+body = None
+
+    def _call(self, method: str, url: str, body: Any = None) -> Any:
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as error:
+            if error.code == 404 and method == "GET":
+                return None
+>           raise AssertionError(f"Firestore {method} {url} failed: {error.code} {error.read()[:300]!r}") from error
+E           AssertionError: Firestore GET https://firestore.googleapis.com/v1/projects/prm393-lab-3-exematching/databases/(default)/documents/teams?pageSize=300 failed: 401 b'{\n  "error": {\n    "code": 401,\n    "message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.",\n    "status": "UNAUTHENTICATED",\n    "det'
+
+backend.py:125: AssertionError
+=================================== PASSES ====================================
+- generated xml file: C:\Users\LENOVO\OneDrive\Máy tính\Lab3_Cloud-Enabled_Mobile_App\e2e_test\evidence\junit.xml -
+=========================== short test summary info ===========================
+PASSED test_auth.py::test_tc01_account_not_on_roster_is_rejected[run1]
+PASSED test_auth.py::test_tc01_account_not_on_roster_is_rejected[run2]
+PASSED test_auth.py::test_tc01_account_not_on_roster_is_rejected[run3]
+PASSED test_auth.py::test_tc02_sign_in_with_roster_account[run1]
+PASSED test_auth.py::test_tc02_sign_in_with_roster_account[run2]
+PASSED test_auth.py::test_tc02_sign_in_with_roster_account[run3]
+FAILED test_alerts_profile.py::test_tc12_decline_invite_then_undo[run1] - Ass...
+FAILED test_alerts_profile.py::test_tc12_decline_invite_then_undo[run2] - ass...
+FAILED test_alerts_profile.py::test_tc12_decline_invite_then_undo[run3] - ass...
+FAILED test_alerts_profile.py::test_tc13_export_and_upload_team_summary[run1]
+FAILED test_alerts_profile.py::test_tc13_export_and_upload_team_summary[run2]
+FAILED test_alerts_profile.py::test_tc13_export_and_upload_team_summary[run3]
+FAILED test_browse.py::test_tc03_search_and_filter[run1] - assert 2 == 1
+FAILED test_browse.py::test_tc03_search_and_filter[run2] - assert 2 == 1
+FAILED test_browse.py::test_tc03_search_and_filter[run3] - AssertionError: Ti...
+FAILED test_browse.py::test_tc04_empty_state_and_clear_filters[run1] - Assert...
+FAILED test_browse.py::test_tc04_empty_state_and_clear_filters[run2] - artemi...
+FAILED test_browse.py::test_tc04_empty_state_and_clear_filters[run3] - Assert...
+FAILED test_browse.py::test_tc05_offline_error_and_retry[run1] - AssertionErr...
+FAILED test_browse.py::test_tc05_offline_error_and_retry[run2] - AssertionErr...
+FAILED test_browse.py::test_tc05_offline_error_and_retry[run3] - AssertionErr...
+FAILED test_join.py::test_tc06_join_team_with_open_slot[run1] - AssertionErro...
+FAILED test_join.py::test_tc06_join_team_with_open_slot[run2] - AssertionErro...
+FAILED test_join.py::test_tc06_join_team_with_open_slot[run3] - AssertionErro...
+FAILED test_join.py::test_tc07_team_fills_before_confirming[run1] - Assertion...
+FAILED test_join.py::test_tc07_team_fills_before_confirming[run2] - Assertion...
+FAILED test_join.py::test_tc07_team_fills_before_confirming[run3] - Assertion...
+FAILED test_lock.py::test_tc10_lock_blocked_then_recovered_from_pool[run1] - ...
+FAILED test_lock.py::test_tc10_lock_blocked_then_recovered_from_pool[run2] - ...
+FAILED test_lock.py::test_tc10_lock_blocked_then_recovered_from_pool[run3] - ...
+FAILED test_lock.py::test_tc11_share_team_link_opens_android_share_sheet[run1]
+FAILED test_lock.py::test_tc11_share_team_link_opens_android_share_sheet[run2]
+FAILED test_lock.py::test_tc11_share_team_link_opens_android_share_sheet[run3]
+FAILED test_vote.py::test_tc08_tallies_hidden_until_voting[run1] - AssertionE...
+FAILED test_vote.py::test_tc08_tallies_hidden_until_voting[run2] - AssertionE...
+FAILED test_vote.py::test_tc08_tallies_hidden_until_voting[run3] - AssertionE...
+FAILED test_vote.py::test_tc09_vote_elects_leader[run1] - AssertionError: Fir...
+FAILED test_vote.py::test_tc09_vote_elects_leader[run2] - AssertionError: Fir...
+FAILED test_vote.py::test_tc09_vote_elects_leader[run3] - AssertionError: Fir...
+================== 33 failed, 6 passed in 3725.06s (1:02:05) ==================

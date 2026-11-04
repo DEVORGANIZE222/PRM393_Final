@@ -1,0 +1,30 @@
+[android:id/content]
+[] EXEMatching
+[] Browse Teams
+[btn_open_alerts] Alerts
+[] Alerts
+[btn_open_profile]
+[] Profile
+[browse_search_field]
+[browse_filters]
+[] Open Slots
+[] AI/ML
+[] Mobile
+[] Web/Cloud
+[] Want to lead a startup?
+Pitch your idea and recruit your dream team.
+[] Create
+[state_empty] No teams match your search
+Every team is full right now. Check again later or wait for the Random Pool.
+[] Can't find the right fit?
+Create your own startup team or join the Random Pool before the deadline.
+[btn_create_team_browse]
+[] Create a Team
+[nav_home] Home
+Tab 1 of 4
+[nav_browse] Browse
+Tab 2 of 4
+[nav_team] My Team
+Tab 3 of 4
+[nav_settings] Settings
+Tab 4 of 4

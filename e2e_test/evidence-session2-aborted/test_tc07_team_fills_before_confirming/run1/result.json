@@ -1,0 +1,14 @@
+{
+  "test": "test_join.py::test_tc07_team_fills_before_confirming[run1]",
+  "attempt": 1,
+  "profile": "flash",
+  "trace_id": "c800b1b5-b3c6-478e-a6b2-3b88c5a754fd",
+  "status": "failed",
+  "turns": null,
+  "started": "2026-11-03T22:04:42",
+  "seconds": 195.4,
+  "goal": "Open 'EduSmart Analytics' from the Browse tab and tap 'Join Team'. Stop as soon as the confirmation dialog is open. Do not confirm.",
+  "expected_output": "Return JSON: {\"dialog_open\": bool}",
+  "output": null,
+  "error": null
+}

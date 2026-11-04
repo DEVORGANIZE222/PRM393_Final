@@ -1,0 +1,5 @@
+[submodule "artemis"]
+	path = artemis
+	url = https://github.com/google/artemis
+	ignore = all
+

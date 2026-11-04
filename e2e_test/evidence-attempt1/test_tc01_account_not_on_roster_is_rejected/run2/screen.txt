@@ -1,0 +1,20 @@
+[android:id/content]
+[] FPT University · Software Engineering
+[] EXEMatching logo
+[] EXEMatching
+[] Spring 2026 Capstone team registration
+[] Form a 4–5 member team
+Step 1
+Find teammates by role and skill before the deadline.
+[] Elect a team leader
+Step 2
+Your team votes for one leader who submits the roster.
+[] Lock your roster
+Step 3
+The leader sends the final team to the Academic Office.
+[sign_in_message] This account is not on the class roster
+You chose megalit2578@gmail.com. Use an email that the Academic Office has approved for this class.
+[btn_google_sign_in]
+[] Continue with Google
+[] Only class-roster accounts can sign in
+Use the Google email registered by the Academic Office for this class.

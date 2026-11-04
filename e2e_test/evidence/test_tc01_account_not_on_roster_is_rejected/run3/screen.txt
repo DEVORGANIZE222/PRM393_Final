@@ -1,0 +1,15 @@
+[android:id/content]
+[] FPT University · Experiential Entrepreneurship 2026
+[] EXEMatching logo
+[] EXEMatching
+[] Experiential Entrepreneurship · Team Matching
+[] Form a 4–5 member team
+Step 01
+[] Elect a team leader
+Step 02
+[] Lock final roster
+Step 03
+[sign_in_message] This account is not on the class roster
+You chose megalit2578@gmail.com. Use an email that the Academic Office has approved for this class.
+[btn_google_sign_in] Continue with Google
+[] Restricted to enrolled roster accounts

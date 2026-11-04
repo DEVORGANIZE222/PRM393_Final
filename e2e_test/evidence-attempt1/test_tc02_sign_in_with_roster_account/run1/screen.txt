@@ -1,0 +1,31 @@
+[android:id/content]
+[] Home
+[btn_open_profile]
+[] ĐD
+[] megalit2578 ·
+[] Hi, Đạt!
+[card_deadline] 19 percent, Registration deadline
+29 days 23 hours left
+Closes Wed, 2 Dec 2026 · 05:55
+Spring 2026 registration · 19% elapsed
+[] My team
+[card_team_status] Team AI-04
+Leader not elected
+Autonomous Campus Delivery Drone with Vision AI
+3 of 5 members, 2 open
+Needs 1 more member and a leader before locking.
+Team size: 3/5
+Leader: Pending
+Supervisor: Assigned
+[btn_manage_team]
+[] Manage Team AI-04
+[btn_browse_teams]
+[] Browse Teams
+[nav_home] Home
+Tab 1 of 4
+[nav_browse] Browse
+Tab 2 of 4
+[nav_team] My Team
+Tab 3 of 4
+[nav_alerts] Alerts
+Tab 4 of 4

@@ -1,0 +1,41 @@
+name: exematching
+description: "EXEMatching: FPT Capstone team registration (PRM393 Lab 3)."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.3
+
+dependencies:
+  flutter:
+    sdk: flutter
+  core:
+    path: ../packages/core
+  go_router: 18.1.1
+  intl: 0.20.3
+  path_provider: 2.1.6
+  pdf: 3.13.1
+  provider: 6.1.5+1
+  share_plus: 13.3.1
+  shared_preferences: 2.5.6
+  firebase_analytics: ^12.0.0
+  firebase_auth: ^6.0.0
+  firebase_core: ^4.0.0
+  firebase_crashlytics: ^5.0.0
+  firebase_messaging: ^16.0.0
+  firebase_remote_config: ^6.0.0
+  firebase_storage: ^13.0.0
+  cloud_firestore: ^6.0.0
+  google_sign_in: ^6.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: 6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/seed/
+    - assets/brand/

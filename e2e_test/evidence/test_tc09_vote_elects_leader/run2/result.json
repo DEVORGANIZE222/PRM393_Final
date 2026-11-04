@@ -1,0 +1,14 @@
+{
+  "test": "test_vote.py::test_tc09_vote_elects_leader[run2]",
+  "attempt": 2,
+  "profile": "flash",
+  "trace_id": "149477a3-e1be-45e5-a7f6-3c43205285c0",
+  "status": "failed",
+  "turns": null,
+  "started": "2026-11-03T20:11:58",
+  "seconds": 192.4,
+  "goal": "Go to My Team, open 'Vote for Leader', select Đạt Duy (you) and submit the vote. Report who the team leader is now and how many votes they have.",
+  "expected_output": "Return JSON: {\"leader_name\": string, \"leader_votes\": int, \"tallies_visible\": bool}",
+  "output": null,
+  "error": null
+}

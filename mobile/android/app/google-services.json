@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "643229924861",
+    "project_id": "prm393-lab-3-exematching",
+    "storage_bucket": "prm393-lab-3-exematching.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:643229924861:android:353e9918aa8d99f0c26d94",
+        "android_client_info": {
+          "package_name": "com.devorganize222.exematching"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "643229924861-mquhbehrbv0v68sld87feg32ddjv4jht.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.devorganize222.exematching",
+            "certificate_hash": "27b7e300b1838924796b6dbec21d7514d68c7c79"
+          }
+        },
+        {
+          "client_id": "643229924861-nqco5tig6anhjrpco8vc11k65apqljb8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.devorganize222.exematching",
+            "certificate_hash": "71c4429ef8a02d0fe943ae579212b52cb526b36f"
+          }
+        },
+        {
+          "client_id": "643229924861-9i25freibnpbpm4qs95lkhb1i4mcu0g7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJu_qAfKINudnvz4OeRZT73MB4qD7PLwg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "643229924861-9i25freibnpbpm4qs95lkhb1i4mcu0g7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

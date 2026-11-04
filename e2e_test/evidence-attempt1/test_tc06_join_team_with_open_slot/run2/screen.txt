@@ -1,0 +1,23 @@
+[android:id/content]
+[] Home
+[btn_open_profile]
+[] ĐD
+[] megalit2578 ·
+[] Hi, Đạt!
+[card_deadline] 19 percent, Registration deadline
+29 days 23 hours left
+Closes Wed, 2 Dec 2026 · 06:41
+Spring 2026 registration · 19% elapsed
+[] My team
+[card_no_team] You're not in a team yet
+Teams with open slots are waiting. Join one before the deadline.
+[btn_browse_teams]
+[] Browse Available Teams
+[nav_home] Home
+Tab 1 of 4
+[nav_browse] Browse
+Tab 2 of 4
+[nav_team] My Team
+Tab 3 of 4
+[nav_alerts] Alerts
+Tab 4 of 4

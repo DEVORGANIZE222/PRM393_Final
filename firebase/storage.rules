@@ -1,0 +1,15 @@
+rules_version = '2';
+
+// PRM393 - Lab 3 Cloud Storage Security Rules
+// Requirement: Security rules allow each user to read and write only their own folder (reports/{uid}/...)
+// WARNING: Do NOT use open rules (allow read, write: if true;) - that causes 0 marks on Cloud Storage!
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /reports/{userId}/{allPaths=**} {
+      // The required Lab 3 isolation rule: an authenticated student can only
+      // access the folder named after their own Firebase Auth UID.
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

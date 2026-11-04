@@ -1,0 +1,14 @@
+{
+  "test": "test_browse.py::test_tc04_empty_state_and_clear_filters[run2]",
+  "attempt": 2,
+  "profile": "flash",
+  "trace_id": "c1efc34a-ca00-4800-a299-178fe44dd515",
+  "status": "completed",
+  "turns": null,
+  "started": "2026-11-03T19:04:17",
+  "seconds": 105.2,
+  "goal": "Open the Browse tab and search for 'quantum'. Read the message shown when nothing matches. Then use the button in that message to clear the filters, and count the teams listed afterwards.",
+  "expected_output": "Return JSON: {\"empty_title\": string, \"teams_after_clearing\": int}",
+  "output": "{\"empty_title\": \"No teams match your search\", \"teams_after_clearing\": 6}",
+  "error": null
+}

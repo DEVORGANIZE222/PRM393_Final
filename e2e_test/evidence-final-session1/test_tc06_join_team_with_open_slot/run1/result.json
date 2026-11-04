@@ -1,0 +1,14 @@
+{
+  "test": "test_join.py::test_tc06_join_team_with_open_slot[run1]",
+  "attempt": 1,
+  "profile": "flash",
+  "trace_id": "cb932c72-75b5-451b-84c0-f0503cede1ea",
+  "status": "completed",
+  "turns": null,
+  "started": "2026-11-03T19:13:31",
+  "seconds": 49.9,
+  "goal": "Find the team 'FinTech Guard' on the Browse tab, open its details and join it, confirming in the dialog. After joining, report the team shown on My Team and its member count.",
+  "expected_output": "Return JSON: {\"joined\": bool, \"my_team_name\": string, \"members_text\": string}",
+  "output": "{\"joined\": true, \"my_team_name\": \"FinTech Guard\", \"members_text\": \"3 of 5\"}",
+  "error": null
+}

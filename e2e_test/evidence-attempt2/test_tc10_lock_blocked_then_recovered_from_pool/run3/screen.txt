@@ -1,0 +1,8 @@
+[android:id/content]
+[] Back
+[] Review & Lock
+[state_locked] Roster locked
+Team AI-04 was sent to the Academic Office on Tue, 3 Nov 2026 · 18:25.
+[card_lock_code] CM-AI04-7ACB
+[btn_back_to_team]
+[] Back to My Team

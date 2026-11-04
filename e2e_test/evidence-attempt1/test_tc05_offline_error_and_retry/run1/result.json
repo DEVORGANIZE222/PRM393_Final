@@ -1,0 +1,14 @@
+{
+  "test": "test_browse.py::test_tc05_offline_error_and_retry[run1]",
+  "attempt": 1,
+  "profile": "flash",
+  "trace_id": "7d51cde1-1ba5-4c7a-9c51-4bf50995d71d",
+  "status": "failed",
+  "turns": null,
+  "started": "2026-11-02T06:23:43",
+  "seconds": 436.3,
+  "goal": "Open the Browse tab and wait for it to finish loading. Report the error title and message shown.",
+  "expected_output": "Return JSON: {\"error_title\": string, \"error_message\": string, \"has_try_again_button\": bool}",
+  "output": null,
+  "error": null
+}

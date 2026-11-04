@@ -1,0 +1,101 @@
+{
+  "_comment": "Development data for services/local only. Mirrors the team Figma (PRM_LAB2, page 03 Final UI). The submitted build reads Cloud Firestore instead.",
+  "registration": { "semester": "Spring 2026", "closesInHours": 62, "windowHours": 230 },
+  "students": [
+    { "id": "s_minh", "email": "minh.le@fpt.edu.vn", "fullName": "Minh Le", "studentCode": "SE160234", "major": "Software Engineering", "cohort": "Senior '26", "skills": ["Flutter", "React", "UI/UX"], "preferredRoles": ["Frontend", "Mobile"] },
+    { "id": "s_an", "email": "an.tran@fpt.edu.vn", "fullName": "An Tran", "studentCode": "SE161120", "major": "Software Engineering", "cohort": "Senior '26", "skills": ["Java", "Spring Boot", "PostgreSQL"], "preferredRoles": ["Backend"] }
+  ],
+  "poolStudents": [
+    { "studentId": "s_khanh", "fullName": "Khanh Vo", "studentCode": "SE171002", "role": "Embedded / IoT", "skills": ["C++", "ROS2", "Raspberry Pi"] }
+  ],
+  "teams": [
+    {
+      "id": "team_ai04", "code": "AI-04", "name": "Team AI-04",
+      "topic": "Autonomous Campus Delivery Drone with Vision AI",
+      "description": "An AI-driven delivery drone for FPT University campus that reads landmarks with on-board computer vision and plans safe routes between buildings.",
+      "category": "AI/ML", "tags": ["Python", "PyTorch", "ROS2", "Flutter"],
+      "supervisor": "Dr. Nguyen Thanh (AI Lab)",
+      "members": [
+        { "studentId": "s_minh", "fullName": "Minh Le", "studentCode": "SE160234", "role": "Frontend Lead", "skills": ["Flutter", "React", "UI/UX"] },
+        { "studentId": "s_hoang", "fullName": "Hoang Tran", "studentCode": "SE170456", "role": "AI / Vision Specialist", "skills": ["Python", "TensorFlow", "OpenCV"] },
+        { "studentId": "s_quynh", "fullName": "Quynh Nguyen", "studentCode": "SE170189", "role": "Backend Developer", "skills": ["FastAPI", "Docker", "PostgreSQL"] }
+      ],
+      "openRoles": ["Embedded / IoT", "DevOps"],
+      "votes": { "s_quynh": "s_minh", "s_hoang": "s_hoang" }
+    },
+    {
+      "id": "team_fin02", "code": "FIN-02", "name": "FinTech Guard",
+      "topic": "Blockchain Student Credential Verification",
+      "description": "Tamper-proof academic records that employers can verify with a QR code, backed by a permissioned blockchain.",
+      "category": "Web/Cloud", "tags": ["Solidity", "React", "Node.js"],
+      "supervisor": "MSc. Le Hoang Long",
+      "members": [
+        { "studentId": "s_lam", "fullName": "Lam Pham", "studentCode": "SE170311", "role": "Blockchain Developer", "skills": ["Solidity", "Go"] },
+        { "studentId": "s_vy", "fullName": "Vy Dang", "studentCode": "SE170522", "role": "Frontend Developer", "skills": ["React", "TypeScript"] }
+      ],
+      "openRoles": ["Backend", "Mobile & Frontend"],
+      "votes": {}
+    },
+    {
+      "id": "team_edu07", "code": "EDU-07", "name": "EduSmart Analytics",
+      "topic": "Adaptive Learning Recommendation Engine for STEM Students",
+      "description": "Recommends study paths from LMS activity and quiz results, with a dashboard for lecturers.",
+      "category": "AI/ML", "tags": ["Python", "React", "PostgreSQL"],
+      "supervisor": "Dr. Tran Minh Chau",
+      "members": [
+        { "studentId": "s_bao", "fullName": "Bao Pham", "studentCode": "SE170777", "role": "Data Scientist", "skills": ["Python", "scikit-learn"] },
+        { "studentId": "s_nhi", "fullName": "Nhi Ho", "studentCode": "SE170812", "role": "Frontend Developer", "skills": ["React"] },
+        { "studentId": "s_tuan", "fullName": "Tuan Do", "studentCode": "SE170845", "role": "Backend Developer", "skills": ["Django"] },
+        { "studentId": "s_mai", "fullName": "Mai Vu", "studentCode": "SE170901", "role": "QA Engineer", "skills": ["Selenium"] }
+      ],
+      "openRoles": ["Backend"],
+      "votes": {},
+      "_scenario": "fillsOnNextJoin"
+    },
+    {
+      "id": "team_web11", "code": "WEB-11", "name": "GreenRoute",
+      "topic": "Smart Campus Parking and Shuttle Planner",
+      "description": "Live parking availability and shuttle times for the Hoa Lac campus, with a booking flow for staff.",
+      "category": "Web/Cloud", "tags": ["React", "Spring Boot", "MySQL"],
+      "supervisor": "MSc. Pham Van Hai",
+      "members": [
+        { "studentId": "s_long", "fullName": "Long Nguyen", "studentCode": "SE170120", "role": "Backend Developer", "skills": ["Spring Boot"] },
+        { "studentId": "s_thao", "fullName": "Thao Le", "studentCode": "SE170133", "role": "Frontend Developer", "skills": ["React"] },
+        { "studentId": "s_duc", "fullName": "Duc Bui", "studentCode": "SE170146", "role": "DevOps", "skills": ["AWS"] }
+      ],
+      "openRoles": ["Backend", "Mobile"],
+      "votes": {}
+    },
+    {
+      "id": "team_mob03", "code": "MOB-03", "name": "Campus Bite",
+      "topic": "Canteen Pre-order and Pickup App",
+      "description": "Order canteen meals ahead of class and pick them up with a QR code.",
+      "category": "Mobile", "tags": ["Flutter", "Firebase", "Node.js"],
+      "supervisor": "MSc. Nguyen Thu Ha",
+      "members": [
+        { "studentId": "s_hai", "fullName": "Hai Dang", "studentCode": "SE170201", "role": "Mobile Developer", "skills": ["Flutter"] },
+        { "studentId": "s_kim", "fullName": "Kim Tran", "studentCode": "SE170214", "role": "Backend Developer", "skills": ["Node.js"] },
+        { "studentId": "s_phat", "fullName": "Phat Ly", "studentCode": "SE170227", "role": "UI/UX Designer", "skills": ["Figma"] },
+        { "studentId": "s_quang", "fullName": "Quang Ha", "studentCode": "SE170240", "role": "QA Engineer", "skills": ["Appium"] },
+        { "studentId": "s_bich", "fullName": "Bich Ngo", "studentCode": "SE170253", "role": "Business Analyst", "skills": ["UML"] }
+      ],
+      "openRoles": [],
+      "votes": {}
+    }
+  ],
+  "notifications": {
+    "s_minh": [
+      { "id": "n1", "kind": "invite", "title": "Invite: FinTech Guard · Mobile & Frontend", "body": "Lam Pham invited you to join FinTech Guard as Mobile & Frontend developer. 2 of 5 members.", "minutesAgo": 12, "teamId": "team_fin02", "actionLabel": "View Team" },
+      { "id": "n2", "kind": "vote", "title": "Vote cast: Quynh Nguyen voted for you", "body": "Team AI-04 leader election · 2 of 3 members have voted.", "minutesAgo": 75, "teamId": "team_ai04", "actionLabel": "Go to Voting" },
+      { "id": "n3", "kind": "system", "title": "Deadline in 2 days: lock your roster", "body": "Registration closes in 2 days. Teams with fewer than 4 members go to the Random Pool.", "minutesAgo": 300 },
+      { "id": "n4", "kind": "application", "title": "Joined: Team AI-04", "body": "Hoang Tran approved your request. You are now a member of Team AI-04.", "minutesAgo": 1440, "read": true, "teamId": "team_ai04", "actionLabel": "Open My Team" }
+    ],
+    "s_an": [
+      { "id": "a1", "kind": "system", "title": "Deadline in 2 days: join a team", "body": "Registration closes in 2 days. Students without a team go to the Random Pool.", "minutesAgo": 300 }
+    ]
+  },
+  "pool": {
+    "queueId": "RP-2026-0142", "progress": 0.84, "stage": "Stage 3 of 4 · Skill matching",
+    "expectedInHours": 40, "studentsInPool": 38, "contactEmail": "academic@fpt.edu.vn"
+  }
+}

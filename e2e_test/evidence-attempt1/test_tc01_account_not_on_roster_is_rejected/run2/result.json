@@ -1,0 +1,14 @@
+{
+  "test": "test_auth.py::test_tc01_account_not_on_roster_is_rejected[run2]",
+  "attempt": 2,
+  "profile": "flash",
+  "trace_id": "01e263c7-6ec2-4fa7-ab51-e2a85265f378",
+  "status": "completed",
+  "turns": null,
+  "started": "2026-11-02T05:54:19",
+  "seconds": 36.3,
+  "goal": "Tap 'Continue with Google' and choose the account megalit2578@gmail.com in the Google account chooser. Then read the message the app shows.",
+  "expected_output": "Return JSON: {\"signed_in\": bool, \"error_title\": string, \"error_mentions_email\": bool}",
+  "output": "{\"signed_in\": false, \"error_title\": \"This account is not on the class roster\", \"error_mentions_email\": true}",
+  "error": null
+}

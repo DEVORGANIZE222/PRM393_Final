@@ -1,0 +1,14 @@
+{
+  "test": "test_browse.py::test_tc05_offline_error_and_retry[run1]",
+  "attempt": 1,
+  "profile": "flash",
+  "trace_id": "bf1a0bae-93cc-46c1-847f-d9a56b74827c",
+  "status": "completed",
+  "turns": null,
+  "started": "2026-11-03T19:08:51",
+  "seconds": 18.1,
+  "goal": "The phone is back online. On the Browse screen, tap 'Try Again' and report how many teams are listed.",
+  "expected_output": "Return JSON: {\"result_count\": int}",
+  "output": "{\"result_count\": 6}",
+  "error": null
+}

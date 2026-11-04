@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites name="pytest tests">
+  <testsuite name="pytest" errors="0" failures="0" skipped="0" tests="30" time="5948.313" timestamp="2026-11-03T18:40:01.175499+07:00" hostname="LAPTOP-GJIE9MEF">
+    <testcase classname="test_auth" name="test_tc01_account_not_on_roster_is_rejected[run1]" time="108.616" />
+    <testcase classname="test_auth" name="test_tc01_account_not_on_roster_is_rejected[run2]" time="65.591" />
+    <testcase classname="test_auth" name="test_tc01_account_not_on_roster_is_rejected[run3]" time="90.557" />
+    <testcase classname="test_auth" name="test_tc02_sign_in_with_roster_account[run1]" time="69.707" />
+    <testcase classname="test_auth" name="test_tc02_sign_in_with_roster_account[run2]" time="69.111" />
+    <testcase classname="test_auth" name="test_tc02_sign_in_with_roster_account[run3]" time="69.712" />
+    <testcase classname="test_browse" name="test_tc03_search_and_filter[run1]" time="78.178" />
+    <testcase classname="test_browse" name="test_tc03_search_and_filter[run2]" time="79.011" />
+    <testcase classname="test_browse" name="test_tc03_search_and_filter[run3]" time="111.402" />
+    <testcase classname="test_browse" name="test_tc04_empty_state_and_clear_filters[run1]" time="191.388" />
+    <testcase classname="test_browse" name="test_tc04_empty_state_and_clear_filters[run2]" time="152.327" />
+    <testcase classname="test_browse" name="test_tc04_empty_state_and_clear_filters[run3]" time="83.971" />
+    <testcase classname="test_browse" name="test_tc05_offline_error_and_retry[run1]" time="98.247" />
+    <testcase classname="test_browse" name="test_tc05_offline_error_and_retry[run2]" time="109.627" />
+    <testcase classname="test_browse" name="test_tc05_offline_error_and_retry[run3]" time="106.406" />
+    <testcase classname="test_join" name="test_tc06_join_team_with_open_slot[run1]" time="95.974" />
+    <testcase classname="test_join" name="test_tc06_join_team_with_open_slot[run2]" time="91.695" />
+    <testcase classname="test_join" name="test_tc06_join_team_with_open_slot[run3]" time="79.186" />
+    <testcase classname="test_join" name="test_tc07_team_fills_before_confirming[run1]" time="252.990" />
+    <testcase classname="test_join" name="test_tc07_team_fills_before_confirming[run2]" time="234.327" />
+    <testcase classname="test_join" name="test_tc07_team_fills_before_confirming[run3]" time="234.417" />
+    <testcase classname="test_alerts_profile" name="test_tc08_export_and_upload_team_summary[run1]" time="72.405" />
+    <testcase classname="test_alerts_profile" name="test_tc08_export_and_upload_team_summary[run2]" time="73.478" />
+    <testcase classname="test_alerts_profile" name="test_tc08_export_and_upload_team_summary[run3]" time="75.385" />
+    <testcase classname="test_vote" name="test_tc09_vote_elects_leader[run1]" time="239.981" />
+    <testcase classname="test_vote" name="test_tc09_vote_elects_leader[run2]" time="238.573" />
+    <testcase classname="test_vote" name="test_tc09_vote_elects_leader[run3]" time="238.785" />
+    <testcase classname="test_alerts_profile" name="test_tc10_decline_invite_then_undo[run1]" time="105.333" />
+    <testcase classname="test_alerts_profile" name="test_tc10_decline_invite_then_undo[run2]" time="76.365" />
+    <testcase classname="test_alerts_profile" name="test_tc10_decline_invite_then_undo[run3]" time="77.282" />
+  </testsuite>
+</testsuites>

@@ -1,0 +1,38 @@
+[android:id/content]
+[] EXEMatching
+[] Home
+[btn_open_alerts] Alerts
+[] Alerts
+[btn_open_profile]
+[] Profile
+[] Hi, Đạt! 👋
+megalit2578
+[card_deadline] 81 percent remaining, Registration deadline
+29 days 23:56:03 left
+System locks on Thu, 3 Dec 2026 · 20:15
+Spring 2026 Timeline
+81% time left
+Registration period
+[card_team_status] CURRENT TEAM STATUS
+Leader not elected
+Team AI-04
+AI-04
+Autonomous Campus Delivery Drone with Vision AI
+3/5 members formed (minimum 4 required)
+3 of 5 members, 2 open
+Needs 1 more member and a leader before locking.
+Formation Health
+60% Complete
+Team Size: 3/5
+Leader Vote: Pending
+Supervisor: Assigned
+[btn_manage_team]
+[] Manage Team AI-04
+[nav_home] Home
+Tab 1 of 4
+[nav_browse] Browse
+Tab 2 of 4
+[nav_team] My Team
+Tab 3 of 4
+[nav_settings] Settings
+Tab 4 of 4

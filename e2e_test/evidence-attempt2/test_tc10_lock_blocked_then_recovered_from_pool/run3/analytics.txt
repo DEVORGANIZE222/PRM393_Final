@@ -1,0 +1,6 @@
+set_user_id
+set_user_id
+login
+invite_from_pool
+invite_pool
+lock_roster

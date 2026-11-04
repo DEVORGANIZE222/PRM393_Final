@@ -1,0 +1,14 @@
+{
+  "test": "test_browse.py::test_tc05_offline_error_and_retry[run3]",
+  "attempt": 3,
+  "profile": "flash",
+  "trace_id": "3d05e65b-3865-4aa0-8f4b-27457d0c73e3",
+  "status": "completed",
+  "turns": null,
+  "started": "2026-11-03T18:07:35",
+  "seconds": 20.2,
+  "goal": "Open the Browse tab and wait for it to finish loading. Report the error title and message shown.",
+  "expected_output": "Return JSON: {\"error_title\": string, \"error_message\": string, \"has_try_again_button\": bool}",
+  "output": "{\"error_title\": \"No teams match your search\", \"error_message\": \"Every team is full right now. Check again later or wait for the Random Pool.\", \"has_try_again_button\": false}",
+  "error": null
+}

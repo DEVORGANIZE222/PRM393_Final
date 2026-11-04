@@ -1,0 +1,50 @@
+[android:id/content]
+[] EXEMatching
+[] Browse Teams
+[btn_open_alerts] Alerts
+[] Alerts
+[btn_open_profile]
+[] Profile
+[browse_search_field]
+[browse_filters]
+[] Open Slots
+[] AI/ML
+[] Mobile
+[] Web/Cloud
+[] Want to lead a startup?
+Pitch your idea and recruit your dream team.
+[] Create
+[browse_result_count] 6 teams with open slots
+[team_card_EXE-85] OmO
+1/5 · 4 open
+EdTech
+Ryosukana
+Flutter
+Firebase
+NestJS
+AWS
+Open slot
+Open slot
+Open slot
+Open slot
+4 open
+Looking for: 
+Frontend Dev · Backend Dev · AI/ML Engineer · UI/UX Designer · QA/Tester · DevOps Engineer
+[btn_view_EXE-85]
+[] View Details & Join
+[team_card_DEMO-01] Flutter Demo Team
+2/5 · 3 open
+LH
+LN
+Open slot
+Open slot
+Open slot
+3 open
+[nav_home] Home
+Tab 1 of 4
+[nav_browse] Browse
+Tab 2 of 4
+[nav_team] My Team
+Tab 3 of 4
+[nav_settings] Settings
+Tab 4 of 4

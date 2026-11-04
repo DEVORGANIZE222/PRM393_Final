@@ -1,0 +1,14 @@
+{
+  "test": "test_auth.py::test_tc02_sign_in_with_roster_account[run3]",
+  "attempt": 3,
+  "profile": "flash",
+  "trace_id": "55ba4d0b-080b-4220-beb5-c3938f0d06be",
+  "status": "completed",
+  "turns": null,
+  "started": "2026-11-02T05:57:20",
+  "seconds": 48.6,
+  "goal": "Sign in with Google using the account megalit2578@gmail.com. When the Home screen opens, read the greeting, the registration deadline and the team name.",
+  "expected_output": "Return JSON: {\"greeting\": string, \"deadline_text\": string, \"team_name\": string}",
+  "output": "{\"greeting\": \"Hi, Đạt!\", \"deadline_text\": \"29 days 23 hours left\", \"team_name\": \"Team AI-04\"}",
+  "error": null
+}

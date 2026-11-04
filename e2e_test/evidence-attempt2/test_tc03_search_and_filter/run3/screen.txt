@@ -1,0 +1,59 @@
+[android:id/content]
+[] EXEMatching
+[] Browse Teams
+[btn_open_alerts] Alerts
+[] Alerts
+[btn_open_profile]
+[] Profile
+[browse_search_field] drone
+[] Clear search
+[browse_filters]
+[] Open Slots
+[] AI/ML
+[] Mobile
+[] Web/Cloud
+[] Want to lead a startup?
+Pitch your idea and recruit your dream team.
+[] Create
+[browse_result_count] 2 teams with open slots
+[team_card_AI-04] Team AI-04
+3/5 · 2 open
+AI/ML
+Autonomous Campus Delivery Drone with Vision AI
+Python
+PyTorch
+ROS2
+Flutter
+ML
+HT
+QN
+Open slot
+Open slot
+2 open
+Looking for: 
+Embedded / IoT · DevOps
+[btn_view_AI-04]
+[] View Details & Join
+[team_card_EDU-07] EduSmart Analytics
+4/5 · 1 open
+AI/ML
+Adaptive Learning Recommendation Engine for STEM Students
+Python
+React
+PostgreSQL
+BP
+NH
+TD
+MV
+Open slot
+1 open
+Looking for: 
+Backend
+[nav_home] Home
+Tab 1 of 4
+[nav_browse] Browse
+Tab 2 of 4
+[nav_team] My Team
+Tab 3 of 4
+[nav_settings] Settings
+Tab 4 of 4

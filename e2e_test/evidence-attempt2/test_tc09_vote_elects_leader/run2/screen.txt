@@ -1,0 +1,30 @@
+[android:id/content]
+[] Back
+[] Vote for Leader
+[] Team AI-04 · 3 candidates
+Active session
+The leader submits the final roster. A leader needs 2 votes (more than half of 3 members).
+Your vote: Đạt Duy
+[] Elect team leader
+[] 100, Voting progress
+3 of 3 cast
+3 ballots recorded
+Majority rule (2+ votes)
+[banner_leader_elected] Đạt Duy is your team leader
+Elected with 2 votes. Votes can still change until the roster is locked.
+[btn_back_to_team]
+[] Back to My Team
+[] Candidates
+[candidate_F5KSMg0wLGXf8PiZAstfjzjtUDa2] 100, Đạt Duy, Frontend Lead, 2 votes
+ĐD
+Đạt Duy (you)
+Frontend Lead
+2/2
+[candidate_s_hoang] 50, Hoang Tran, AI / Vision Specialist, 1 vote
+HT
+Hoang Tran
+AI / Vision Specialist
+1/2
+[btn_submit_vote]
+[] Change Vote
+[] Cancel and return to My Team

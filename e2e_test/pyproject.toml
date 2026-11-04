@@ -1,0 +1,22 @@
+[project]
+name = "exematching-e2e"
+version = "0.1.0"
+description = "ARTEMIS end-to-end tests for the EXEMatching Android app (PRM393 Lab 3)"
+requires-python = ">=3.12"
+dependencies = [
+    # Pinned to the ARTEMIS commit the tests were written and run against.
+    "artemis-client @ git+https://github.com/google/artemis.git@351ca8422f7b5b54e80a9c1ce03a222e02415b6b#subdirectory=packages/artemis-client",
+    "pytest==8.4.2",
+    "pytest-asyncio==1.2.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["."]
+markers = [
+    "flow1: Flow 1 - find and join a team",
+    "flow2: Flow 2 - elect a leader",
+    "flow3: Flow 3 - lock the roster with error recovery",
+    "native: interacts with an Android system UI outside the app",
+]

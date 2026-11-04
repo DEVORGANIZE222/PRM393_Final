@@ -1,0 +1,14 @@
+{
+  "test": "test_alerts_profile.py::test_tc10_decline_invite_then_undo[run3]",
+  "attempt": 3,
+  "profile": "flash",
+  "trace_id": "be79055b-a9bd-48a8-bd2d-beab22517250",
+  "status": "completed",
+  "turns": null,
+  "started": "2026-11-03T18:43:45",
+  "seconds": 34.7,
+  "goal": "Tap the notification bell icon at the top right to open Alerts and switch to the Invites filter. Decline the invite from FinTech Guard, then use Undo in the message at the bottom of the screen. Report how many invites are listed right after declining and after undoing.",
+  "expected_output": "Return JSON: {\"invites_after_decline\": int, \"invites_after_undo\": int, \"invite_team\": string}",
+  "output": "{\"invites_after_decline\": 0, \"invites_after_undo\": 1, \"invite_team\": \"FinTech Guard\"}",
+  "error": null
+}

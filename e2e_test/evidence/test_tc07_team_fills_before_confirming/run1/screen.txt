@@ -1,0 +1,22 @@
+[android:id/content]
+[] Back
+[] EduSmart Analytics
+[banner_team_filled] EduSmart Analytics just filled up
+Another student took the last slot just before you. EduSmart Analytics now has 5 of 5 members.
+[btn_back_to_browse]
+[] Back to Browse
+[] Roster breakdown
+5 total slots
+[card_team_topic] EDU-07
+Leader not elected
+Adaptive Learning Recommendation Engine for STEM Students
+Mentor: Dr. Tran Minh Chau
+Recommends study paths from LMS activity and quiz results, with a dashboard for lecturers.
+CORE TECHNOLOGIES
+AI/ML
+Python
+React
+PostgreSQL
+[btn_join_team]
+[] Join Team
+[join_blocked_reason] This team is full (5/5).

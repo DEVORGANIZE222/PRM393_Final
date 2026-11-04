@@ -1,0 +1,14 @@
+{
+  "test": "test_lock.py::test_tc11_share_team_link_opens_android_share_sheet[run3]",
+  "attempt": 3,
+  "profile": "flash",
+  "trace_id": "469bbc0f-bd9e-4dbb-8e05-4fde60a2c464",
+  "status": "failed",
+  "turns": null,
+  "started": "2026-11-03T19:52:15",
+  "seconds": 192.0,
+  "goal": "On My Team, open 'Review & Lock' and tap 'Share Team Link'. Stop when the Android share sheet is open and report what it shows. Do not share to any app.",
+  "expected_output": "Return JSON: {\"share_sheet_open\": bool, \"shared_text_mentions_team\": bool}",
+  "output": null,
+  "error": null
+}

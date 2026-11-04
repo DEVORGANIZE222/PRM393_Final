@@ -1,0 +1,14 @@
+{
+  "test": "test_lock.py::test_tc10_lock_blocked_then_recovered_from_pool[run1]",
+  "attempt": 1,
+  "profile": "flash",
+  "trace_id": "2991b43a-a696-4042-b87d-f6e92517ad5c",
+  "status": "failed",
+  "turns": null,
+  "started": "2026-11-03T19:29:58",
+  "seconds": 192.3,
+  "goal": "On My Team, open 'Review & Lock'. Note the title of the red error banner near the top of the screen (the bold first line of that red box, not the smaller hint under the Lock button). Recover from it: invite students from the Waiting Pool, then wait until a new member joins (it takes a few seconds). When every check is done, lock the roster and confirm. Report the error you saw first, the name of the student who joined, and the confirmation code.",
+  "expected_output": "Return JSON: {\"first_error\": string, \"joined_member\": string, \"locked\": bool, \"confirmation_code\": string}",
+  "output": null,
+  "error": null
+}

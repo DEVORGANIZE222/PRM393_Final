@@ -1,0 +1,25 @@
+[android:id/content]
+[] Back
+[] Vote for Leader
+[] Team AI-04 · 3 candidates
+Active session
+The leader submits the final roster. A leader needs 2 votes (more than half of 3 members).
+[] Elect team leader
+[] Results appear after you vote
+Hiding the count keeps early votes from swaying yours.
+[] Candidates
+[candidate_F5KSMg0wLGXf8PiZAstfjzjtUDa2] Đạt Duy, Frontend Lead
+ĐD
+Đạt Duy (you)
+Frontend Lead
+[candidate_s_hoang] Hoang Tran, AI / Vision Specialist
+HT
+Hoang Tran
+AI / Vision Specialist
+[candidate_s_quynh] Quynh Nguyen, Backend Developer
+QN
+Quynh Nguyen
+Backend Developer
+[btn_submit_vote]
+[] Submit Vote
+[] Cancel and return to My Team

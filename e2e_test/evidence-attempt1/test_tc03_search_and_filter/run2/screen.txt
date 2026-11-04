@@ -1,0 +1,39 @@
+[android:id/content]
+[] Browse Teams
+[btn_open_profile]
+[] ĐD
+[browse_search_field]
+[browse_filters]
+[] Open Slots
+[] AI/ML
+[] Mobile
+[] Web/Cloud
+[browse_result_count] 2 teams with open slots
+[team_card_AI-04] Team AI-04
+Autonomous Campus Delivery Drone with Vision AI
+2 slots open
+3 of 5 members, 2 open
+AI/ML
+Python
+PyTorch
+ROS2
+Looking for: Embedded / IoT, DevOps
+[btn_view_AI-04]
+[] View Details
+[team_card_EDU-07] EduSmart Analytics
+Adaptive Learning Recommendation Engine for STEM Students
+1 slot open
+4 of 5 members, 1 open
+AI/ML
+Python
+React
+PostgreSQL
+Looking for: Backend
+[nav_home] Home
+Tab 1 of 4
+[nav_browse] Browse
+Tab 2 of 4
+[nav_team] My Team
+Tab 3 of 4
+[nav_alerts] Alerts
+Tab 4 of 4

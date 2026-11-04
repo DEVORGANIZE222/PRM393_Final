@@ -1,0 +1,42 @@
+[android:id/content]
+[android:id/contentPanel]
+[android:id/chooser_header]
+[android:id/drag]
+[com.android.intentresolver:id/chooser_headline_row_container]
+[com.android.intentresolver:id/chooser_headline_row]
+[com.android.intentresolver:id/headline] Sharing text
+[com.android.intentresolver:id/chooser_scrollable_container]
+[android:id/content_preview_container]
+[android:id/content_preview_text_area]
+[com.android.intentresolver:id/text_preview_layout]
+[android:id/content_preview_text] Team AI-04 needs 2 more members for "Autonomous Campus Delivery Drone with Vision AI". Open EXEMatching and search for AI-04: https://exematching.app/team/AI-04
+[com.android.intentresolver:id/copy] Copy text
+[android:id/profile_tabhost]
+[android:id/tabcontent]
+[android:id/profile_pager]
+[android:id/resolver_list]
+[com.android.intentresolver:id/shortcuts_container]
+[com.android.intentresolver:id/suggested_apps_container]
+[android:id/chooser_row_text_option] No recommended people to share with
+[com.android.intentresolver:id/suggested_apps_container]
+[com.android.intentresolver:id/item]
+[android:id/icon]
+[android:id/text1] Quick Share
+[com.android.intentresolver:id/item]
+[android:id/icon]
+[android:id/text1] Chrome
+[com.android.intentresolver:id/item]
+[android:id/icon]
+[android:id/text1] Drive
+[android:id/text2] Copy to clipboard
+[com.android.intentresolver:id/item]
+[android:id/icon]
+[android:id/text1] Drive
+[com.android.intentresolver:id/item]
+[android:id/icon]
+[android:id/text1] Messages
+[com.android.intentresolver:id/item]
+[com.android.intentresolver:id/item]
+[com.android.intentresolver:id/item]
+[com.android.intentresolver:id/item]
+[com.android.intentresolver:id/item]

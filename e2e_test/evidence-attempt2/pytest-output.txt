@@ -1,0 +1,504 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\PRM393\artemis\.venv\Scripts\python.exe
+rootdir: C:\Users\LENOVO\OneDrive\Máy tính\Lab3_Cloud-Enabled_Mobile_App\e2e_test
+configfile: pyproject.toml
+plugins: anyio-4.14.2, langsmith-0.11.0, asyncio-1.4.0, cov-7.1.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
+collecting ... collected 39 items
+
+test_alerts_profile.py::test_tc12_decline_invite_then_undo[run1] PASSED  [  2%]
+test_alerts_profile.py::test_tc12_decline_invite_then_undo[run2] PASSED  [  5%]
+test_alerts_profile.py::test_tc12_decline_invite_then_undo[run3] PASSED  [  7%]
+test_alerts_profile.py::test_tc13_export_and_upload_team_summary[run1] FAILED [ 10%]
+test_alerts_profile.py::test_tc13_export_and_upload_team_summary[run2] FAILED [ 12%]
+test_alerts_profile.py::test_tc13_export_and_upload_team_summary[run3] FAILED [ 15%]
+test_auth.py::test_tc01_account_not_on_roster_is_rejected[run1] PASSED   [ 17%]
+test_auth.py::test_tc01_account_not_on_roster_is_rejected[run2] PASSED   [ 20%]
+test_auth.py::test_tc01_account_not_on_roster_is_rejected[run3] PASSED   [ 23%]
+test_auth.py::test_tc02_sign_in_with_roster_account[run1] PASSED         [ 25%]
+test_auth.py::test_tc02_sign_in_with_roster_account[run2] PASSED         [ 28%]
+test_auth.py::test_tc02_sign_in_with_roster_account[run3] PASSED         [ 30%]
+test_browse.py::test_tc03_search_and_filter[run1] FAILED                 [ 33%]
+test_browse.py::test_tc03_search_and_filter[run2] FAILED                 [ 35%]
+test_browse.py::test_tc03_search_and_filter[run3] FAILED                 [ 38%]
+test_browse.py::test_tc04_empty_state_and_clear_filters[run1] PASSED     [ 41%]
+test_browse.py::test_tc04_empty_state_and_clear_filters[run2] PASSED     [ 43%]
+test_browse.py::test_tc04_empty_state_and_clear_filters[run3] FAILED     [ 46%]
+test_browse.py::test_tc05_offline_error_and_retry[run1] FAILED           [ 48%]
+test_browse.py::test_tc05_offline_error_and_retry[run2] FAILED           [ 51%]
+test_browse.py::test_tc05_offline_error_and_retry[run3] FAILED           [ 53%]
+test_join.py::test_tc06_join_team_with_open_slot[run1] FAILED            [ 56%]
+test_join.py::test_tc06_join_team_with_open_slot[run2] FAILED            [ 58%]
+test_join.py::test_tc06_join_team_with_open_slot[run3] FAILED            [ 61%]
+test_join.py::test_tc07_team_fills_before_confirming[run1] PASSED        [ 64%]
+test_join.py::test_tc07_team_fills_before_confirming[run2] PASSED        [ 66%]
+test_join.py::test_tc07_team_fills_before_confirming[run3] PASSED        [ 69%]
+test_lock.py::test_tc10_lock_blocked_then_recovered_from_pool[run1] FAILED [ 71%]
+test_lock.py::test_tc10_lock_blocked_then_recovered_from_pool[run2] PASSED [ 74%]
+test_lock.py::test_tc10_lock_blocked_then_recovered_from_pool[run3] FAILED [ 76%]
+test_lock.py::test_tc11_share_team_link_opens_android_share_sheet[run1] PASSED [ 79%]
+test_lock.py::test_tc11_share_team_link_opens_android_share_sheet[run2] PASSED [ 82%]
+test_lock.py::test_tc11_share_team_link_opens_android_share_sheet[run3] FAILED [ 84%]
+test_vote.py::test_tc08_tallies_hidden_until_voting[run1] PASSED         [ 87%]
+test_vote.py::test_tc08_tallies_hidden_until_voting[run2] PASSED         [ 89%]
+test_vote.py::test_tc08_tallies_hidden_until_voting[run3] PASSED         [ 92%]
+test_vote.py::test_tc09_vote_elects_leader[run1] PASSED                  [ 94%]
+test_vote.py::test_tc09_vote_elects_leader[run2] PASSED                  [ 97%]
+test_vote.py::test_tc09_vote_elects_leader[run3] PASSED                  [100%]
+
+================================== FAILURES ===================================
+_______________ test_tc13_export_and_upload_team_summary[run1] ________________
+
+device = <device.Device object at 0x0000029B780B86E0>
+backend = <backend.Backend object at 0x0000029B780B8AD0>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000029B78169940>
+
+    async def test_tc13_export_and_upload_team_summary(device, backend, me, artemis):
+        backend.reset(me, team="team_ai04")
+        device.sign_in(ACCOUNT)
+        before = backend.storage_objects(f"reports/{me.uid}/")
+    
+        run = await artemis(
+            "Open your profile from the avatar at the top right. Under Team summary, tap 'Export & Upload PDF' "
+            "and wait until the upload finishes. Report the uploaded file name and its size.",
+            'Return JSON: {"uploaded": bool, "file_name": string, "size_kb": int}',
+        )
+    
+        assert run.data["uploaded"] is True
+        assert re.fullmatch(r"team-ai-04-\d{8}-\d{4}\.pdf", run.data["file_name"])
+        assert run.data["size_kb"] > 0
+        # The banner's accessible text is the download URL of reports/{uid}/{file}.
+>       assert "[export_done] https://firebasestorage.googleapis.com/" in run.screen
+E       assert '[export_done] https://firebasestorage.googleapis.com/' in '[android:id/content]\n[] Profile\n[card_account] Đạt Duy\nmegalit2578@gmail.com\nmegalit2578 ·  ·\n[] Team summary\n[card_export] Create a PDF of your team, its status and roster, then save it to your account.\n[export_done] Uploaded team-ai-04-20261103-1746.pdf · 6 KB\nSaved to your account. Download link:\nhttps://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261103-1746.pdf?alt=media&token=96cf6365-799a-411d-860b-cc10a00e8b71\nCopy\n[btn_export_upload]\n[] Export Again\n[] App settings\n[card_remote_config] Values the server can change without an app update.\n[config_max_team_members] max_team_members: 5\n[config_enable_waiting_pool] enable_waiting_pool: true\n[config_registration_closed] registration_closed: false\n[btn_refresh_config]\n[] Check for Updates\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4'
+E        +  where '[android:id/content]\n[] Profile\n[card_account] Đạt Duy\nmegalit2578@gmail.com\nmegalit2578 ·  ·\n[] Team summary\n[card_export] Create a PDF of your team, its status and roster, then save it to your account.\n[export_done] Uploaded team-ai-04-20261103-1746.pdf · 6 KB\nSaved to your account. Download link:\nhttps://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261103-1746.pdf?alt=media&token=96cf6365-799a-411d-860b-cc10a00e8b71\nCopy\n[btn_export_upload]\n[] Export Again\n[] App settings\n[card_remote_config] Values the server can change without an app update.\n[config_max_team_members] max_team_members: 5\n[config_enable_waiting_pool] enable_waiting_pool: true\n[config_registration_closed] registration_closed: false\n[btn_refresh_config]\n[] Check for Updates\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4' = Run(result=TaskResult(task_id='1408b201-83aa-4881-b24d-5ae89b628cd7', status='completed', goal='Open your profile from the avatar at the top right. Under Team summary, tap \'Export & Upload PDF\' and wait until the upload finishes. Report the uploaded file name and its size.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"uploaded": bool, "file_name": string, "size_kb": int}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None), data={'uploaded': True, 'file_name': 'team-ai-04-20261103-1746.pdf', 'size_kb': 6}, screen='[android:id/content]\n[] Profile\n[card_account] Đạt Duy\nmegalit2578@gmail.com\nmegalit2578 ·  ·\n[] Team summary\n[card_export] Create a PDF of your team, its status and roster, then save it to your account.\n[export_done] Uploaded team-ai-04-20261103-1746.pdf · 6 KB\nSaved to your account. Download link:\nhttps://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261103-1746.pdf?alt=media&token=96cf6365-799a-411d-860b-cc10a00e8b71\nCopy\n[btn_export_upload]\n[] Export Again\n[] App settings\n[card_remote_config] Values the server can change without an app update.\n[config_max_team_members] max_team_members: 5\n[config_enable_waiting_pool] enable_waiting_pool: true\n[config_registration_closed] registration_closed: false\n[btn_refresh_config]\n[] Check for Updates\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4', folder=WindowsPath('C:/Users/LENOVO/OneDrive/Máy tính/Lab3_Cloud-Enabled_Mobile_App/e2e_test/evidence/test_tc13_export_and_upload_team_summary/run1')).screen
+
+test_alerts_profile.py:43: AssertionError
+_______________ test_tc13_export_and_upload_team_summary[run2] ________________
+
+device = <device.Device object at 0x0000029B780B86E0>
+backend = <backend.Backend object at 0x0000029B780B8AD0>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000029B781699E0>
+
+    async def test_tc13_export_and_upload_team_summary(device, backend, me, artemis):
+        backend.reset(me, team="team_ai04")
+        device.sign_in(ACCOUNT)
+        before = backend.storage_objects(f"reports/{me.uid}/")
+    
+        run = await artemis(
+            "Open your profile from the avatar at the top right. Under Team summary, tap 'Export & Upload PDF' "
+            "and wait until the upload finishes. Report the uploaded file name and its size.",
+            'Return JSON: {"uploaded": bool, "file_name": string, "size_kb": int}',
+        )
+    
+        assert run.data["uploaded"] is True
+        assert re.fullmatch(r"team-ai-04-\d{8}-\d{4}\.pdf", run.data["file_name"])
+        assert run.data["size_kb"] > 0
+        # The banner's accessible text is the download URL of reports/{uid}/{file}.
+>       assert "[export_done] https://firebasestorage.googleapis.com/" in run.screen
+E       assert '[export_done] https://firebasestorage.googleapis.com/' in '[android:id/content]\n[] Profile\n[card_account] Đạt Duy\nmegalit2578@gmail.com\nmegalit2578 ·  ·\n[] Team summary\n[card_export] Create a PDF of your team, its status and roster, then save it to your account.\n[export_done] Uploaded team-ai-04-20261103-1747.pdf · 6 KB\nSaved to your account. Download link:\nhttps://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261103-1747.pdf?alt=media&token=3dcde9f1-789b-4fc7-8564-c0c641211a9d\nCopy\n[btn_export_upload]\n[] Export Again\n[] App settings\n[card_remote_config] Values the server can change without an app update.\n[config_max_team_members] max_team_members: 5\n[config_enable_waiting_pool] enable_waiting_pool: true\n[config_registration_closed] registration_closed: false\n[btn_refresh_config]\n[] Check for Updates\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4'
+E        +  where '[android:id/content]\n[] Profile\n[card_account] Đạt Duy\nmegalit2578@gmail.com\nmegalit2578 ·  ·\n[] Team summary\n[card_export] Create a PDF of your team, its status and roster, then save it to your account.\n[export_done] Uploaded team-ai-04-20261103-1747.pdf · 6 KB\nSaved to your account. Download link:\nhttps://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261103-1747.pdf?alt=media&token=3dcde9f1-789b-4fc7-8564-c0c641211a9d\nCopy\n[btn_export_upload]\n[] Export Again\n[] App settings\n[card_remote_config] Values the server can change without an app update.\n[config_max_team_members] max_team_members: 5\n[config_enable_waiting_pool] enable_waiting_pool: true\n[config_registration_closed] registration_closed: false\n[btn_refresh_config]\n[] Check for Updates\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4' = Run(result=TaskResult(task_id='6120e9d8-e2e9-48aa-b25c-99d5fbbc879b', status='completed', goal='Open your profile from the avatar at the top right. Under Team summary, tap \'Export & Upload PDF\' and wait until the upload finishes. Report the uploaded file name and its size.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"uploaded": bool, "file_name": string, "size_kb": int}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None), data={'uploaded': True, 'file_name': 'team-ai-04-20261103-1747.pdf', 'size_kb': 6}, screen='[android:id/content]\n[] Profile\n[card_account] Đạt Duy\nmegalit2578@gmail.com\nmegalit2578 ·  ·\n[] Team summary\n[card_export] Create a PDF of your team, its status and roster, then save it to your account.\n[export_done] Uploaded team-ai-04-20261103-1747.pdf · 6 KB\nSaved to your account. Download link:\nhttps://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261103-1747.pdf?alt=media&token=3dcde9f1-789b-4fc7-8564-c0c641211a9d\nCopy\n[btn_export_upload]\n[] Export Again\n[] App settings\n[card_remote_config] Values the server can change without an app update.\n[config_max_team_members] max_team_members: 5\n[config_enable_waiting_pool] enable_waiting_pool: true\n[config_registration_closed] registration_closed: false\n[btn_refresh_config]\n[] Check for Updates\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4', folder=WindowsPath('C:/Users/LENOVO/OneDrive/Máy tính/Lab3_Cloud-Enabled_Mobile_App/e2e_test/evidence/test_tc13_export_and_upload_team_summary/run2')).screen
+
+test_alerts_profile.py:43: AssertionError
+_______________ test_tc13_export_and_upload_team_summary[run3] ________________
+
+device = <device.Device object at 0x0000029B780B86E0>
+backend = <backend.Backend object at 0x0000029B780B8AD0>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000029B78189260>
+
+    async def test_tc13_export_and_upload_team_summary(device, backend, me, artemis):
+        backend.reset(me, team="team_ai04")
+        device.sign_in(ACCOUNT)
+        before = backend.storage_objects(f"reports/{me.uid}/")
+    
+        run = await artemis(
+            "Open your profile from the avatar at the top right. Under Team summary, tap 'Export & Upload PDF' "
+            "and wait until the upload finishes. Report the uploaded file name and its size.",
+            'Return JSON: {"uploaded": bool, "file_name": string, "size_kb": int}',
+        )
+    
+        assert run.data["uploaded"] is True
+        assert re.fullmatch(r"team-ai-04-\d{8}-\d{4}\.pdf", run.data["file_name"])
+        assert run.data["size_kb"] > 0
+        # The banner's accessible text is the download URL of reports/{uid}/{file}.
+>       assert "[export_done] https://firebasestorage.googleapis.com/" in run.screen
+E       assert '[export_done] https://firebasestorage.googleapis.com/' in '[android:id/content]\n[] Profile\n[card_account] Đạt Duy\nmegalit2578@gmail.com\nmegalit2578 ·  ·\n[] Team summary\n[card_export] Create a PDF of your team, its status and roster, then save it to your account.\n[export_done] Uploaded team-ai-04-20261103-1748.pdf · 6 KB\nSaved to your account. Download link:\nhttps://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261103-1748.pdf?alt=media&token=b2717d2b-edba-4e00-a7f3-4bf61c807b9f\nCopy\n[btn_export_upload]\n[] Export Again\n[] App settings\n[card_remote_config] Values the server can change without an app update.\n[config_max_team_members] max_team_members: 5\n[config_enable_waiting_pool] enable_waiting_pool: true\n[config_registration_closed] registration_closed: false\n[btn_refresh_config]\n[] Check for Updates\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4'
+E        +  where '[android:id/content]\n[] Profile\n[card_account] Đạt Duy\nmegalit2578@gmail.com\nmegalit2578 ·  ·\n[] Team summary\n[card_export] Create a PDF of your team, its status and roster, then save it to your account.\n[export_done] Uploaded team-ai-04-20261103-1748.pdf · 6 KB\nSaved to your account. Download link:\nhttps://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261103-1748.pdf?alt=media&token=b2717d2b-edba-4e00-a7f3-4bf61c807b9f\nCopy\n[btn_export_upload]\n[] Export Again\n[] App settings\n[card_remote_config] Values the server can change without an app update.\n[config_max_team_members] max_team_members: 5\n[config_enable_waiting_pool] enable_waiting_pool: true\n[config_registration_closed] registration_closed: false\n[btn_refresh_config]\n[] Check for Updates\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4' = Run(result=TaskResult(task_id='00e59187-1faa-4557-99af-f5485ea02be1', status='completed', goal='Open your profile from the avatar at the top right. Under Team summary, tap \'Export & Upload PDF\' and wait until the upload finishes. Report the uploaded file name and its size.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"uploaded": bool, "file_name": string, "size_kb": int}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None), data={'uploaded': True, 'file_name': 'team-ai-04-20261103-1748.pdf', 'size_kb': 6}, screen='[android:id/content]\n[] Profile\n[card_account] Đạt Duy\nmegalit2578@gmail.com\nmegalit2578 ·  ·\n[] Team summary\n[card_export] Create a PDF of your team, its status and roster, then save it to your account.\n[export_done] Uploaded team-ai-04-20261103-1748.pdf · 6 KB\nSaved to your account. Download link:\nhttps://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261103-1748.pdf?alt=media&token=b2717d2b-edba-4e00-a7f3-4bf61c807b9f\nCopy\n[btn_export_upload]\n[] Export Again\n[] App settings\n[card_remote_config] Values the server can change without an app update.\n[config_max_team_members] max_team_members: 5\n[config_enable_waiting_pool] enable_waiting_pool: true\n[config_registration_closed] registration_closed: false\n[btn_refresh_config]\n[] Check for Updates\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4', folder=WindowsPath('C:/Users/LENOVO/OneDrive/Máy tính/Lab3_Cloud-Enabled_Mobile_App/e2e_test/evidence/test_tc13_export_and_upload_team_summary/run3')).screen
+
+test_alerts_profile.py:43: AssertionError
+______________________ test_tc03_search_and_filter[run1] ______________________
+
+device = <device.Device object at 0x0000029B780B86E0>
+backend = <backend.Backend object at 0x0000029B780B8AD0>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000029B78189F80>
+
+    @pytest.mark.flow1
+    async def test_tc03_search_and_filter(device, backend, me, artemis):
+        backend.reset(me)  # a student with no team
+        device.sign_in(ACCOUNT)
+    
+        run = await artemis(
+            "Open the Browse tab. Turn on the 'AI/ML' filter chip and keep 'Open Slots' on. "
+            "Then search for 'drone'. Report the number of teams the list says it found and the name of each team.",
+            'Return JSON: {"result_count": int, "team_names": [string]}',
+        )
+    
+>       assert run.data["result_count"] == 1
+E       assert 2 == 1
+
+test_browse.py:19: AssertionError
+______________________ test_tc03_search_and_filter[run2] ______________________
+
+device = <device.Device object at 0x0000029B780B86E0>
+backend = <backend.Backend object at 0x0000029B780B8AD0>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000029B7818A340>
+
+    @pytest.mark.flow1
+    async def test_tc03_search_and_filter(device, backend, me, artemis):
+        backend.reset(me)  # a student with no team
+        device.sign_in(ACCOUNT)
+    
+        run = await artemis(
+            "Open the Browse tab. Turn on the 'AI/ML' filter chip and keep 'Open Slots' on. "
+            "Then search for 'drone'. Report the number of teams the list says it found and the name of each team.",
+            'Return JSON: {"result_count": int, "team_names": [string]}',
+        )
+    
+>       assert run.data["result_count"] == 1
+E       assert 2 == 1
+
+test_browse.py:19: AssertionError
+______________________ test_tc03_search_and_filter[run3] ______________________
+
+device = <device.Device object at 0x0000029B780B86E0>
+backend = <backend.Backend object at 0x0000029B780B8AD0>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000029B7818A2A0>
+
+    @pytest.mark.flow1
+    async def test_tc03_search_and_filter(device, backend, me, artemis):
+        backend.reset(me)  # a student with no team
+        device.sign_in(ACCOUNT)
+    
+        run = await artemis(
+            "Open the Browse tab. Turn on the 'AI/ML' filter chip and keep 'Open Slots' on. "
+            "Then search for 'drone'. Report the number of teams the list says it found and the name of each team.",
+            'Return JSON: {"result_count": int, "team_names": [string]}',
+        )
+    
+>       assert run.data["result_count"] == 1
+E       assert 2 == 1
+
+test_browse.py:19: AssertionError
+________________ test_tc04_empty_state_and_clear_filters[run3] ________________
+
+device = <device.Device object at 0x0000029B780B86E0>
+backend = <backend.Backend object at 0x0000029B780B8AD0>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000029B78189800>
+
+    @pytest.mark.flow1
+    async def test_tc04_empty_state_and_clear_filters(device, backend, me, artemis):
+        backend.reset(me)
+        device.sign_in(ACCOUNT)
+        open_teams = backend.open_team_count()  # ground truth from Firestore
+    
+        run = await artemis(
+            "Open the Browse tab and search for 'quantum'. Read the message shown when nothing matches. "
+            "Then use the button in that message to clear the filters, and count the teams listed afterwards.",
+            'Return JSON: {"empty_title": string, "teams_after_clearing": int}',
+        )
+    
+        assert run.data["empty_title"] == "No teams match your search"
+        assert run.data["teams_after_clearing"] == open_teams
+>       assert f"[browse_result_count] {open_teams} teams with open slots" in run.screen
+E       assert '[browse_result_count] 6 teams with open slots' in "[android:id/content]\n[] EXEMatching\n[] Browse Teams\n[btn_open_alerts] Alerts\n[] Alerts\n[btn_open_profile]\n[] Profile\n[team_card_WEB-11] GreenRoute\n3/5 · 2 open\nWeb/Cloud\nSmart Campus Parking and Shuttle Planner\nReact\nSpring Boot\nMySQL\nLN\nTL\nDB\nOpen slot\nOpen slot\n2 open\nLooking for: \nBackend · Mobile\n[btn_view_WEB-11]\n[] View Details & Join\n[team_card_EDU-07] EduSmart Analytics\n4/5 · 1 open\nAI/ML\nAdaptive Learning Recommendation Engine for STEM Students\nPython\nReact\nPostgreSQL\nBP\nNH\nTD\nMV\nOpen slot\n1 open\nLooking for: \nBackend\n[btn_view_EDU-07]\n[] View Details & Join\n[] Can't find the right fit?\nCreate your own startup team or join the Random Pool before the deadline.\n[btn_create_team_browse]\n[] Create a Team\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4"
+E        +  where "[android:id/content]\n[] EXEMatching\n[] Browse Teams\n[btn_open_alerts] Alerts\n[] Alerts\n[btn_open_profile]\n[] Profile\n[team_card_WEB-11] GreenRoute\n3/5 · 2 open\nWeb/Cloud\nSmart Campus Parking and Shuttle Planner\nReact\nSpring Boot\nMySQL\nLN\nTL\nDB\nOpen slot\nOpen slot\n2 open\nLooking for: \nBackend · Mobile\n[btn_view_WEB-11]\n[] View Details & Join\n[team_card_EDU-07] EduSmart Analytics\n4/5 · 1 open\nAI/ML\nAdaptive Learning Recommendation Engine for STEM Students\nPython\nReact\nPostgreSQL\nBP\nNH\nTD\nMV\nOpen slot\n1 open\nLooking for: \nBackend\n[btn_view_EDU-07]\n[] View Details & Join\n[] Can't find the right fit?\nCreate your own startup team or join the Random Pool before the deadline.\n[btn_create_team_browse]\n[] Create a Team\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4" = Run(result=TaskResult(task_id='acfcd0f0-3151-4f71-a3c3-a1e4db91d108', status='completed', goal='Open the Browse tab and search for \'quantum\'. Read the message shown when nothing matches. Then use the button in that message to clear the filters, and count the teams listed afterwards.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"empty_title": string, "teams_after_clearing": int}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None), data={'empty_title': 'No teams match your search', 'teams_after_clearing': 6}, screen="[android:id/content]\n[] EXEMatching\n[] Browse Teams\n[btn_open_alerts] Alerts\n[] Alerts\n[btn_open_profile]\n[] Profile\n[team_card_WEB-11] GreenRoute\n3/5 · 2 open\nWeb/Cloud\nSmart Campus Parking and Shuttle Planner\nReact\nSpring Boot\nMySQL\nLN\nTL\nDB\nOpen slot\nOpen slot\n2 open\nLooking for: \nBackend · Mobile\n[btn_view_WEB-11]\n[] View Details & Join\n[team_card_EDU-07] EduSmart Analytics\n4/5 · 1 open\nAI/ML\nAdaptive Learning Recommendation Engine for STEM Students\nPython\nReact\nPostgreSQL\nBP\nNH\nTD\nMV\nOpen slot\n1 open\nLooking for: \nBackend\n[btn_view_EDU-07]\n[] View Details & Join\n[] Can't find the right fit?\nCreate your own startup team or join the Random Pool before the deadline.\n[btn_create_team_browse]\n[] Create a Team\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4", folder=WindowsPath('C:/Users/LENOVO/OneDrive/Máy tính/Lab3_Cloud-Enabled_Mobile_App/e2e_test/evidence/test_tc04_empty_state_and_clear_filters/run3')).screen
+
+test_browse.py:39: AssertionError
+___________________ test_tc05_offline_error_and_retry[run1] ___________________
+
+device = <device.Device object at 0x0000029B780B86E0>
+backend = <backend.Backend object at 0x0000029B780B8AD0>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000029B7818A840>
+
+    @pytest.mark.flow1
+    async def test_tc05_offline_error_and_retry(device, backend, me, artemis):
+        backend.reset(me)
+        device.sign_in(ACCOUNT)
+        open_teams = backend.open_team_count()
+        device.set_network(False)
+    
+        first = await artemis(
+            "Open the Browse tab and wait for it to finish loading. Report the error title and message shown.",
+            'Return JSON: {"error_title": string, "error_message": string, "has_try_again_button": bool}',
+        )
+>       assert first.data["error_title"] == "Can't connect right now"
+E       assert 'No teams match your search' == "Can't connect right now"
+E         
+E         - Can't connect right now
+E         + No teams match your search
+
+test_browse.py:53: AssertionError
+___________________ test_tc05_offline_error_and_retry[run2] ___________________
+
+device = <device.Device object at 0x0000029B780B86E0>
+backend = <backend.Backend object at 0x0000029B780B8AD0>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000029B7818BB00>
+
+    @pytest.mark.flow1
+    async def test_tc05_offline_error_and_retry(device, backend, me, artemis):
+        backend.reset(me)
+        device.sign_in(ACCOUNT)
+        open_teams = backend.open_team_count()
+        device.set_network(False)
+    
+        first = await artemis(
+            "Open the Browse tab and wait for it to finish loading. Report the error title and message shown.",
+            'Return JSON: {"error_title": string, "error_message": string, "has_try_again_button": bool}',
+        )
+>       assert first.data["error_title"] == "Can't connect right now"
+E       assert 'No teams match your search' == "Can't connect right now"
+E         
+E         - Can't connect right now
+E         + No teams match your search
+
+test_browse.py:53: AssertionError
+___________________ test_tc05_offline_error_and_retry[run3] ___________________
+
+device = <device.Device object at 0x0000029B780B86E0>
+backend = <backend.Backend object at 0x0000029B780B8AD0>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000029B78520180>
+
+    @pytest.mark.flow1
+    async def test_tc05_offline_error_and_retry(device, backend, me, artemis):
+        backend.reset(me)
+        device.sign_in(ACCOUNT)
+        open_teams = backend.open_team_count()
+        device.set_network(False)
+    
+        first = await artemis(
+            "Open the Browse tab and wait for it to finish loading. Report the error title and message shown.",
+            'Return JSON: {"error_title": string, "error_message": string, "has_try_again_button": bool}',
+        )
+>       assert first.data["error_title"] == "Can't connect right now"
+E       assert 'No teams match your search' == "Can't connect right now"
+E         
+E         - Can't connect right now
+E         + No teams match your search
+
+test_browse.py:53: AssertionError
+__________________ test_tc06_join_team_with_open_slot[run1] ___________________
+
+device = <device.Device object at 0x0000029B780B86E0>
+backend = <backend.Backend object at 0x0000029B780B8AD0>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000029B78521120>
+
+    @pytest.mark.flow1
+    async def test_tc06_join_team_with_open_slot(device, backend, me, artemis):
+        backend.reset(me)  # FinTech Guard has 2 of 5 members
+        device.sign_in(ACCOUNT)
+    
+        run = await artemis(
+            "Find the team 'FinTech Guard' on the Browse tab, open its details and join it, "
+            "confirming in the dialog. After joining, report the team shown on My Team and its member count.",
+            'Return JSON: {"joined": bool, "my_team_name": string, "members_text": string}',
+        )
+    
+        assert run.data["joined"] is True
+        assert run.data["my_team_name"] == "FinTech Guard"
+        assert "3 of 5" in run.data["members_text"]
+        assert "[card_my_team_header]" in run.screen
+>       assert f"[member_{me.uid}]" in run.screen
+E       assert '[member_F5KSMg0wLGXf8PiZAstfjzjtUDa2]' in '[android:id/content]\n[] EXEMatching\n[] My Team\n[btn_open_alerts] Alerts\n[] Alerts\n[btn_open_profile]\n[] Profile\n[] Members\n3 of 5\n[card_my_team_header] ACTIVE TEAM HUB\nLeader not elected\nFinTech Guard\nFIN-02\nBlockchain Student Credential Verification\n3 of 5 members joined\n60%\n3 of 5 members joined\nStep 1 of 3: Elect leader\n[banner_phase] Vote for your team leader\n0 of 3 members have voted. A leader needs 2 votes.\n[btn_vote_leader]\n[] Vote for Leader\n[member_s_lam] LP\nLam Pham\nSE170311 · Blockchain Developer\nSolidity\nGo\n[member_s_vy] VD\nVy Dang\nSE170522 · Frontend Developer\nReact\nTypeScript\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4'
+E        +  where '[android:id/content]\n[] EXEMatching\n[] My Team\n[btn_open_alerts] Alerts\n[] Alerts\n[btn_open_profile]\n[] Profile\n[] Members\n3 of 5\n[card_my_team_header] ACTIVE TEAM HUB\nLeader not elected\nFinTech Guard\nFIN-02\nBlockchain Student Credential Verification\n3 of 5 members joined\n60%\n3 of 5 members joined\nStep 1 of 3: Elect leader\n[banner_phase] Vote for your team leader\n0 of 3 members have voted. A leader needs 2 votes.\n[btn_vote_leader]\n[] Vote for Leader\n[member_s_lam] LP\nLam Pham\nSE170311 · Blockchain Developer\nSolidity\nGo\n[member_s_vy] VD\nVy Dang\nSE170522 · Frontend Developer\nReact\nTypeScript\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4' = Run(result=TaskResult(task_id='d9541679-1ec7-4bf7-88a0-ca0e6d5ebf34', status='completed', goal='Find the team \'FinTech Guard\' on the Browse tab, open its details and join it, confirming in the dialog. After joining, report the team shown on My Team and its member count.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"joined": bool, "my_team_name": string, "members_text": string}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None), data={'joined': True, 'my_team_name': 'FinTech Guard', 'members_text': '3 of 5 members joined'}, screen='[android:id/content]\n[] EXEMatching\n[] My Team\n[btn_open_alerts] Alerts\n[] Alerts\n[btn_open_profile]\n[] Profile\n[] Members\n3 of 5\n[card_my_team_header] ACTIVE TEAM HUB\nLeader not elected\nFinTech Guard\nFIN-02\nBlockchain Student Credential Verification\n3 of 5 members joined\n60%\n3 of 5 members joined\nStep 1 of 3: Elect leader\n[banner_phase] Vote for your team leader\n0 of 3 members have voted. A leader needs 2 votes.\n[btn_vote_leader]\n[] Vote for Leader\n[member_s_lam] LP\nLam Pham\nSE170311 · Blockchain Developer\nSolidity\nGo\n[member_s_vy] VD\nVy Dang\nSE170522 · Frontend Developer\nReact\nTypeScript\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4', folder=WindowsPath('C:/Users/LENOVO/OneDrive/Máy tính/Lab3_Cloud-Enabled_Mobile_App/e2e_test/evidence/test_tc06_join_team_with_open_slot/run1')).screen
+
+test_join.py:23: AssertionError
+__________________ test_tc06_join_team_with_open_slot[run2] ___________________
+
+device = <device.Device object at 0x0000029B780B86E0>
+backend = <backend.Backend object at 0x0000029B780B8AD0>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000029B7818BB00>
+
+    @pytest.mark.flow1
+    async def test_tc06_join_team_with_open_slot(device, backend, me, artemis):
+        backend.reset(me)  # FinTech Guard has 2 of 5 members
+        device.sign_in(ACCOUNT)
+    
+        run = await artemis(
+            "Find the team 'FinTech Guard' on the Browse tab, open its details and join it, "
+            "confirming in the dialog. After joining, report the team shown on My Team and its member count.",
+            'Return JSON: {"joined": bool, "my_team_name": string, "members_text": string}',
+        )
+    
+        assert run.data["joined"] is True
+        assert run.data["my_team_name"] == "FinTech Guard"
+        assert "3 of 5" in run.data["members_text"]
+        assert "[card_my_team_header]" in run.screen
+>       assert f"[member_{me.uid}]" in run.screen
+E       assert '[member_F5KSMg0wLGXf8PiZAstfjzjtUDa2]' in '[android:id/content]\n[] EXEMatching\n[] My Team\n[btn_open_alerts] Alerts\n[] Alerts\n[btn_open_profile]\n[] Profile\n[] Members\n3 of 5\n[card_my_team_header] ACTIVE TEAM HUB\nLeader not elected\nFinTech Guard\nFIN-02\nBlockchain Student Credential Verification\n3 of 5 members joined\n60%\n3 of 5 members joined\nStep 1 of 3: Elect leader\n[banner_phase] Vote for your team leader\n0 of 3 members have voted. A leader needs 2 votes.\n[btn_vote_leader]\n[] Vote for Leader\n[member_s_lam] LP\nLam Pham\nSE170311 · Blockchain Developer\nSolidity\nGo\n[member_s_vy] VD\nVy Dang\nSE170522 · Frontend Developer\nReact\nTypeScript\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4'
+E        +  where '[android:id/content]\n[] EXEMatching\n[] My Team\n[btn_open_alerts] Alerts\n[] Alerts\n[btn_open_profile]\n[] Profile\n[] Members\n3 of 5\n[card_my_team_header] ACTIVE TEAM HUB\nLeader not elected\nFinTech Guard\nFIN-02\nBlockchain Student Credential Verification\n3 of 5 members joined\n60%\n3 of 5 members joined\nStep 1 of 3: Elect leader\n[banner_phase] Vote for your team leader\n0 of 3 members have voted. A leader needs 2 votes.\n[btn_vote_leader]\n[] Vote for Leader\n[member_s_lam] LP\nLam Pham\nSE170311 · Blockchain Developer\nSolidity\nGo\n[member_s_vy] VD\nVy Dang\nSE170522 · Frontend Developer\nReact\nTypeScript\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4' = Run(result=TaskResult(task_id='8bedd5a6-c2c6-4117-a683-82774dc45da7', status='completed', goal='Find the team \'FinTech Guard\' on the Browse tab, open its details and join it, confirming in the dialog. After joining, report the team shown on My Team and its member count.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"joined": bool, "my_team_name": string, "members_text": string}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None), data={'joined': True, 'my_team_name': 'FinTech Guard', 'members_text': '3 of 5'}, screen='[android:id/content]\n[] EXEMatching\n[] My Team\n[btn_open_alerts] Alerts\n[] Alerts\n[btn_open_profile]\n[] Profile\n[] Members\n3 of 5\n[card_my_team_header] ACTIVE TEAM HUB\nLeader not elected\nFinTech Guard\nFIN-02\nBlockchain Student Credential Verification\n3 of 5 members joined\n60%\n3 of 5 members joined\nStep 1 of 3: Elect leader\n[banner_phase] Vote for your team leader\n0 of 3 members have voted. A leader needs 2 votes.\n[btn_vote_leader]\n[] Vote for Leader\n[member_s_lam] LP\nLam Pham\nSE170311 · Blockchain Developer\nSolidity\nGo\n[member_s_vy] VD\nVy Dang\nSE170522 · Frontend Developer\nReact\nTypeScript\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4', folder=WindowsPath('C:/Users/LENOVO/OneDrive/Máy tính/Lab3_Cloud-Enabled_Mobile_App/e2e_test/evidence/test_tc06_join_team_with_open_slot/run2')).screen
+
+test_join.py:23: AssertionError
+__________________ test_tc06_join_team_with_open_slot[run3] ___________________
+
+device = <device.Device object at 0x0000029B780B86E0>
+backend = <backend.Backend object at 0x0000029B780B8AD0>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000029B7818B240>
+
+    @pytest.mark.flow1
+    async def test_tc06_join_team_with_open_slot(device, backend, me, artemis):
+        backend.reset(me)  # FinTech Guard has 2 of 5 members
+        device.sign_in(ACCOUNT)
+    
+        run = await artemis(
+            "Find the team 'FinTech Guard' on the Browse tab, open its details and join it, "
+            "confirming in the dialog. After joining, report the team shown on My Team and its member count.",
+            'Return JSON: {"joined": bool, "my_team_name": string, "members_text": string}',
+        )
+    
+        assert run.data["joined"] is True
+        assert run.data["my_team_name"] == "FinTech Guard"
+        assert "3 of 5" in run.data["members_text"]
+        assert "[card_my_team_header]" in run.screen
+>       assert f"[member_{me.uid}]" in run.screen
+E       assert '[member_F5KSMg0wLGXf8PiZAstfjzjtUDa2]' in '[android:id/content]\n[] EXEMatching\n[] My Team\n[btn_open_alerts] Alerts\n[] Alerts\n[btn_open_profile]\n[] Profile\n[] Members\n3 of 5\n[card_my_team_header] ACTIVE TEAM HUB\nLeader not elected\nFinTech Guard\nFIN-02\nBlockchain Student Credential Verification\n3 of 5 members joined\n60%\n3 of 5 members joined\nStep 1 of 3: Elect leader\n[banner_phase] Vote for your team leader\n0 of 3 members have voted. A leader needs 2 votes.\n[btn_vote_leader]\n[] Vote for Leader\n[member_s_lam] LP\nLam Pham\nSE170311 · Blockchain Developer\nSolidity\nGo\n[member_s_vy] VD\nVy Dang\nSE170522 · Frontend Developer\nReact\nTypeScript\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4'
+E        +  where '[android:id/content]\n[] EXEMatching\n[] My Team\n[btn_open_alerts] Alerts\n[] Alerts\n[btn_open_profile]\n[] Profile\n[] Members\n3 of 5\n[card_my_team_header] ACTIVE TEAM HUB\nLeader not elected\nFinTech Guard\nFIN-02\nBlockchain Student Credential Verification\n3 of 5 members joined\n60%\n3 of 5 members joined\nStep 1 of 3: Elect leader\n[banner_phase] Vote for your team leader\n0 of 3 members have voted. A leader needs 2 votes.\n[btn_vote_leader]\n[] Vote for Leader\n[member_s_lam] LP\nLam Pham\nSE170311 · Blockchain Developer\nSolidity\nGo\n[member_s_vy] VD\nVy Dang\nSE170522 · Frontend Developer\nReact\nTypeScript\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4' = Run(result=TaskResult(task_id='502352bb-cd86-4b2c-b367-1a28547bd1aa', status='completed', goal='Find the team \'FinTech Guard\' on the Browse tab, open its details and join it, confirming in the dialog. After joining, report the team shown on My Team and its member count.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"joined": bool, "my_team_name": string, "members_text": string}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None), data={'joined': True, 'my_team_name': 'FinTech Guard', 'members_text': '3 of 5 members joined'}, screen='[android:id/content]\n[] EXEMatching\n[] My Team\n[btn_open_alerts] Alerts\n[] Alerts\n[btn_open_profile]\n[] Profile\n[] Members\n3 of 5\n[card_my_team_header] ACTIVE TEAM HUB\nLeader not elected\nFinTech Guard\nFIN-02\nBlockchain Student Credential Verification\n3 of 5 members joined\n60%\n3 of 5 members joined\nStep 1 of 3: Elect leader\n[banner_phase] Vote for your team leader\n0 of 3 members have voted. A leader needs 2 votes.\n[btn_vote_leader]\n[] Vote for Leader\n[member_s_lam] LP\nLam Pham\nSE170311 · Blockchain Developer\nSolidity\nGo\n[member_s_vy] VD\nVy Dang\nSE170522 · Frontend Developer\nReact\nTypeScript\n[nav_home] Home\nTab 1 of 4\n[nav_browse] Browse\nTab 2 of 4\n[nav_team] My Team\nTab 3 of 4\n[nav_settings] Settings\nTab 4 of 4', folder=WindowsPath('C:/Users/LENOVO/OneDrive/Máy tính/Lab3_Cloud-Enabled_Mobile_App/e2e_test/evidence/test_tc06_join_team_with_open_slot/run3')).screen
+
+test_join.py:23: AssertionError
+____________ test_tc10_lock_blocked_then_recovered_from_pool[run1] ____________
+
+device = <device.Device object at 0x0000029B780B86E0>
+backend = <backend.Backend object at 0x0000029B780B8AD0>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000029B785225C0>
+
+    @pytest.mark.flow3
+    async def test_tc10_lock_blocked_then_recovered_from_pool(device, backend, me, artemis):
+        # The test account is the elected leader of Team AI-04 (3 of 5); Khanh Vo waits in the pool.
+        backend.reset(me, team="team_ai04", leader=True)
+        device.sign_in(ACCOUNT)
+    
+        run = await artemis(
+            "On My Team, open 'Review & Lock'. Note the error that explains why the roster can't be locked. "
+            "Recover from it: invite students from the Waiting Pool, then wait until a new member joins "
+            "(it takes a few seconds). When every check is done, lock the roster and confirm. "
+            "Report the error you saw first, the name of the student who joined, and the confirmation code.",
+            'Return JSON: {"first_error": string, "joined_member": string, "locked": bool, "confirmation_code": string}',
+        )
+    
+>       assert run.data["first_error"].startswith("Can't lock yet")
+E       assert False
+E        +  where False = <built-in method startswith of str object at 0x0000029B784EE790>("Can't lock yet")
+E        +    where <built-in method startswith of str object at 0x0000029B784EE790> = 'Needs 1 more member to lock'.startswith
+
+test_lock.py:24: AssertionError
+____________ test_tc10_lock_blocked_then_recovered_from_pool[run3] ____________
+
+device = <device.Device object at 0x0000029B780B86E0>
+backend = <backend.Backend object at 0x0000029B780B8AD0>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000029B78521300>
+
+    @pytest.mark.flow3
+    async def test_tc10_lock_blocked_then_recovered_from_pool(device, backend, me, artemis):
+        # The test account is the elected leader of Team AI-04 (3 of 5); Khanh Vo waits in the pool.
+        backend.reset(me, team="team_ai04", leader=True)
+        device.sign_in(ACCOUNT)
+    
+        run = await artemis(
+            "On My Team, open 'Review & Lock'. Note the error that explains why the roster can't be locked. "
+            "Recover from it: invite students from the Waiting Pool, then wait until a new member joins "
+            "(it takes a few seconds). When every check is done, lock the roster and confirm. "
+            "Report the error you saw first, the name of the student who joined, and the confirmation code.",
+            'Return JSON: {"first_error": string, "joined_member": string, "locked": bool, "confirmation_code": string}',
+        )
+    
+>       assert run.data["first_error"].startswith("Can't lock yet")
+E       assert False
+E        +  where False = <built-in method startswith of str object at 0x0000029B784EDF20>("Can't lock yet")
+E        +    where <built-in method startswith of str object at 0x0000029B784EDF20> = 'Needs 1 more member before locking'.startswith
+
+test_lock.py:24: AssertionError
+__________ test_tc11_share_team_link_opens_android_share_sheet[run3] __________
+
+device = <device.Device object at 0x0000029B780B86E0>
+backend = <backend.Backend object at 0x0000029B780B8AD0>
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = <function artemis.<locals>.run at 0x0000029B78523240>
+
+    @pytest.mark.flow3
+    @pytest.mark.native
+    async def test_tc11_share_team_link_opens_android_share_sheet(device, backend, me, artemis):
+        backend.reset(me, team="team_ai04", leader=True)
+        device.sign_in(ACCOUNT)
+    
+        run = await artemis(
+            "On My Team, open 'Review & Lock' and tap 'Share Team Link'. "
+            "Stop when the Android share sheet is open and report what it shows. Do not share to any app.",
+            'Return JSON: {"share_sheet_open": bool, "shared_text_mentions_team": bool}',
+            timeout=600,
+        )
+    
+        assert run.data["share_sheet_open"] is True
+        assert run.data["shared_text_mentions_team"] is True
+        # Ground truth: the system chooser (outside the app) is in the foreground.
+>       assert "intentresolver" in device.foreground_activity(expect="intentresolver")
+E       AssertionError: assert 'intentresolver' in 'com.devorganize222.exematching/.MainActivity'
+E        +  where 'com.devorganize222.exematching/.MainActivity' = foreground_activity(expect='intentresolver')
+E        +    where foreground_activity = <device.Device object at 0x0000029B780B86E0>.foreground_activity
+
+test_lock.py:55: AssertionError
+=================================== PASSES ====================================
+- generated xml file: C:\Users\LENOVO\OneDrive\Máy tính\Lab3_Cloud-Enabled_Mobile_App\e2e_test\evidence\junit.xml -
+=========================== short test summary info ===========================
+PASSED test_alerts_profile.py::test_tc12_decline_invite_then_undo[run1]
+PASSED test_alerts_profile.py::test_tc12_decline_invite_then_undo[run2]
+PASSED test_alerts_profile.py::test_tc12_decline_invite_then_undo[run3]
+PASSED test_auth.py::test_tc01_account_not_on_roster_is_rejected[run1]
+PASSED test_auth.py::test_tc01_account_not_on_roster_is_rejected[run2]
+PASSED test_auth.py::test_tc01_account_not_on_roster_is_rejected[run3]
+PASSED test_auth.py::test_tc02_sign_in_with_roster_account[run1]
+PASSED test_auth.py::test_tc02_sign_in_with_roster_account[run2]
+PASSED test_auth.py::test_tc02_sign_in_with_roster_account[run3]
+PASSED test_browse.py::test_tc04_empty_state_and_clear_filters[run1]
+PASSED test_browse.py::test_tc04_empty_state_and_clear_filters[run2]
+PASSED test_join.py::test_tc07_team_fills_before_confirming[run1]
+PASSED test_join.py::test_tc07_team_fills_before_confirming[run2]
+PASSED test_join.py::test_tc07_team_fills_before_confirming[run3]
+PASSED test_lock.py::test_tc10_lock_blocked_then_recovered_from_pool[run2]
+PASSED test_lock.py::test_tc11_share_team_link_opens_android_share_sheet[run1]
+PASSED test_lock.py::test_tc11_share_team_link_opens_android_share_sheet[run2]
+PASSED test_vote.py::test_tc08_tallies_hidden_until_voting[run1]
+PASSED test_vote.py::test_tc08_tallies_hidden_until_voting[run2]
+PASSED test_vote.py::test_tc08_tallies_hidden_until_voting[run3]
+PASSED test_vote.py::test_tc09_vote_elects_leader[run1]
+PASSED test_vote.py::test_tc09_vote_elects_leader[run2]
+PASSED test_vote.py::test_tc09_vote_elects_leader[run3]
+FAILED test_alerts_profile.py::test_tc13_export_and_upload_team_summary[run1]
+FAILED test_alerts_profile.py::test_tc13_export_and_upload_team_summary[run2]
+FAILED test_alerts_profile.py::test_tc13_export_and_upload_team_summary[run3]
+FAILED test_browse.py::test_tc03_search_and_filter[run1] - assert 2 == 1
+FAILED test_browse.py::test_tc03_search_and_filter[run2] - assert 2 == 1
+FAILED test_browse.py::test_tc03_search_and_filter[run3] - assert 2 == 1
+FAILED test_browse.py::test_tc04_empty_state_and_clear_filters[run3] - assert...
+FAILED test_browse.py::test_tc05_offline_error_and_retry[run1] - assert 'No t...
+FAILED test_browse.py::test_tc05_offline_error_and_retry[run2] - assert 'No t...
+FAILED test_browse.py::test_tc05_offline_error_and_retry[run3] - assert 'No t...
+FAILED test_join.py::test_tc06_join_team_with_open_slot[run1] - assert '[memb...
+FAILED test_join.py::test_tc06_join_team_with_open_slot[run2] - assert '[memb...
+FAILED test_join.py::test_tc06_join_team_with_open_slot[run3] - assert '[memb...
+FAILED test_lock.py::test_tc10_lock_blocked_then_recovered_from_pool[run1] - ...
+FAILED test_lock.py::test_tc10_lock_blocked_then_recovered_from_pool[run3] - ...
+FAILED test_lock.py::test_tc11_share_team_link_opens_android_share_sheet[run3]
+================= 16 failed, 23 passed in 3442.56s (0:57:22) ==================

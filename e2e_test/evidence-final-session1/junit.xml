@@ -1,0 +1,931 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="15" skipped="0" tests="39" time="5948.313" timestamp="2026-11-03T18:40:01.175499+07:00" hostname="LAPTOP-GJIE9MEF"><testcase classname="test_alerts_profile" name="test_tc12_decline_invite_then_undo[run1]" time="105.333" /><testcase classname="test_alerts_profile" name="test_tc12_decline_invite_then_undo[run2]" time="76.365" /><testcase classname="test_alerts_profile" name="test_tc12_decline_invite_then_undo[run3]" time="77.282" /><testcase classname="test_alerts_profile" name="test_tc13_export_and_upload_team_summary[run1]" time="72.405" /><testcase classname="test_alerts_profile" name="test_tc13_export_and_upload_team_summary[run2]" time="73.478" /><testcase classname="test_alerts_profile" name="test_tc13_export_and_upload_team_summary[run3]" time="75.385" /><testcase classname="test_auth" name="test_tc01_account_not_on_roster_is_rejected[run1]" time="108.616" /><testcase classname="test_auth" name="test_tc01_account_not_on_roster_is_rejected[run2]" time="65.591" /><testcase classname="test_auth" name="test_tc01_account_not_on_roster_is_rejected[run3]" time="90.557" /><testcase classname="test_auth" name="test_tc02_sign_in_with_roster_account[run1]" time="69.707" /><testcase classname="test_auth" name="test_tc02_sign_in_with_roster_account[run2]" time="69.111" /><testcase classname="test_auth" name="test_tc02_sign_in_with_roster_account[run3]" time="69.712" /><testcase classname="test_browse" name="test_tc03_search_and_filter[run1]" time="78.178" /><testcase classname="test_browse" name="test_tc03_search_and_filter[run2]" time="79.011" /><testcase classname="test_browse" name="test_tc03_search_and_filter[run3]" time="111.402" /><testcase classname="test_browse" name="test_tc04_empty_state_and_clear_filters[run1]" time="191.388" /><testcase classname="test_browse" name="test_tc04_empty_state_and_clear_filters[run2]" time="152.327" /><testcase classname="test_browse" name="test_tc04_empty_state_and_clear_filters[run3]" time="83.971" /><testcase classname="test_browse" name="test_tc05_offline_error_and_retry[run1]" time="98.247" /><testcase classname="test_browse" name="test_tc05_offline_error_and_retry[run2]" time="109.627" /><testcase classname="test_browse" name="test_tc05_offline_error_and_retry[run3]" time="106.406" /><testcase classname="test_join" name="test_tc06_join_team_with_open_slot[run1]" time="95.974" /><testcase classname="test_join" name="test_tc06_join_team_with_open_slot[run2]" time="91.695" /><testcase classname="test_join" name="test_tc06_join_team_with_open_slot[run3]" time="79.186" /><testcase classname="test_join" name="test_tc07_team_fills_before_confirming[run1]" time="252.990"><failure message="AssertionError: ARTEMIS task a6e454c9-552b-40db-9cf2-a58ac7daed76 ended failed: None&#10;assert False&#10; +  where False = TaskResult(task_id='a6e454c9-552b-40db-9cf2-a58ac7daed76', status='failed', goal='Open \'EduSmart Analytics\' from the Browse tab and tap \'Join Team\'. Stop as soon as the confirmation dialog is open. Do not confirm.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {&quot;dialog_open&quot;: bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded">device = &lt;device.Device object at 0x000001B9280C86E0&gt;
+backend = &lt;backend.Backend object at 0x000001B9280C8AD0&gt;
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = &lt;function artemis.&lt;locals&gt;.run at 0x000001B9281540E0&gt;
+
+    @pytest.mark.flow1
+    async def test_tc07_team_fills_before_confirming(device, backend, me, artemis):
+        backend.reset(me)  # EduSmart Analytics has 4 of 5 members
+        device.sign_in(ACCOUNT)
+    
+&gt;       await artemis(
+            "Open 'EduSmart Analytics' from the Browse tab and tap 'Join Team'. "
+            "Stop as soon as the confirmation dialog is open. Do not confirm.",
+            'Return JSON: {"dialog_open": bool}',
+        )
+
+test_join.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = "Open 'EduSmart Analytics' from the Browse tab and tap 'Join Team'. Stop as soon as the confirmation dialog is open. Do not confirm."
+expected_output = 'Return JSON: {"dialog_open": bool}', timeout = 900
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -&gt; Run:
+        time.sleep(COOLDOWN)
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+&gt;       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task a6e454c9-552b-40db-9cf2-a58ac7daed76 ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='a6e454c9-552b-40db-9cf2-a58ac7daed76', status='failed', goal='Open \'EduSmart Analytics\' from the Browse tab and tap \'Join Team\'. Stop as soon as the confirmation dialog is open. Do not confirm.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"dialog_open": bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded
+
+conftest.py:162: AssertionError</failure></testcase><testcase classname="test_join" name="test_tc07_team_fills_before_confirming[run2]" time="234.327"><failure message="AssertionError: ARTEMIS task e2cd65e2-b18d-4eb8-a8eb-c27e52729792 ended failed: None&#10;assert False&#10; +  where False = TaskResult(task_id='e2cd65e2-b18d-4eb8-a8eb-c27e52729792', status='failed', goal='Open \'EduSmart Analytics\' from the Browse tab and tap \'Join Team\'. Stop as soon as the confirmation dialog is open. Do not confirm.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {&quot;dialog_open&quot;: bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded">device = &lt;device.Device object at 0x000001B9280C86E0&gt;
+backend = &lt;backend.Backend object at 0x000001B9280C8AD0&gt;
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = &lt;function artemis.&lt;locals&gt;.run at 0x000001B9281553A0&gt;
+
+    @pytest.mark.flow1
+    async def test_tc07_team_fills_before_confirming(device, backend, me, artemis):
+        backend.reset(me)  # EduSmart Analytics has 4 of 5 members
+        device.sign_in(ACCOUNT)
+    
+&gt;       await artemis(
+            "Open 'EduSmart Analytics' from the Browse tab and tap 'Join Team'. "
+            "Stop as soon as the confirmation dialog is open. Do not confirm.",
+            'Return JSON: {"dialog_open": bool}',
+        )
+
+test_join.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = "Open 'EduSmart Analytics' from the Browse tab and tap 'Join Team'. Stop as soon as the confirmation dialog is open. Do not confirm."
+expected_output = 'Return JSON: {"dialog_open": bool}', timeout = 900
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -&gt; Run:
+        time.sleep(COOLDOWN)
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+&gt;       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task e2cd65e2-b18d-4eb8-a8eb-c27e52729792 ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='e2cd65e2-b18d-4eb8-a8eb-c27e52729792', status='failed', goal='Open \'EduSmart Analytics\' from the Browse tab and tap \'Join Team\'. Stop as soon as the confirmation dialog is open. Do not confirm.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"dialog_open": bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded
+
+conftest.py:162: AssertionError</failure></testcase><testcase classname="test_join" name="test_tc07_team_fills_before_confirming[run3]" time="234.417"><failure message="AssertionError: ARTEMIS task 55734f81-f36b-403a-af61-357628a3fad6 ended failed: None&#10;assert False&#10; +  where False = TaskResult(task_id='55734f81-f36b-403a-af61-357628a3fad6', status='failed', goal='Open \'EduSmart Analytics\' from the Browse tab and tap \'Join Team\'. Stop as soon as the confirmation dialog is open. Do not confirm.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {&quot;dialog_open&quot;: bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded">device = &lt;device.Device object at 0x000001B9280C86E0&gt;
+backend = &lt;backend.Backend object at 0x000001B9280C8AD0&gt;
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = &lt;function artemis.&lt;locals&gt;.run at 0x000001B9281549A0&gt;
+
+    @pytest.mark.flow1
+    async def test_tc07_team_fills_before_confirming(device, backend, me, artemis):
+        backend.reset(me)  # EduSmart Analytics has 4 of 5 members
+        device.sign_in(ACCOUNT)
+    
+&gt;       await artemis(
+            "Open 'EduSmart Analytics' from the Browse tab and tap 'Join Team'. "
+            "Stop as soon as the confirmation dialog is open. Do not confirm.",
+            'Return JSON: {"dialog_open": bool}',
+        )
+
+test_join.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = "Open 'EduSmart Analytics' from the Browse tab and tap 'Join Team'. Stop as soon as the confirmation dialog is open. Do not confirm."
+expected_output = 'Return JSON: {"dialog_open": bool}', timeout = 900
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -&gt; Run:
+        time.sleep(COOLDOWN)
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+&gt;       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task 55734f81-f36b-403a-af61-357628a3fad6 ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='55734f81-f36b-403a-af61-357628a3fad6', status='failed', goal='Open \'EduSmart Analytics\' from the Browse tab and tap \'Join Team\'. Stop as soon as the confirmation dialog is open. Do not confirm.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"dialog_open": bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded
+
+conftest.py:162: AssertionError</failure></testcase><testcase classname="test_lock" name="test_tc10_lock_blocked_then_recovered_from_pool[run1]" time="236.662"><failure message="AssertionError: ARTEMIS task 2991b43a-a696-4042-b87d-f6e92517ad5c ended failed: None&#10;assert False&#10; +  where False = TaskResult(task_id='2991b43a-a696-4042-b87d-f6e92517ad5c', status='failed', goal='On My Team, open \'Review &amp; Lock\'. Note the title of the red error banner near the top of the screen (the bold first line of that red box, not the smaller hint under the Lock button). Recover from it: invite students from the Waiting Pool, then wait until a new member joins (it takes a few seconds). When every check is done, lock the roster and confirm. Report the error you saw first, the name of the student who joined, and the confirmation code.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {&quot;first_error&quot;: string, &quot;joined_member&quot;: string, &quot;locked&quot;: bool, &quot;confirmation_code&quot;: string}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded">device = &lt;device.Device object at 0x000001B9280C86E0&gt;
+backend = &lt;backend.Backend object at 0x000001B9280C8AD0&gt;
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = &lt;function artemis.&lt;locals&gt;.run at 0x000001B9285354E0&gt;
+
+    @pytest.mark.flow3
+    async def test_tc10_lock_blocked_then_recovered_from_pool(device, backend, me, artemis):
+        # The test account is the elected leader of Team AI-04 (3 of 5); Khanh Vo waits in the pool.
+        backend.reset(me, team="team_ai04", leader=True)
+        device.sign_in(ACCOUNT)
+    
+&gt;       run = await artemis(
+            "On My Team, open 'Review &amp; Lock'. Note the title of the red error banner near the top of the screen "
+            "(the bold first line of that red box, not the smaller hint under the Lock button). "
+            "Recover from it: invite students from the Waiting Pool, then wait until a new member joins "
+            "(it takes a few seconds). When every check is done, lock the roster and confirm. "
+            "Report the error you saw first, the name of the student who joined, and the confirmation code.",
+            'Return JSON: {"first_error": string, "joined_member": string, "locked": bool, "confirmation_code": string}',
+        )
+
+test_lock.py:16: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = "On My Team, open 'Review &amp; Lock'. Note the title of the red error banner near the top of the screen (the bold first l...the roster and confirm. Report the error you saw first, the name of the student who joined, and the confirmation code."
+expected_output = 'Return JSON: {"first_error": string, "joined_member": string, "locked": bool, "confirmation_code": string}'
+timeout = 900
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -&gt; Run:
+        time.sleep(COOLDOWN)
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+&gt;       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task 2991b43a-a696-4042-b87d-f6e92517ad5c ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='2991b43a-a696-4042-b87d-f6e92517ad5c', status='failed', goal='On My Team, open \'Review &amp; Lock\'. Note the title of the red error banner near the top of the screen (the bold first line of that red box, not the smaller hint under the Lock button). Recover from it: invite students from the Waiting Pool, then wait until a new member joins (it takes a few seconds). When every check is done, lock the roster and confirm. Report the error you saw first, the name of the student who joined, and the confirmation code.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"first_error": string, "joined_member": string, "locked": bool, "confirmation_code": string}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded
+
+conftest.py:162: AssertionError</failure></testcase><testcase classname="test_lock" name="test_tc10_lock_blocked_then_recovered_from_pool[run2]" time="237.887"><failure message="AssertionError: ARTEMIS task 5bfc3ad6-af87-4a3a-9a8e-5f174df2fd26 ended failed: None&#10;assert False&#10; +  where False = TaskResult(task_id='5bfc3ad6-af87-4a3a-9a8e-5f174df2fd26', status='failed', goal='On My Team, open \'Review &amp; Lock\'. Note the title of the red error banner near the top of the screen (the bold first line of that red box, not the smaller hint under the Lock button). Recover from it: invite students from the Waiting Pool, then wait until a new member joins (it takes a few seconds). When every check is done, lock the roster and confirm. Report the error you saw first, the name of the student who joined, and the confirmation code.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {&quot;first_error&quot;: string, &quot;joined_member&quot;: string, &quot;locked&quot;: bool, &quot;confirmation_code&quot;: string}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded">device = &lt;device.Device object at 0x000001B9280C86E0&gt;
+backend = &lt;backend.Backend object at 0x000001B9280C8AD0&gt;
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = &lt;function artemis.&lt;locals&gt;.run at 0x000001B928534B80&gt;
+
+    @pytest.mark.flow3
+    async def test_tc10_lock_blocked_then_recovered_from_pool(device, backend, me, artemis):
+        # The test account is the elected leader of Team AI-04 (3 of 5); Khanh Vo waits in the pool.
+        backend.reset(me, team="team_ai04", leader=True)
+        device.sign_in(ACCOUNT)
+    
+&gt;       run = await artemis(
+            "On My Team, open 'Review &amp; Lock'. Note the title of the red error banner near the top of the screen "
+            "(the bold first line of that red box, not the smaller hint under the Lock button). "
+            "Recover from it: invite students from the Waiting Pool, then wait until a new member joins "
+            "(it takes a few seconds). When every check is done, lock the roster and confirm. "
+            "Report the error you saw first, the name of the student who joined, and the confirmation code.",
+            'Return JSON: {"first_error": string, "joined_member": string, "locked": bool, "confirmation_code": string}',
+        )
+
+test_lock.py:16: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = "On My Team, open 'Review &amp; Lock'. Note the title of the red error banner near the top of the screen (the bold first l...the roster and confirm. Report the error you saw first, the name of the student who joined, and the confirmation code."
+expected_output = 'Return JSON: {"first_error": string, "joined_member": string, "locked": bool, "confirmation_code": string}'
+timeout = 900
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -&gt; Run:
+        time.sleep(COOLDOWN)
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+&gt;       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task 5bfc3ad6-af87-4a3a-9a8e-5f174df2fd26 ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='5bfc3ad6-af87-4a3a-9a8e-5f174df2fd26', status='failed', goal='On My Team, open \'Review &amp; Lock\'. Note the title of the red error banner near the top of the screen (the bold first line of that red box, not the smaller hint under the Lock button). Recover from it: invite students from the Waiting Pool, then wait until a new member joins (it takes a few seconds). When every check is done, lock the roster and confirm. Report the error you saw first, the name of the student who joined, and the confirmation code.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"first_error": string, "joined_member": string, "locked": bool, "confirmation_code": string}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded
+
+conftest.py:162: AssertionError</failure></testcase><testcase classname="test_lock" name="test_tc10_lock_blocked_then_recovered_from_pool[run3]" time="380.129"><failure message="AssertionError: ARTEMIS task 46ed32cd-74b0-4b22-9da7-0b05ad71738f ended failed: None&#10;assert False&#10; +  where False = TaskResult(task_id='46ed32cd-74b0-4b22-9da7-0b05ad71738f', status='failed', goal='On My Team, open \'Review &amp; Lock\'. Note the title of the red error banner near the top of the screen (the bold first line of that red box, not the smaller hint under the Lock button). Recover from it: invite students from the Waiting Pool, then wait until a new member joins (it takes a few seconds). When every check is done, lock the roster and confirm. Report the error you saw first, the name of the student who joined, and the confirmation code.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {&quot;first_error&quot;: string, &quot;joined_member&quot;: string, &quot;locked&quot;: bool, &quot;confirmation_code&quot;: string}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded">device = &lt;device.Device object at 0x000001B9280C86E0&gt;
+backend = &lt;backend.Backend object at 0x000001B9280C8AD0&gt;
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = &lt;function artemis.&lt;locals&gt;.run at 0x000001B928536200&gt;
+
+    @pytest.mark.flow3
+    async def test_tc10_lock_blocked_then_recovered_from_pool(device, backend, me, artemis):
+        # The test account is the elected leader of Team AI-04 (3 of 5); Khanh Vo waits in the pool.
+        backend.reset(me, team="team_ai04", leader=True)
+        device.sign_in(ACCOUNT)
+    
+&gt;       run = await artemis(
+            "On My Team, open 'Review &amp; Lock'. Note the title of the red error banner near the top of the screen "
+            "(the bold first line of that red box, not the smaller hint under the Lock button). "
+            "Recover from it: invite students from the Waiting Pool, then wait until a new member joins "
+            "(it takes a few seconds). When every check is done, lock the roster and confirm. "
+            "Report the error you saw first, the name of the student who joined, and the confirmation code.",
+            'Return JSON: {"first_error": string, "joined_member": string, "locked": bool, "confirmation_code": string}',
+        )
+
+test_lock.py:16: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = "On My Team, open 'Review &amp; Lock'. Note the title of the red error banner near the top of the screen (the bold first l...the roster and confirm. Report the error you saw first, the name of the student who joined, and the confirmation code."
+expected_output = 'Return JSON: {"first_error": string, "joined_member": string, "locked": bool, "confirmation_code": string}'
+timeout = 900
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -&gt; Run:
+        time.sleep(COOLDOWN)
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+&gt;       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task 46ed32cd-74b0-4b22-9da7-0b05ad71738f ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='46ed32cd-74b0-4b22-9da7-0b05ad71738f', status='failed', goal='On My Team, open \'Review &amp; Lock\'. Note the title of the red error banner near the top of the screen (the bold first line of that red box, not the smaller hint under the Lock button). Recover from it: invite students from the Waiting Pool, then wait until a new member joins (it takes a few seconds). When every check is done, lock the roster and confirm. Report the error you saw first, the name of the student who joined, and the confirmation code.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"first_error": string, "joined_member": string, "locked": bool, "confirmation_code": string}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded
+
+conftest.py:162: AssertionError</failure></testcase><testcase classname="test_lock" name="test_tc11_share_team_link_opens_android_share_sheet[run1]" time="239.922"><failure message="AssertionError: ARTEMIS task 859356ab-a9cb-4a28-ab67-83556082cc75 ended failed: None&#10;assert False&#10; +  where False = TaskResult(task_id='859356ab-a9cb-4a28-ab67-83556082cc75', status='failed', goal='On My Team, open \'Review &amp; Lock\' and tap \'Share Team Link\'. Stop when the Android share sheet is open and report what it shows. Do not share to any app.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {&quot;share_sheet_open&quot;: bool, &quot;shared_text_mentions_team&quot;: bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded">device = &lt;device.Device object at 0x000001B9280C86E0&gt;
+backend = &lt;backend.Backend object at 0x000001B9280C8AD0&gt;
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = &lt;function artemis.&lt;locals&gt;.run at 0x000001B928536C00&gt;
+
+    @pytest.mark.flow3
+    @pytest.mark.native
+    async def test_tc11_share_team_link_opens_android_share_sheet(device, backend, me, artemis):
+        backend.reset(me, team="team_ai04", leader=True)
+        device.sign_in(ACCOUNT)
+    
+&gt;       run = await artemis(
+            "On My Team, open 'Review &amp; Lock' and tap 'Share Team Link'. "
+            "Stop when the Android share sheet is open and report what it shows. Do not share to any app.",
+            'Return JSON: {"share_sheet_open": bool, "shared_text_mentions_team": bool}',
+            timeout=600,
+        )
+
+test_lock.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = "On My Team, open 'Review &amp; Lock' and tap 'Share Team Link'. Stop when the Android share sheet is open and report what it shows. Do not share to any app."
+expected_output = 'Return JSON: {"share_sheet_open": bool, "shared_text_mentions_team": bool}'
+timeout = 600
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -&gt; Run:
+        time.sleep(COOLDOWN)
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+&gt;       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task 859356ab-a9cb-4a28-ab67-83556082cc75 ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='859356ab-a9cb-4a28-ab67-83556082cc75', status='failed', goal='On My Team, open \'Review &amp; Lock\' and tap \'Share Team Link\'. Stop when the Android share sheet is open and report what it shows. Do not share to any app.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"share_sheet_open": bool, "shared_text_mentions_team": bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded
+
+conftest.py:162: AssertionError</failure></testcase><testcase classname="test_lock" name="test_tc11_share_team_link_opens_android_share_sheet[run2]" time="242.375"><failure message="AssertionError: ARTEMIS task 07f0300a-3dec-4cb0-b779-e99c55b9c84d ended failed: None&#10;assert False&#10; +  where False = TaskResult(task_id='07f0300a-3dec-4cb0-b779-e99c55b9c84d', status='failed', goal='On My Team, open \'Review &amp; Lock\' and tap \'Share Team Link\'. Stop when the Android share sheet is open and report what it shows. Do not share to any app.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {&quot;share_sheet_open&quot;: bool, &quot;shared_text_mentions_team&quot;: bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded">device = &lt;device.Device object at 0x000001B9280C86E0&gt;
+backend = &lt;backend.Backend object at 0x000001B9280C8AD0&gt;
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = &lt;function artemis.&lt;locals&gt;.run at 0x000001B928537060&gt;
+
+    @pytest.mark.flow3
+    @pytest.mark.native
+    async def test_tc11_share_team_link_opens_android_share_sheet(device, backend, me, artemis):
+        backend.reset(me, team="team_ai04", leader=True)
+        device.sign_in(ACCOUNT)
+    
+&gt;       run = await artemis(
+            "On My Team, open 'Review &amp; Lock' and tap 'Share Team Link'. "
+            "Stop when the Android share sheet is open and report what it shows. Do not share to any app.",
+            'Return JSON: {"share_sheet_open": bool, "shared_text_mentions_team": bool}',
+            timeout=600,
+        )
+
+test_lock.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = "On My Team, open 'Review &amp; Lock' and tap 'Share Team Link'. Stop when the Android share sheet is open and report what it shows. Do not share to any app."
+expected_output = 'Return JSON: {"share_sheet_open": bool, "shared_text_mentions_team": bool}'
+timeout = 600
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -&gt; Run:
+        time.sleep(COOLDOWN)
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+&gt;       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task 07f0300a-3dec-4cb0-b779-e99c55b9c84d ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='07f0300a-3dec-4cb0-b779-e99c55b9c84d', status='failed', goal='On My Team, open \'Review &amp; Lock\' and tap \'Share Team Link\'. Stop when the Android share sheet is open and report what it shows. Do not share to any app.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"share_sheet_open": bool, "shared_text_mentions_team": bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded
+
+conftest.py:162: AssertionError</failure></testcase><testcase classname="test_lock" name="test_tc11_share_team_link_opens_android_share_sheet[run3]" time="236.353"><failure message="AssertionError: ARTEMIS task 469bbc0f-bd9e-4dbb-8e05-4fde60a2c464 ended failed: None&#10;assert False&#10; +  where False = TaskResult(task_id='469bbc0f-bd9e-4dbb-8e05-4fde60a2c464', status='failed', goal='On My Team, open \'Review &amp; Lock\' and tap \'Share Team Link\'. Stop when the Android share sheet is open and report what it shows. Do not share to any app.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {&quot;share_sheet_open&quot;: bool, &quot;shared_text_mentions_team&quot;: bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded">device = &lt;device.Device object at 0x000001B9280C86E0&gt;
+backend = &lt;backend.Backend object at 0x000001B9280C8AD0&gt;
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = &lt;function artemis.&lt;locals&gt;.run at 0x000001B928537240&gt;
+
+    @pytest.mark.flow3
+    @pytest.mark.native
+    async def test_tc11_share_team_link_opens_android_share_sheet(device, backend, me, artemis):
+        backend.reset(me, team="team_ai04", leader=True)
+        device.sign_in(ACCOUNT)
+    
+&gt;       run = await artemis(
+            "On My Team, open 'Review &amp; Lock' and tap 'Share Team Link'. "
+            "Stop when the Android share sheet is open and report what it shows. Do not share to any app.",
+            'Return JSON: {"share_sheet_open": bool, "shared_text_mentions_team": bool}',
+            timeout=600,
+        )
+
+test_lock.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = "On My Team, open 'Review &amp; Lock' and tap 'Share Team Link'. Stop when the Android share sheet is open and report what it shows. Do not share to any app."
+expected_output = 'Return JSON: {"share_sheet_open": bool, "shared_text_mentions_team": bool}'
+timeout = 600
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -&gt; Run:
+        time.sleep(COOLDOWN)
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+&gt;       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task 469bbc0f-bd9e-4dbb-8e05-4fde60a2c464 ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='469bbc0f-bd9e-4dbb-8e05-4fde60a2c464', status='failed', goal='On My Team, open \'Review &amp; Lock\' and tap \'Share Team Link\'. Stop when the Android share sheet is open and report what it shows. Do not share to any app.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"share_sheet_open": bool, "shared_text_mentions_team": bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded
+
+conftest.py:162: AssertionError</failure></testcase><testcase classname="test_vote" name="test_tc08_tallies_hidden_until_voting[run1]" time="234.700"><failure message="AssertionError: ARTEMIS task 77b5c214-a14c-4f9f-95b9-71d179415c26 ended failed: None&#10;assert False&#10; +  where False = TaskResult(task_id='77b5c214-a14c-4f9f-95b9-71d179415c26', status='failed', goal='Go to My Team and open \'Vote for Leader\'. Do not vote. Report whether any vote counts are visible and what the information box says.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {&quot;vote_counts_visible&quot;: bool, &quot;info_title&quot;: string, &quot;submit_enabled&quot;: bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded">device = &lt;device.Device object at 0x000001B9280C86E0&gt;
+backend = &lt;backend.Backend object at 0x000001B9280C8AD0&gt;
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = &lt;function artemis.&lt;locals&gt;.run at 0x000001B92859C5E0&gt;
+
+    @pytest.mark.flow2
+    async def test_tc08_tallies_hidden_until_voting(device, backend, me, artemis):
+        backend.reset(me, team="team_ai04")
+        device.sign_in(ACCOUNT)
+    
+&gt;       run = await artemis(
+            "Go to My Team and open 'Vote for Leader'. Do not vote. "
+            "Report whether any vote counts are visible and what the information box says.",
+            'Return JSON: {"vote_counts_visible": bool, "info_title": string, "submit_enabled": bool}',
+        )
+
+test_vote.py:18: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = "Go to My Team and open 'Vote for Leader'. Do not vote. Report whether any vote counts are visible and what the information box says."
+expected_output = 'Return JSON: {"vote_counts_visible": bool, "info_title": string, "submit_enabled": bool}'
+timeout = 900
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -&gt; Run:
+        time.sleep(COOLDOWN)
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+&gt;       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task 77b5c214-a14c-4f9f-95b9-71d179415c26 ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='77b5c214-a14c-4f9f-95b9-71d179415c26', status='failed', goal='Go to My Team and open \'Vote for Leader\'. Do not vote. Report whether any vote counts are visible and what the information box says.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"vote_counts_visible": bool, "info_title": string, "submit_enabled": bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded
+
+conftest.py:162: AssertionError</failure></testcase><testcase classname="test_vote" name="test_tc08_tallies_hidden_until_voting[run2]" time="235.175"><failure message="AssertionError: ARTEMIS task f77a99e6-84ef-4b94-ba99-2032e602b2ba ended failed: None&#10;assert False&#10; +  where False = TaskResult(task_id='f77a99e6-84ef-4b94-ba99-2032e602b2ba', status='failed', goal='Go to My Team and open \'Vote for Leader\'. Do not vote. Report whether any vote counts are visible and what the information box says.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {&quot;vote_counts_visible&quot;: bool, &quot;info_title&quot;: string, &quot;submit_enabled&quot;: bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded">device = &lt;device.Device object at 0x000001B9280C86E0&gt;
+backend = &lt;backend.Backend object at 0x000001B9280C8AD0&gt;
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = &lt;function artemis.&lt;locals&gt;.run at 0x000001B92859CD60&gt;
+
+    @pytest.mark.flow2
+    async def test_tc08_tallies_hidden_until_voting(device, backend, me, artemis):
+        backend.reset(me, team="team_ai04")
+        device.sign_in(ACCOUNT)
+    
+&gt;       run = await artemis(
+            "Go to My Team and open 'Vote for Leader'. Do not vote. "
+            "Report whether any vote counts are visible and what the information box says.",
+            'Return JSON: {"vote_counts_visible": bool, "info_title": string, "submit_enabled": bool}',
+        )
+
+test_vote.py:18: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = "Go to My Team and open 'Vote for Leader'. Do not vote. Report whether any vote counts are visible and what the information box says."
+expected_output = 'Return JSON: {"vote_counts_visible": bool, "info_title": string, "submit_enabled": bool}'
+timeout = 900
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -&gt; Run:
+        time.sleep(COOLDOWN)
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+&gt;       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task f77a99e6-84ef-4b94-ba99-2032e602b2ba ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='f77a99e6-84ef-4b94-ba99-2032e602b2ba', status='failed', goal='Go to My Team and open \'Vote for Leader\'. Do not vote. Report whether any vote counts are visible and what the information box says.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"vote_counts_visible": bool, "info_title": string, "submit_enabled": bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded
+
+conftest.py:162: AssertionError</failure></testcase><testcase classname="test_vote" name="test_tc08_tallies_hidden_until_voting[run3]" time="234.763"><failure message="AssertionError: ARTEMIS task 3d23cd01-1f73-4474-84e1-8862540f090b ended failed: None&#10;assert False&#10; +  where False = TaskResult(task_id='3d23cd01-1f73-4474-84e1-8862540f090b', status='failed', goal='Go to My Team and open \'Vote for Leader\'. Do not vote. Report whether any vote counts are visible and what the information box says.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {&quot;vote_counts_visible&quot;: bool, &quot;info_title&quot;: string, &quot;submit_enabled&quot;: bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded">device = &lt;device.Device object at 0x000001B9280C86E0&gt;
+backend = &lt;backend.Backend object at 0x000001B9280C8AD0&gt;
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = &lt;function artemis.&lt;locals&gt;.run at 0x000001B92859DBC0&gt;
+
+    @pytest.mark.flow2
+    async def test_tc08_tallies_hidden_until_voting(device, backend, me, artemis):
+        backend.reset(me, team="team_ai04")
+        device.sign_in(ACCOUNT)
+    
+&gt;       run = await artemis(
+            "Go to My Team and open 'Vote for Leader'. Do not vote. "
+            "Report whether any vote counts are visible and what the information box says.",
+            'Return JSON: {"vote_counts_visible": bool, "info_title": string, "submit_enabled": bool}',
+        )
+
+test_vote.py:18: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = "Go to My Team and open 'Vote for Leader'. Do not vote. Report whether any vote counts are visible and what the information box says."
+expected_output = 'Return JSON: {"vote_counts_visible": bool, "info_title": string, "submit_enabled": bool}'
+timeout = 900
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -&gt; Run:
+        time.sleep(COOLDOWN)
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+&gt;       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task 3d23cd01-1f73-4474-84e1-8862540f090b ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='3d23cd01-1f73-4474-84e1-8862540f090b', status='failed', goal='Go to My Team and open \'Vote for Leader\'. Do not vote. Report whether any vote counts are visible and what the information box says.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"vote_counts_visible": bool, "info_title": string, "submit_enabled": bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded
+
+conftest.py:162: AssertionError</failure></testcase><testcase classname="test_vote" name="test_tc09_vote_elects_leader[run1]" time="239.981"><failure message="AssertionError: ARTEMIS task 0f9d3b02-13cf-471a-8056-89d8af4fc95d ended failed: None&#10;assert False&#10; +  where False = TaskResult(task_id='0f9d3b02-13cf-471a-8056-89d8af4fc95d', status='failed', goal='Go to My Team, open \'Vote for Leader\', select Đạt Duy (you) and submit the vote. Report who the team leader is now and how many votes they have.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {&quot;leader_name&quot;: string, &quot;leader_votes&quot;: int, &quot;tallies_visible&quot;: bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded">device = &lt;device.Device object at 0x000001B9280C86E0&gt;
+backend = &lt;backend.Backend object at 0x000001B9280C8AD0&gt;
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = &lt;function artemis.&lt;locals&gt;.run at 0x000001B92859E520&gt;
+
+    @pytest.mark.flow2
+    async def test_tc09_vote_elects_leader(device, backend, me, artemis):
+        backend.reset(me, team="team_ai04")
+        device.sign_in(ACCOUNT)
+    
+&gt;       run = await artemis(
+            f"Go to My Team, open 'Vote for Leader', select {me.full_name} (you) and submit the vote. "
+            "Report who the team leader is now and how many votes they have.",
+            'Return JSON: {"leader_name": string, "leader_votes": int, "tallies_visible": bool}',
+        )
+
+test_vote.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = "Go to My Team, open 'Vote for Leader', select Đạt Duy (you) and submit the vote. Report who the team leader is now and how many votes they have."
+expected_output = 'Return JSON: {"leader_name": string, "leader_votes": int, "tallies_visible": bool}'
+timeout = 900
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -&gt; Run:
+        time.sleep(COOLDOWN)
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+&gt;       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task 0f9d3b02-13cf-471a-8056-89d8af4fc95d ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='0f9d3b02-13cf-471a-8056-89d8af4fc95d', status='failed', goal='Go to My Team, open \'Vote for Leader\', select Đạt Duy (you) and submit the vote. Report who the team leader is now and how many votes they have.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"leader_name": string, "leader_votes": int, "tallies_visible": bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded
+
+conftest.py:162: AssertionError</failure></testcase><testcase classname="test_vote" name="test_tc09_vote_elects_leader[run2]" time="238.573"><failure message="AssertionError: ARTEMIS task 149477a3-e1be-45e5-a7f6-3c43205285c0 ended failed: None&#10;assert False&#10; +  where False = TaskResult(task_id='149477a3-e1be-45e5-a7f6-3c43205285c0', status='failed', goal='Go to My Team, open \'Vote for Leader\', select Đạt Duy (you) and submit the vote. Report who the team leader is now and how many votes they have.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {&quot;leader_name&quot;: string, &quot;leader_votes&quot;: int, &quot;tallies_visible&quot;: bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded">device = &lt;device.Device object at 0x000001B9280C86E0&gt;
+backend = &lt;backend.Backend object at 0x000001B9280C8AD0&gt;
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = &lt;function artemis.&lt;locals&gt;.run at 0x000001B92859ECA0&gt;
+
+    @pytest.mark.flow2
+    async def test_tc09_vote_elects_leader(device, backend, me, artemis):
+        backend.reset(me, team="team_ai04")
+        device.sign_in(ACCOUNT)
+    
+&gt;       run = await artemis(
+            f"Go to My Team, open 'Vote for Leader', select {me.full_name} (you) and submit the vote. "
+            "Report who the team leader is now and how many votes they have.",
+            'Return JSON: {"leader_name": string, "leader_votes": int, "tallies_visible": bool}',
+        )
+
+test_vote.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = "Go to My Team, open 'Vote for Leader', select Đạt Duy (you) and submit the vote. Report who the team leader is now and how many votes they have."
+expected_output = 'Return JSON: {"leader_name": string, "leader_votes": int, "tallies_visible": bool}'
+timeout = 900
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -&gt; Run:
+        time.sleep(COOLDOWN)
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+&gt;       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task 149477a3-e1be-45e5-a7f6-3c43205285c0 ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='149477a3-e1be-45e5-a7f6-3c43205285c0', status='failed', goal='Go to My Team, open \'Vote for Leader\', select Đạt Duy (you) and submit the vote. Report who the team leader is now and how many votes they have.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"leader_name": string, "leader_votes": int, "tallies_visible": bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded
+
+conftest.py:162: AssertionError</failure></testcase><testcase classname="test_vote" name="test_tc09_vote_elects_leader[run3]" time="238.785"><failure message="AssertionError: ARTEMIS task a9bd3620-30c9-4e12-94a3-bb8f64cf0475 ended failed: None&#10;assert False&#10; +  where False = TaskResult(task_id='a9bd3620-30c9-4e12-94a3-bb8f64cf0475', status='failed', goal='Go to My Team, open \'Vote for Leader\', select Đạt Duy (you) and submit the vote. Report who the team leader is now and how many votes they have.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {&quot;leader_name&quot;: string, &quot;leader_votes&quot;: int, &quot;tallies_visible&quot;: bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded">device = &lt;device.Device object at 0x000001B9280C86E0&gt;
+backend = &lt;backend.Backend object at 0x000001B9280C8AD0&gt;
+me = Account(uid='F5KSMg0wLGXf8PiZAstfjzjtUDa2', email='megalit2578@gmail.com', full_name='Đạt Duy')
+artemis = &lt;function artemis.&lt;locals&gt;.run at 0x000001B92859EC00&gt;
+
+    @pytest.mark.flow2
+    async def test_tc09_vote_elects_leader(device, backend, me, artemis):
+        backend.reset(me, team="team_ai04")
+        device.sign_in(ACCOUNT)
+    
+&gt;       run = await artemis(
+            f"Go to My Team, open 'Vote for Leader', select {me.full_name} (you) and submit the vote. "
+            "Report who the team leader is now and how many votes they have.",
+            'Return JSON: {"leader_name": string, "leader_votes": int, "tallies_visible": bool}',
+        )
+
+test_vote.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+goal = "Go to My Team, open 'Vote for Leader', select Đạt Duy (you) and submit the vote. Report who the team leader is now and how many votes they have."
+expected_output = 'Return JSON: {"leader_name": string, "leader_votes": int, "tallies_visible": bool}'
+timeout = 900
+
+    async def run(goal: str, expected_output: str, *, timeout: float = 900) -&gt; Run:
+        time.sleep(COOLDOWN)
+        started = datetime.now()
+        result = await client.run(
+            f"{goal}\nWhen you finish, report the task as completed. The explanation of that final report must be "
+            f"only this JSON object with the values you observed, and no other words: "
+            f"{expected_output.removeprefix('Return JSON: ')}",
+            profile=PROFILE,
+            device_serial=SERIAL,
+            locked_app_package=PACKAGE,
+            expected_output=expected_output,
+            enable_outputter=True,
+            timeout=timeout,
+        )
+        screen = device.screen_text()
+        device.screenshot(folder / "final.png")
+        (folder / "screen.txt").write_text(screen, encoding="utf-8")
+        (folder / "analytics.txt").write_text("\n".join(device.analytics_events()), encoding="utf-8")
+        record = {
+            "test": request.node.nodeid,
+            "attempt": attempt,
+            "profile": PROFILE,
+            "trace_id": result.trace_id,
+            "status": result.status,
+            "turns": result.turns,
+            "started": started.isoformat(timespec="seconds"),
+            "seconds": round((datetime.now() - started).total_seconds(), 1),
+            "goal": goal,
+            "expected_output": expected_output,
+            "output": (output := final_report(result.trace_id, result.output)),
+            "error": result.error,
+        }
+        (folder / "result.json").write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str), "utf-8")
+&gt;       assert result.succeeded, f"ARTEMIS task {result.trace_id} ended {result.status}: {result.error}"
+E       AssertionError: ARTEMIS task a9bd3620-30c9-4e12-94a3-bb8f64cf0475 ended failed: None
+E       assert False
+E        +  where False = TaskResult(task_id='a9bd3620-30c9-4e12-94a3-bb8f64cf0475', status='failed', goal='Go to My Team, open \'Vote for Leader\', select Đạt Duy (you) and submit the vote. Report who the team leader is now and how many votes they have.\nWhen you finish, report the task as completed. The explanation of that final report must be only this JSON object with the values you observed, and no other words: {"leader_name": string, "leader_votes": int, "tallies_visible": bool}', profile=None, device_serial='emulator-5556', output=None, error=None, turns=None).succeeded
+
+conftest.py:162: AssertionError</failure></testcase></testsuite></testsuites>

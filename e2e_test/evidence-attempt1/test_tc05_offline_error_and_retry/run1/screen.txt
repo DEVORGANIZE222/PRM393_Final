@@ -1,0 +1,22 @@
+[android:id/content]
+[] Browse Teams
+[btn_open_profile]
+[] ĐD
+[browse_search_field]
+[browse_filters]
+[] Open Slots
+[] AI/ML
+[] Mobile
+[] Web/Cloud
+[state_empty] No teams match your search
+Every team is full right now. Check again later or wait for the Random Pool.
+[] Can't find a good fit?
+Students without a team at the deadline go to the Random Pool, which matches them by role and skills.
+[nav_home] Home
+Tab 1 of 4
+[nav_browse] Browse
+Tab 2 of 4
+[nav_team] My Team
+Tab 3 of 4
+[nav_alerts] Alerts
+Tab 4 of 4

@@ -1,0 +1,10 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\PRM393\artemis\.venv\Scripts\python.exe
+rootdir: C:\Users\LENOVO\OneDrive\Máy tính\Lab3_Cloud-Enabled_Mobile_App\e2e_test
+configfile: pyproject.toml
+plugins: anyio-4.14.2, langsmith-0.11.0, asyncio-1.4.0, cov-7.1.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
+collecting ... collected 39 items / 24 deselected / 15 selected
+
+test_join.py::test_tc07_team_fills_before_confirming[run1] FAILED        [  6%]
+test_join.py::test_tc07_team_fills_before_confirming[run2] 

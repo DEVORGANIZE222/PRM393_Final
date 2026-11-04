@@ -1,0 +1,28 @@
+[android:id/content]
+[] Profile
+[card_account] Đạt Duy
+megalit2578@gmail.com
+megalit2578 ·  ·
+[] Team summary
+[card_export] Create a PDF of your team, its status and roster, then save it to your account.
+[export_done] Uploaded team-ai-04-20261103-1746.pdf · 6 KB
+Saved to your account. Download link:
+https://firebasestorage.googleapis.com/v0/b/prm393-lab-3-exematching.firebasestorage.app/o/reports%2FF5KSMg0wLGXf8PiZAstfjzjtUDa2%2Fteam-ai-04-20261103-1746.pdf?alt=media&token=96cf6365-799a-411d-860b-cc10a00e8b71
+Copy
+[btn_export_upload]
+[] Export Again
+[] App settings
+[card_remote_config] Values the server can change without an app update.
+[config_max_team_members] max_team_members: 5
+[config_enable_waiting_pool] enable_waiting_pool: true
+[config_registration_closed] registration_closed: false
+[btn_refresh_config]
+[] Check for Updates
+[nav_home] Home
+Tab 1 of 4
+[nav_browse] Browse
+Tab 2 of 4
+[nav_team] My Team
+Tab 3 of 4
+[nav_settings] Settings
+Tab 4 of 4

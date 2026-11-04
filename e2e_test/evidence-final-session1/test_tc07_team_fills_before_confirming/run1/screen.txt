@@ -1,0 +1,33 @@
+[android:id/content]
+[] Back
+[] EduSmart Analytics
+[] Roster breakdown
+5 total slots
+[card_team_topic] EDU-07
+Leader not elected
+Adaptive Learning Recommendation Engine for STEM Students
+Mentor: Dr. Tran Minh Chau
+Recommends study paths from LMS activity and quiz results, with a dashboard for lecturers.
+CORE TECHNOLOGIES
+AI/ML
+Python
+React
+PostgreSQL
+[member_s_bao] BP
+Bao Pham
+SE170777 · Data Scientist
+Confirmed
+Python
+scikit-learn
+[member_s_nhi] NH
+Nhi Ho
+SE170812 · Frontend Developer
+Confirmed
+React
+[member_s_tuan] TD
+Tuan Do
+SE170845 · Backend Developer
+Confirmed
+Django
+[btn_join_team]
+[] Join Team

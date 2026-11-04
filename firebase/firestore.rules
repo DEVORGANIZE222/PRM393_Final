@@ -1,0 +1,209 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isRosterMember() {
+      return request.auth != null
+          && exists(/databases/$(database)/documents/allowedEmails/$(request.auth.token.email));
+    }
+
+    function getUserRole() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid))
+          ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+          : 'user';
+    }
+
+    function isStaff() {
+      return request.auth != null && (getUserRole() == 'staff' || getUserRole() == 'admin');
+    }
+
+    function isAdmin() {
+      return request.auth != null && getUserRole() == 'admin';
+    }
+
+    // --- Role-Based Access Control (Appendix A & B) ---
+
+    // users/{userId}: R-03: users cannot update their own role; only Admin can.
+    match /users/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || isStaff());
+      allow create: if request.auth != null && request.auth.uid == userId
+          && request.resource.data.role == 'user';
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
+
+    // events/{id}: Staff/Admin manage events; all signed-in users read published events.
+    match /events/{eventId} {
+      allow read: if request.auth != null && (resource.data.status == 'published' || isStaff());
+      allow create, update: if isStaff();
+      allow delete: if false; // soft delete / archive instead
+    }
+
+    // registrations/{id}:
+    // R-01: user creating with status == 'approved' is DENIED (must be 'pending').
+    // R-02: staff updating status 'pending' -> 'approved' / 'rejected' is ALLOWED.
+    match /registrations/{regId} {
+      allow create: if request.auth != null
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.status == 'pending';
+      allow read: if request.auth != null
+          && (resource.data.uid == request.auth.uid || isStaff());
+      allow update: if isStaff()
+          && (request.resource.data.status in ['approved', 'rejected'])
+          && resource.data.status == 'pending';
+      allow delete: if request.auth != null
+          && resource.data.uid == request.auth.uid
+          && resource.data.status == 'pending';
+    }
+
+    // announcements/{id}: Staff broadcast announcements; mobile reads in inbox.
+    match /announcements/{announcementId} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if isStaff();
+    }
+
+    // The app reads only its own roster entry during sign-in. Listing the
+    // class roster is deliberately denied so student emails are not exposed.
+    match /allowedEmails/{email} {
+      allow get: if request.auth != null && request.auth.token.email == email;
+      allow list, create, update, delete: if false;
+    }
+
+    match /students/{userId} {
+      allow read, create, update: if isRosterMember() && request.auth.uid == userId;
+      allow delete: if false;
+      match /notifications/{notificationId} {
+        allow read, write: if isRosterMember() && request.auth.uid == userId;
+      }
+    }
+
+    match /teams/{teamId} {
+      allow read: if isRosterMember();
+
+      // Only roster members who are currently on the team (or joining it) may
+      // update a team document. Each mutation type (join, leave, vote, lock, pool invite)
+      // is validated individually against before/after state.
+      allow update: if isRosterMember() && isValidTeamUpdate();
+      allow create: if isRosterMember()
+          && request.resource.data.memberIds.size() == 1
+          && request.resource.data.memberIds[0] == request.auth.uid
+          && request.resource.data.locked == false;
+      allow delete: if false;
+
+      function isValidTeamUpdate() {
+        let uid = request.auth.uid;
+        let before = resource.data;
+        let after = request.resource.data;
+
+        // Document must retain all required top-level fields
+        let hasRequiredFields = after.keys().hasAll(['members', 'memberIds', 'votes', 'locked', 'invitesSent']);
+
+        // GR-01: students may only change roster state, never the team's
+        // metadata (name, topic, capacity, supervisor, tags...).
+        let onlyRosterFields = after.diff(before).affectedKeys().hasOnly(
+            ['members', 'memberIds', 'votes', 'leaderId', 'locked', 'lockCode', 'lockedAt', 'invitesSent', 'openRoles']);
+
+        let isUnlock = isLeaderUnlock(uid, before, after);
+
+        return hasRequiredFields && onlyRosterFields && (
+          isUnlock || (
+            before.locked == false && (
+              isSelfJoin(uid, before, after) ||
+              isSelfLeave(uid, before, after) ||
+              isSelfVote(uid, before, after) ||
+              isLeaderLock(uid, before, after) ||
+              isLeaderPoolInvite(uid, before, after) ||
+              isLeaderRosterUpdate(uid, before, after)
+            )
+          )
+        );
+      }
+
+      function isLeaderUnlock(uid, before, after) {
+        return before.leaderId == uid
+            && after.leaderId == uid
+            && before.locked == true
+            && after.locked == false
+            && after.memberIds == before.memberIds;
+      }
+
+      function isLeaderRosterUpdate(uid, before, after) {
+        return before.leaderId == uid
+            && after.leaderId == uid
+            && after.locked == false;
+      }
+
+      function isSelfJoin(uid, before, after) {
+        return !(uid in before.memberIds)
+            && (uid in after.memberIds)
+            && after.members.size() == before.members.size() + 1
+            && after.votes == before.votes
+            && after.locked == before.locked
+            && after.leaderId == before.leaderId
+            && after.invitesSent == before.invitesSent;
+      }
+
+      function isSelfLeave(uid, before, after) {
+        return (uid in before.memberIds)
+            && !(uid in after.memberIds)
+            && after.members.size() == before.members.size() - 1
+            && after.locked == before.locked
+            && after.invitesSent == before.invitesSent;
+      }
+
+      function isSelfVote(uid, before, after) {
+        return (uid in before.memberIds)
+            && (uid in after.memberIds)
+            && after.members == before.members
+            && after.memberIds == before.memberIds
+            && after.locked == before.locked
+            && after.invitesSent == before.invitesSent
+            && (after.votes[uid] in before.memberIds);
+      }
+
+      function isLeaderLock(uid, before, after) {
+        return before.leaderId == uid
+            && after.leaderId == uid
+            && after.locked == true
+            && before.members.size() >= 4
+            && after.members == before.members
+            && after.memberIds == before.memberIds;
+      }
+
+      function isLeaderPoolInvite(uid, before, after) {
+        return before.leaderId == uid
+            && after.leaderId == uid
+            && after.invitesSent == before.invitesSent + 1
+            && after.members.size() == before.members.size() + 1
+            && after.locked == false;
+      }
+    }
+
+    match /waitingPool/{userId} {
+      // Students can read their own pool record. Team leaders must also see
+      // unassigned candidates: inviteFromPool queries `assigned == false` and
+      // re-reads the chosen record inside its transaction. Assigned records
+      // stay private to their owner.
+      allow get: if isRosterMember()
+                    && (request.auth.uid == userId || resource.data.assigned == false);
+      allow list: if isRosterMember() && resource.data.assigned == false;
+
+      // Only the verified leader of assignedTeamId can mark a pool student as assigned (via inviteFromPool).
+      allow update: if isRosterMember()
+                    && resource.data.assigned == false
+                    && request.resource.data.assigned == true
+                    && request.resource.data.keys().hasAll(['assigned', 'assignedTeamId'])
+                    && isLeaderOf(request.resource.data.assignedTeamId);
+      allow create, delete: if false;
+
+      function isLeaderOf(teamId) {
+        return exists(/databases/$(database)/documents/teams/$(teamId))
+            && get(/databases/$(database)/documents/teams/$(teamId)).data.leaderId == request.auth.uid;
+      }
+    }
+
+    match /configuration/{document} {
+      allow read: if isRosterMember();
+      allow write: if false;
+    }
+  }
+}

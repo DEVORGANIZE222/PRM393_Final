@@ -1,0 +1,14 @@
+{
+  "test": "test_browse.py::test_tc03_search_and_filter[run1]",
+  "attempt": 1,
+  "profile": "flash",
+  "trace_id": "5862540c-57c9-4a43-a78f-f9e6d5c85725",
+  "status": "completed",
+  "turns": null,
+  "started": "2026-11-04T12:14:05",
+  "seconds": 50.8,
+  "goal": "Open the Browse tab. Turn on the 'AI/ML' filter chip and keep 'Open Slots' on. Then search for 'drone'. Report the number of teams the list says it found and the name of each team.",
+  "expected_output": "Return JSON: {\"result_count\": int, \"team_names\": [string]}",
+  "output": "{\"result_count\": 1, \"team_names\": [\"Team AI-04\"]}",
+  "error": null
+}

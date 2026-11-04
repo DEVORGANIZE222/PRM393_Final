@@ -1,0 +1,14 @@
+{
+  "test": "test_vote.py::test_tc08_tallies_hidden_until_voting[run2]",
+  "attempt": 2,
+  "profile": "flash",
+  "trace_id": "f77a99e6-84ef-4b94-ba99-2032e602b2ba",
+  "status": "failed",
+  "turns": null,
+  "started": "2026-11-03T20:00:04",
+  "seconds": 193.2,
+  "goal": "Go to My Team and open 'Vote for Leader'. Do not vote. Report whether any vote counts are visible and what the information box says.",
+  "expected_output": "Return JSON: {\"vote_counts_visible\": bool, \"info_title\": string, \"submit_enabled\": bool}",
+  "output": null,
+  "error": null
+}
