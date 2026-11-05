@@ -53,7 +53,8 @@ class LockReviewViewModel extends ChangeNotifier {
       t.hasLeader ? '${t.leader!.fullName} · ${t.votesFor(t.leaderId!)} votes' : 'Waiting for a majority vote',
       t.hasLeader ? CheckStatus.passed : CheckStatus.pending,
     ),
-    LockCheck('mentor', 'Supervisor assigned', t.supervisor, CheckStatus.passed),
+    // Informational: a team without a mentor can still lock; the Academic Office assigns one.
+    LockCheck('mentor', 'Supervisor', t.supervisor, CheckStatus.passed),
   ];
 
   bool canLock(Team t) => !t.locked && isLeader(t) && checks(t).every((c) => c.status == CheckStatus.passed);

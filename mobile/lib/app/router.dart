@@ -7,6 +7,8 @@ import '../screens/browse/browse_screen.dart';
 import '../screens/create_team/create_team_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/lock_review/lock_review_screen.dart';
+import '../screens/mentor/mentor_detail_screen.dart';
+import '../screens/mentor/mentor_list_screen.dart';
 import '../screens/my_team/my_team_screen.dart';
 import '../screens/notifications/notifications_screen.dart';
 import '../screens/pool/random_pool_screen.dart';
@@ -19,6 +21,8 @@ import '../viewmodels/browse_viewmodel.dart';
 import '../viewmodels/create_team_viewmodel.dart';
 import '../viewmodels/dashboard_viewmodel.dart';
 import '../viewmodels/lock_review_viewmodel.dart';
+import '../viewmodels/mentor_detail_viewmodel.dart';
+import '../viewmodels/mentor_list_viewmodel.dart';
 import '../viewmodels/my_team_viewmodel.dart';
 import '../viewmodels/notifications_viewmodel.dart';
 import '../viewmodels/pool_status_viewmodel.dart';
@@ -74,6 +78,35 @@ GoRouter buildRouter(SessionViewModel session) {
           )..start(),
           child: const NotificationsScreen(),
         ),
+      ),
+      GoRoute(
+        path: '/mentors',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, _) => ChangeNotifierProvider(
+          create: (c) => MentorListViewModel(
+            c.read<MentorRepository>(),
+            c.read<AnalyticsService>(),
+            c.read<CrashReporter>(),
+          )..load(),
+          child: const MentorListScreen(),
+        ),
+        routes: [
+          GoRoute(
+            path: ':mentorId',
+            parentNavigatorKey: rootNavigatorKey,
+            builder: (context, state) => ChangeNotifierProvider(
+              create: (c) => MentorDetailViewModel(
+                state.pathParameters['mentorId']!,
+                me(c),
+                c.read<MentorRepository>(),
+                c.read<TeamRepository>(),
+                c.read<AnalyticsService>(),
+                c.read<CrashReporter>(),
+              )..load(),
+              child: const MentorDetailScreen(),
+            ),
+          ),
+        ],
       ),
       GoRoute(
         path: '/create-team',
@@ -166,7 +199,12 @@ GoRouter buildRouter(SessionViewModel session) {
               GoRoute(
                 path: '/team',
                 builder: (context, _) => ChangeNotifierProvider(
-                  create: (c) => MyTeamViewModel(me(c), c.read<TeamRepository>(), c.read<CrashReporter>())..load(),
+                  create: (c) => MyTeamViewModel(
+                    me(c),
+                    c.read<TeamRepository>(),
+                    c.read<MentorRepository>(),
+                    c.read<CrashReporter>(),
+                  )..load(),
                   child: const MyTeamScreen(),
                 ),
                 routes: [

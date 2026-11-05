@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/mentor.dart';
 import '../../models/team.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_tokens.dart';
@@ -245,6 +246,10 @@ class _Body extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
         ],
         const SizedBox(height: AppSpacing.lg),
+        const SectionHeader(title: 'Mentor'),
+        const SizedBox(height: AppSpacing.md),
+        _MentorCard(team: team, request: context.watch<MyTeamViewModel>().mentorRequest),
+        const SizedBox(height: AppSpacing.lg),
         if (phase != TeamPhase.locked) ...[
           const SizedBox(height: AppSpacing.md),
           AppButton(
@@ -256,6 +261,58 @@ class _Body extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// The team's mentor, or where choosing one stands. Opens the mentor's profile
+/// when there is one to look at, otherwise the directory.
+class _MentorCard extends StatelessWidget {
+  const _MentorCard({required this.team, required this.request});
+
+  final Team team;
+  final MentorRequest? request;
+
+  @override
+  Widget build(BuildContext context) {
+    final r = request;
+    final (String title, String detail, StatusBadge? badge) = switch (r) {
+      _ when team.hasMentor => (team.supervisor, 'Your team\'s mentor', null),
+      MentorRequest(isPending: true) => (
+        r.mentorName,
+        'Waiting for a reply',
+        const StatusBadge(label: 'Pending', tone: Tone.warning),
+      ),
+      MentorRequest(isRejected: true) => (
+        'Choose another mentor',
+        '${r.mentorName} declined'
+            '${(r.decisionReason ?? '').isEmpty ? '' : ': ${r.decisionReason}'}',
+        const StatusBadge(label: 'Declined', tone: Tone.error),
+      ),
+      _ => ('No mentor yet', 'Browse lecturers and send a request', null),
+    };
+    final mentorId = team.mentorId ?? (r != null && r.isPending ? r.mentorId : null);
+    return AppCard(
+      semanticId: 'card_team_mentor',
+      onTap: () => context.push(mentorId == null ? '/mentors' : '/mentors/$mentorId'),
+      child: Row(
+        children: [
+          const IconTile(icon: Icons.school_outlined, tone: Tone.primary, size: 36),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: context.text.titleSmall),
+                const SizedBox(height: AppSpacing.xs),
+                Text(detail, style: context.text.bodySmall?.copyWith(color: context.colors.onSurfaceVariant)),
+              ],
+            ),
+          ),
+          if (badge != null) ...[const SizedBox(width: AppSpacing.sm), badge],
+          const Icon(Icons.chevron_right),
+        ],
+      ),
     );
   }
 }

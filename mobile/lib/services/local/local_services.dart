@@ -171,6 +171,11 @@ class DebugAnalyticsService implements AnalyticsService {
   Future<void> logExportReport({required String teamId, required int fileSizeKb}) =>
       _log('export_report', {'team_id': teamId, 'file_size_kb': fileSizeKb});
   @override
+  Future<void> logViewMentor({required String mentorId}) => _log('view_mentor', {'mentor_id': mentorId});
+  @override
+  Future<void> logRequestMentor({required String teamId, required String mentorId}) =>
+      _log('request_mentor', {'team_id': teamId, 'mentor_id': mentorId});
+  @override
   Future<void> logAiRequest({required String feature, required String model}) =>
       _log('ai_request', {'feature': feature, 'model': model});
   @override

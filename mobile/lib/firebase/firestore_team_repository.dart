@@ -61,6 +61,7 @@ class FirestoreTeamRepository implements TeamRepository {
       lockCode: data['lockCode'] as String?,
       lockedAt: lockedAt is Timestamp ? lockedAt.toDate() : null,
       invitesSent: data['invitesSent'] as int? ?? 0,
+      mentorId: data['mentorId'] as String?,
     );
   }
 

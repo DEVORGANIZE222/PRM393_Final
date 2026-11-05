@@ -118,7 +118,8 @@ class _Review extends StatelessWidget {
         Semantics(header: true, child: Text('Review & lock team', style: context.text.headlineMedium)),
         const SizedBox(height: AppSpacing.xs),
         Text(
-          'Locking finalises ${team.name} and sends it to the FPT Academic Office for mentor matching.',
+          'Locking finalises ${team.name} and sends it to the FPT Academic Office'
+          '${team.hasMentor ? '.' : ' for mentor matching.'}',
           style: context.text.bodyMedium,
         ),
         const SizedBox(height: AppSpacing.lg),
