@@ -6,12 +6,19 @@ import 'screens/admin_shell_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // In production on Firebase Hosting, Firebase.initializeApp() auto-configures
-  // via firebase.json / options.
-  try {
-    await Firebase.initializeApp();
-  } catch (_) {
-    // Allows local preview / development without live Firebase credentials
+  // Web needs explicit options; these come from --dart-define (see README).
+  // Without them the app still opens as a layout preview.
+  const apiKey = String.fromEnvironment('FIREBASE_WEB_API_KEY');
+  if (apiKey.isNotEmpty) {
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: apiKey,
+        appId: String.fromEnvironment('FIREBASE_WEB_APP_ID'),
+        messagingSenderId: String.fromEnvironment('FIREBASE_WEB_SENDER_ID'),
+        projectId: String.fromEnvironment('FIREBASE_WEB_PROJECT_ID'),
+        authDomain: String.fromEnvironment('FIREBASE_WEB_AUTH_DOMAIN'),
+      ),
+    );
   }
   runApp(const WebAdminApp());
 }

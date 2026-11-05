@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'dashboard_screen.dart';
 import 'management_screen.dart';
+import 'mentor_requests_screen.dart';
 import 'review_queue_screen.dart';
 import 'announcement_screen.dart';
 
@@ -19,6 +22,7 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
     DashboardScreen(),
     ManagementScreen(),
     ReviewQueueScreen(),
+    MentorRequestsScreen(),
     AnnouncementScreen(),
   ];
 
@@ -39,7 +43,10 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Sign Out',
-            onPressed: () => context.go('/login'),
+            onPressed: () async {
+              if (Firebase.apps.isNotEmpty) await FirebaseAuth.instance.signOut();
+              if (context.mounted) context.go('/login');
+            },
           ),
           const SizedBox(width: 16),
         ],
@@ -70,6 +77,11 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
                 icon: Icon(Icons.rate_review_outlined),
                 selectedIcon: Icon(Icons.rate_review),
                 label: Text('Review Queue'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.school_outlined),
+                selectedIcon: Icon(Icons.school),
+                label: Text('Mentor Requests'),
               ),
               NavigationRailDestination(
                 icon: Icon(Icons.campaign_outlined),

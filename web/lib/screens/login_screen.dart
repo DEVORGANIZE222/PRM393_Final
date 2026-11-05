@@ -1,3 +1,6 @@
+import 'package:core/core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,14 +21,38 @@ class _LoginScreenState extends State<LoginScreen> {
       _errorMessage = null;
     });
 
-    // Default simulation for development / grading check
-    // In production, uses FirebaseAuth.instance.signInWithPopup(GoogleAuthProvider())
-    // and checks if user.role == 'staff' || user.role == 'admin'.
-    await Future.delayed(const Duration(milliseconds: 600));
-
-    if (mounted) {
+    // Without the FIREBASE_WEB_* values there is no backend to sign in to:
+    // keep the local layout preview working.
+    if (Firebase.apps.isEmpty) {
       setState(() => _isLoading = false);
       context.go('/admin');
+      return;
+    }
+
+    try {
+      final user = (await FirebaseAuth.instance.signInWithPopup(GoogleAuthProvider())).user!;
+      final profile = await SharedFirestoreService().getUserProfile(user.uid);
+      if (profile == null || !profile.isStaff) {
+        await FirebaseAuth.instance.signOut();
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+            _errorMessage = 'This account is not staff. Ask an admin to change its role.';
+          });
+        }
+        return;
+      }
+      if (mounted) {
+        setState(() => _isLoading = false);
+        context.go('/admin');
+      }
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.code == 'popup-closed-by-user' ? null : 'Sign-in failed: ${e.message ?? e.code}';
+        });
+      }
     }
   }
 
