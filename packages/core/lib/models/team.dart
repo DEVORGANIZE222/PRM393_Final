@@ -117,6 +117,7 @@ class Team {
     this.lockCode,
     this.lockedAt,
     this.invitesSent = 0,
+    this.mentorId,
   });
 
   final String id;
@@ -143,6 +144,10 @@ class Team {
   final DateTime? lockedAt;
   final int invitesSent;
 
+  /// The lecturer who accepted this team; [supervisor] then holds their name.
+  final String? mentorId;
+
+  bool get hasMentor => mentorId != null;
   int get memberCount => members.length;
   int get openSlots => (capacity - memberCount).clamp(0, capacity);
   bool get isFull => openSlots == 0;
@@ -170,6 +175,8 @@ class Team {
     DateTime? lockedAt,
     int? invitesSent,
     List<String>? openRoles,
+    String? mentorId,
+    String? supervisor,
   }) {
     return Team(
       id: id,
@@ -181,7 +188,7 @@ class Team {
       tags: tags,
       members: members ?? this.members,
       openRoles: openRoles ?? this.openRoles,
-      supervisor: supervisor,
+      supervisor: supervisor ?? this.supervisor,
       capacity: capacity,
       leaderId: clearLeader ? null : (leaderId ?? this.leaderId),
       votes: votes ?? this.votes,
@@ -189,6 +196,7 @@ class Team {
       lockCode: clearLock ? null : (lockCode ?? this.lockCode),
       lockedAt: clearLock ? null : (lockedAt ?? this.lockedAt),
       invitesSent: invitesSent ?? this.invitesSent,
+      mentorId: mentorId ?? this.mentorId,
     );
   }
 
@@ -207,6 +215,7 @@ class Team {
     leaderId: j['leaderId'] as String?,
     votes: Map<String, String>.from(j['votes'] as Map? ?? const {}),
     locked: j['locked'] as bool? ?? false,
+    mentorId: j['mentorId'] as String?,
   );
 }
 

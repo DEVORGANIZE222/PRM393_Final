@@ -5,12 +5,16 @@ class UserProfile {
   final String role; // 'user', 'staff', 'admin'
   final DateTime? createdAt;
 
+  /// The lecturer's `mentors` document; set by an admin on staff accounts.
+  final String? mentorId;
+
   const UserProfile({
     required this.uid,
     required this.email,
     required this.displayName,
     this.role = 'user',
     this.createdAt,
+    this.mentorId,
   });
 
   bool get isStaff => role == 'staff' || role == 'admin';
@@ -26,6 +30,7 @@ class UserProfile {
       createdAt: data['createdAt'] != null
           ? (data['createdAt'] as dynamic).toDate() as DateTime
           : null,
+      mentorId: data['mentorId'] as String?,
     );
   }
 
