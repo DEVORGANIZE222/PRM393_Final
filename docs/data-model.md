@@ -19,6 +19,8 @@ The initial Admin account is configured via Firebase Console: `admin@fpt.edu.vn`
 | `registrations/{id}` | `eventId` (string), `uid` (string), `status` (pending, approved, rejected), `reason` (string) | User (`status = pending`) | Owner, Staff | Staff (`pending` $\rightarrow$ `approved`/`rejected`) | Owner while `pending` | Mobile Detail; Web Review Queue |
 | `announcements/{id}` | `title` (string), `body` (string), `authorId` (string), `createdAt` (timestamp) | Staff | Everyone signed in | Staff | Staff | Mobile Inbox; Web Announce Form |
 | `teams/{id}` | `members` (map), `memberIds` (array), `votes` (map), `leaderId` (string), `locked` (bool) | User (solo team) | Roster members | Roster members (via `isValidTeamUpdate`) | Denied | Mobile Browse, Team, Lock Review |
+| `mentors/{id}` | `fullName`, `title`, `department` (string), `expertise` (array), `maxQuota`, `currentAssigned` (int), `mentoredTeamNames` (array) | Denied (seed) | Roster members, Staff | The linked lecturer: `currentAssigned` +1 within `maxQuota` | Denied | Mobile Mentor list/profile; Web Mentor Requests |
+| `mentor_requests/{teamId}` | `teamId`, `teamName`, `mentorId`, `mentorName`, `senderId`, `senderName`, `message` (string), `status` (pending, approved, rejected), `decisionReason` (string) | Team leader (`status = pending`, team has no mentor) | Roster members, Staff | The asked lecturer: `pending` → `approved`/`rejected`; team leader: `rejected` → new `pending` | Team leader while `pending` | Mobile My Team, Mentor profile; Web Mentor Requests |
 | `waitingPool/{id}` | `assigned` (bool), `assignedTeamId` (string) | Denied | Self, Team Leader | Team Leader (invite transaction) | Denied | Mobile Lock Review |
 
 ---
@@ -31,6 +33,10 @@ The initial Admin account is configured via Firebase Console: `admin@fpt.edu.vn`
   * `Staff`: `pending` $\rightarrow$ `rejected` (requires `reason`)
 * **`events`**:
   * `Staff`: `draft` $\rightarrow$ `published` $\rightarrow$ `archived`
+* **`mentor_requests`**:
+  * `Leader`: None $\rightarrow$ `pending`; `pending` $\rightarrow$ deleted (withdraw); `rejected` $\rightarrow$ `pending` (asks again)
+  * `Staff` linked by `users/{uid}.mentorId`: `pending` $\rightarrow$ `approved` (also sets `teams.mentorId`, `teams.supervisor`, and takes a quota slot in one transaction)
+  * `Staff` linked by `users/{uid}.mentorId`: `pending` $\rightarrow$ `rejected` (with `decisionReason`)
 * **`teams`**:
   * `Leader`: `locked = false` $\rightarrow$ `locked = true` ($\ge 4$ members)
 

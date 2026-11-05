@@ -57,6 +57,22 @@ PRM393_Final_DEVORGANIZE222/
 
 ---
 
+## Mentor Selection (cross-role flow)
+
+A team leader chooses a lecturer on mobile (My Team → Mentor), and the lecturer answers in the web admin (Mentor Requests). The answer reaches My Team in real time.
+
+To make a staff account a lecturer, an admin sets `users/{uid}.role = staff` and `users/{uid}.mentorId` to a document in `mentors` (for example `m_thanh`). The directory comes from `tool/seed_firestore_lab3.py`.
+
+The web admin signs in to Firebase only when it gets the web app's config:
+
+```bash
+flutter run -d chrome --dart-define=FIREBASE_WEB_API_KEY=... --dart-define=FIREBASE_WEB_APP_ID=... --dart-define=FIREBASE_WEB_SENDER_ID=... --dart-define=FIREBASE_WEB_PROJECT_ID=... --dart-define=FIREBASE_WEB_AUTH_DOMAIN=...
+```
+
+Without them it opens as a layout preview with no sign-in.
+
+---
+
 ## 3. How to Run Each Client & Emulators
 
 ### A. Run Mobile Client (Android)

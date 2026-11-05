@@ -62,6 +62,60 @@ ALLOWED_EMAILS = [
     "megalit2578@gmail.com",
 ]
 
+# Lecturers. Team AI-04 has no mentor so the demo can choose one; Nguyen Thu Ha
+# is full so the quota state shows. An admin links a staff account to one of
+# these by setting users/{uid}.mentorId.
+MENTORS = [
+    {
+        "id": "m_thanh", "fullName": "Dr. Nguyen Thanh", "email": "thanhnt@fpt.edu.vn",
+        "title": "Head of AI Lab · Senior Lecturer", "department": "Software Engineering",
+        "expertise": ["AI/ML", "Computer Vision", "ROS2", "Robotics", "Python"],
+        "bio": "Specialises in autonomous UAV navigation, edge AI and computer vision.",
+        "office": "Room 304, Alpha Building, Hoa Lac Campus", "maxQuota": 5, "teams": [],
+    },
+    {
+        "id": "m_long", "fullName": "MSc. Le Hoang Long", "email": "longlh@fpt.edu.vn",
+        "title": "Lecturer · Blockchain & Distributed Systems", "department": "Information Systems",
+        "expertise": ["Web/Cloud", "Blockchain", "Solidity", "Go"],
+        "bio": "Experienced in FinTech, distributed ledgers and secure decentralized systems.",
+        "office": "Room 210, Beta Building, Hoa Lac Campus", "maxQuota": 4, "teams": ["FinTech Guard"],
+    },
+    {
+        "id": "m_chau", "fullName": "Dr. Tran Minh Chau", "email": "chautm@fpt.edu.vn",
+        "title": "Associate Professor · Data Science", "department": "Computer Science",
+        "expertise": ["AI/ML", "Data Science", "Recommendation Systems", "NLP"],
+        "bio": "Researches intelligent tutoring, recommendation engines and learning analytics.",
+        "office": "Room 402, Alpha Building, Hoa Lac Campus", "maxQuota": 5, "teams": ["EduSmart Analytics"],
+    },
+    {
+        "id": "m_hai", "fullName": "MSc. Pham Van Hai", "email": "haipv@fpt.edu.vn",
+        "title": "Senior Lecturer · Cloud Architecture & DevOps", "department": "Software Engineering",
+        "expertise": ["Web/Cloud", "AWS", "Spring Boot", "Microservices", "Docker"],
+        "bio": "Focuses on cloud native systems and smart campus infrastructure.",
+        "office": "Room 105, Gamma Building, Hoa Lac Campus", "maxQuota": 4, "teams": ["GreenRoute"],
+    },
+    {
+        "id": "m_ha", "fullName": "MSc. Nguyen Thu Ha", "email": "hant@fpt.edu.vn",
+        "title": "Lecturer · Mobile Development & HCI", "department": "Software Engineering",
+        "expertise": ["Mobile", "Flutter", "iOS", "UI/UX", "Firebase"],
+        "bio": "Mentors mobile product design, cross-platform apps and human-computer interaction.",
+        "office": "Room 201, Beta Building, Hoa Lac Campus", "maxQuota": 1, "teams": ["Campus Bite"],
+    },
+    {
+        "id": "m_anh", "fullName": "Dr. Vu Quoc Anh", "email": "anhvq@fpt.edu.vn",
+        "title": "Head of Security Lab · Senior Lecturer", "department": "Information Assurance",
+        "expertise": ["Cybersecurity", "Network Security", "Penetration Testing", "Cloud"],
+        "bio": "Guides projects in zero-trust architectures and cloud security.",
+        "office": "Room 312, Delta Building, Hoa Lac Campus", "maxQuota": 4, "teams": [],
+    },
+]
+MENTOR_OF_TEAM = {
+    "team_fin02": "m_long",
+    "team_edu07": "m_chau",
+    "team_web11": "m_hai",
+    "team_mob03": "m_ha",
+}
+
 POOL_EXTRA = [
     ("s_pool_linh", "Linh Nguyen", "SE171105", "DevOps", ["Docker", "GitHub Actions"]),
     ("s_pool_nam", "Nam Tran", "SE171118", "QA Engineer", ["Appium", "Pytest"]),
@@ -101,6 +155,15 @@ def build_seed_writes() -> list[dict]:
                 },
             }
         })
+
+    # 2b. mentors
+    for mentor in MENTORS:
+        fields = {k: {"stringValue": mentor[k]} for k in ("fullName", "email", "title", "department", "bio", "office")}
+        fields["expertise"] = {"arrayValue": {"values": [{"stringValue": e} for e in mentor["expertise"]]}}
+        fields["maxQuota"] = {"integerValue": str(mentor["maxQuota"])}
+        fields["currentAssigned"] = {"integerValue": str(len(mentor["teams"]))}
+        fields["mentoredTeamNames"] = {"arrayValue": {"values": [{"stringValue": t} for t in mentor["teams"]]}}
+        writes.append({"update": {"name": f"{BASE_URL}/mentors/{mentor['id']}", "fields": fields}})
 
     # 3. waitingPool / s_khanh
     writes.append({
@@ -169,7 +232,7 @@ def build_seed_writes() -> list[dict]:
             "description": "An AI-driven delivery drone for FPT University campus that reads landmarks with on-board computer vision and plans safe routes between buildings.",
             "category": "AI/ML",
             "tags": ["Python", "PyTorch", "ROS2", "Flutter"],
-            "supervisor": "Dr. Nguyen Thanh (AI Lab)",
+            "supervisor": "Assigned by Academic Office",
             "capacity": 5,
             "leaderId": None,
             "locked": False,
@@ -384,6 +447,8 @@ def build_seed_writes() -> list[dict]:
             "openRoles": {"arrayValue": {"values": open_roles_val}},
             "votes": {"mapValue": {"fields": votes_map}},
         }
+        if team_id in MENTOR_OF_TEAM:
+            fields["mentorId"] = {"stringValue": MENTOR_OF_TEAM[team_id]}
         if team["leaderId"]:
             fields["leaderId"] = {"stringValue": team["leaderId"]}
         else:
