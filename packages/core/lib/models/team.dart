@@ -82,8 +82,15 @@ class TeamMember {
     return '$studentId@fpt.edu.vn';
   }
 
-  factory TeamMember.fromStudent(Student s, String role) =>
-      TeamMember(studentId: s.id, fullName: s.fullName, studentCode: s.studentCode, role: role, email: s.email, avatarUrl: s.avatarUrl, skills: s.skills);
+  factory TeamMember.fromStudent(Student s, String role) => TeamMember(
+    studentId: s.id,
+    fullName: s.fullName,
+    studentCode: s.studentCode,
+    role: role,
+    email: s.email,
+    avatarUrl: s.avatarUrl,
+    skills: s.skills,
+  );
 
   factory TeamMember.fromJson(Map<String, dynamic> j) => TeamMember(
     studentId: j['studentId'] as String,
@@ -147,8 +154,7 @@ class Team {
   int get openSlots => (capacity - memberCount).clamp(0, capacity);
   bool get isFull => openSlots == 0;
   bool get meetsSizeRule => memberCount >= TeamRules.minMembers && memberCount <= TeamRules.maxMembers;
-  bool get hasLeader =>
-      leaderId != null && (locked || (memberCount >= 3 && votesFor(leaderId!) >= votesNeeded));
+  bool get hasLeader => leaderId != null && (locked || (memberCount >= 3 && votesFor(leaderId!) >= votesNeeded));
   bool isMember(String studentId) => members.any((m) => m.studentId == studentId);
 
   TeamMember? get leader => members.where((m) => m.studentId == leaderId).firstOrNull;

@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:core/core.dart' show TeamSubmissionService;
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -39,6 +40,7 @@ class AppServices {
       Provider<AuthService>.value(value: auth),
       Provider<FirebaseMessagingService>.value(value: messaging),
       Provider<TeamRepository>.value(value: FirestoreTeamRepository()),
+      Provider<TeamSubmissionService>.value(value: TeamSubmissionService()),
       Provider<NotificationRepository>.value(value: FirebaseNotificationRepository()),
       Provider<RegistrationService>.value(value: FirebaseRegistrationService()),
       Provider<PoolRepository>.value(value: FirebasePoolRepository()),

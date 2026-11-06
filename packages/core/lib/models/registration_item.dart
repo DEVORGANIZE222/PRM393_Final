@@ -24,9 +24,7 @@ class RegistrationItem {
       uid: data['uid'] as String? ?? '',
       status: data['status'] as String? ?? 'pending',
       reason: data['reason'] as String? ?? '',
-      createdAt: data['createdAt'] != null
-          ? (data['createdAt'] as Timestamp).toDate()
-          : DateTime.now(),
+      createdAt: data['createdAt'] != null ? (data['createdAt'] as Timestamp).toDate() : DateTime.now(),
     );
   }
 
@@ -40,4 +38,3 @@ class RegistrationItem {
     };
   }
 }
-

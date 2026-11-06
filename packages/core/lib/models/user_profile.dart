@@ -23,19 +23,11 @@ class UserProfile {
       email: data['email'] as String? ?? '',
       displayName: data['displayName'] as String? ?? '',
       role: data['role'] as String? ?? 'user',
-      createdAt: data['createdAt'] != null
-          ? (data['createdAt'] as dynamic).toDate() as DateTime
-          : null,
+      createdAt: data['createdAt'] != null ? (data['createdAt'] as dynamic).toDate() as DateTime : null,
     );
   }
 
   Map<String, dynamic> toFirestore() {
-    return {
-      'email': email,
-      'displayName': displayName,
-      'role': role,
-      if (createdAt != null) 'createdAt': createdAt,
-    };
+    return {'email': email, 'displayName': displayName, 'role': role, if (createdAt != null) 'createdAt': createdAt};
   }
 }
-

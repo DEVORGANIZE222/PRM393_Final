@@ -152,13 +152,7 @@ class IconTile extends StatelessWidget {
 
 /// Circle avatar with initials, network image (or a grey "open slot").
 class MemberAvatar extends StatelessWidget {
-  const MemberAvatar({
-    super.key,
-    this.initials,
-    this.avatarUrl,
-    this.size = AppSize.avatar,
-    this.verified = false,
-  });
+  const MemberAvatar({super.key, this.initials, this.avatarUrl, this.size = AppSize.avatar, this.verified = false});
 
   final String? initials;
   final String? avatarUrl;
@@ -247,12 +241,7 @@ class MemberAvatar extends StatelessWidget {
 
 /// Lab 2 decision D1: capacity as visual slots (filled avatars + open slots).
 class SlotRow extends StatelessWidget {
-  const SlotRow({
-    super.key,
-    required this.memberInitials,
-    this.avatarUrls,
-    required this.capacity,
-  });
+  const SlotRow({super.key, required this.memberInitials, this.avatarUrls, required this.capacity});
 
   final List<String> memberInitials;
   final List<String?>? avatarUrls;
