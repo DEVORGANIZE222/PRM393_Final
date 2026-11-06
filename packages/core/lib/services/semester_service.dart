@@ -1,0 +1,49 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../models/semester.dart';
+
+class SemesterService {
+  SemesterService({FirebaseFirestore? firestore}) : _db = firestore ?? FirebaseFirestore.instance;
+  final FirebaseFirestore _db;
+
+  Stream<List<Semester>> watchAll() => _db
+      .collection('semesters')
+      .orderBy('startsAt', descending: true)
+      .snapshots()
+      .map((snapshot) => snapshot.docs.map((doc) => Semester.fromFirestore(doc.id, doc.data())).toList());
+
+  Future<void> save(Semester semester) async {
+    final ref = semester.id.isEmpty ? _db.collection('semesters').doc() : _db.collection('semesters').doc(semester.id);
+    await ref.set({
+      ...semester.toFirestore(),
+      if (semester.id.isEmpty) 'createdAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  Future<void> activate(Semester semester) async {
+    final batch = _db.batch();
+    final all = await _db.collection('semesters').where('status', isEqualTo: 'active').get();
+    for (final doc in all.docs) {
+      if (doc.id != semester.id)
+        batch.update(doc.reference, {'status': 'draft', 'updatedAt': FieldValue.serverTimestamp()});
+    }
+    batch.set(_db.collection('semesters').doc(semester.id), {
+      ...semester.toFirestore(),
+      'status': 'active',
+    }, SetOptions(merge: true));
+    batch.set(_db.collection('configuration').doc('registration'), {
+      'semester': semester.name,
+      'opensAt': Timestamp.fromDate(semester.registrationOpensAt),
+      'closesAt': Timestamp.fromDate(semester.registrationClosesAt),
+      'windowHours': semester.registrationClosesAt.difference(semester.registrationOpensAt).inHours,
+      'activeSemesterId': semester.id,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+    await batch.commit();
+  }
+
+  Future<void> archive(Semester semester) => _db.collection('semesters').doc(semester.id).update({
+    'status': 'archived',
+    'updatedAt': FieldValue.serverTimestamp(),
+  });
+}

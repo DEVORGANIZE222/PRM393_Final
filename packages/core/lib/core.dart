@@ -8,11 +8,15 @@ export 'models/announcement_item.dart';
 export 'models/team.dart';
 export 'models/student.dart';
 export 'models/registration.dart';
+export 'models/semester.dart';
+export 'models/team_submission.dart';
 export 'models/app_notification.dart';
 export 'models/view_state.dart';
 
 // Shared Firestore services
 export 'services/shared_firestore_service.dart';
+export 'services/team_submission_service.dart';
+export 'services/semester_service.dart';
 
 // Design tokens & Theme
 export 'theme/app_colors.dart';
