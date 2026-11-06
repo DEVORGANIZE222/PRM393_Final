@@ -46,16 +46,15 @@ class AppButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final callback = loading ? null : onPressed;
-    final fg = foregroundColor ??
+    final fg =
+        foregroundColor ??
         switch (variant) {
           AppButtonVariant.primary || AppButtonVariant.destructive => colors.onPrimary,
           AppButtonVariant.secondary => const Color(0xFF0F172A),
           AppButtonVariant.text => colors.primary,
         };
 
-    final iconColor = callback == null
-        ? null
-        : (variant == AppButtonVariant.secondary ? colors.primary : fg);
+    final iconColor = callback == null ? null : (variant == AppButtonVariant.secondary ? colors.primary : fg);
 
     final Widget content = Row(
       mainAxisSize: MainAxisSize.min,
@@ -98,23 +97,23 @@ class AppButton extends StatelessWidget {
         : switch (variant) {
             AppButtonVariant.primary => FilledButton(onPressed: callback, child: content),
             AppButtonVariant.destructive => FilledButton(
-                onPressed: callback,
-                style: FilledButton.styleFrom(backgroundColor: colors.error, foregroundColor: colors.onError),
-                child: content,
-              ),
+              onPressed: callback,
+              style: FilledButton.styleFrom(backgroundColor: colors.error, foregroundColor: colors.onError),
+              child: content,
+            ),
             AppButtonVariant.secondary => OutlinedButton(
-                onPressed: callback,
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: fg,
-                  side: const BorderSide(color: Color(0xFFCBD5E1), width: 1.2),
-                  elevation: 1,
-                  shadowColor: Colors.black.withValues(alpha: 0.04),
-                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: AppSpacing.lg),
-                  shape: RoundedRectangleBorder(borderRadius: AppRadius.cardAll),
-                ),
-                child: content,
+              onPressed: callback,
+              style: OutlinedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: fg,
+                side: const BorderSide(color: Color(0xFFCBD5E1), width: 1.2),
+                elevation: 1,
+                shadowColor: Colors.black.withValues(alpha: 0.04),
+                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: AppSpacing.lg),
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.cardAll),
               ),
+              child: content,
+            ),
             AppButtonVariant.text => TextButton(onPressed: callback, child: content),
           };
 

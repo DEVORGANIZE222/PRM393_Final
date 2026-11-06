@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:core/core.dart' show TeamSubmissionService;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -79,12 +80,8 @@ GoRouter buildRouter(SessionViewModel session) {
         path: '/create-team',
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, _) => ChangeNotifierProvider(
-          create: (c) => CreateTeamViewModel(
-            me(c),
-            c.read<TeamRepository>(),
-            c.read<AnalyticsService>(),
-            c.read<CrashReporter>(),
-          ),
+          create: (c) =>
+              CreateTeamViewModel(me(c), c.read<TeamRepository>(), c.read<AnalyticsService>(), c.read<CrashReporter>()),
           child: const CreateTeamScreen(),
         ),
       ),
@@ -190,6 +187,7 @@ GoRouter buildRouter(SessionViewModel session) {
                       create: (c) => LockReviewViewModel(
                         me(c),
                         c.read<TeamRepository>(),
+                        c.read<TeamSubmissionService>(),
                         c.read<AnalyticsService>(),
                         c.read<CrashReporter>(),
                       )..load(),

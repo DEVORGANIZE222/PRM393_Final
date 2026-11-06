@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:core/core.dart' show TeamSubmission, TeamSubmissionService;
 
 import '../models/student.dart';
 import '../models/team.dart';
@@ -21,17 +22,20 @@ class LockCheck {
 /// SCR_07: verification before the irreversible lock, with the < 4 members
 /// error and the Waiting Pool recovery (Flow 3).
 class LockReviewViewModel extends ChangeNotifier {
-  LockReviewViewModel(this._student, this._teams, this._analytics, this._crash);
+  LockReviewViewModel(this._student, this._teams, this._submissions, this._analytics, this._crash);
 
   final Student _student;
   final TeamRepository _teams;
+  final TeamSubmissionService _submissions;
   final AnalyticsService _analytics;
   final CrashReporter _crash;
   StreamSubscription<Team>? _watch;
+  StreamSubscription<TeamSubmission?>? _submissionWatch;
 
   ViewState<Team> state = const Loading();
   bool inviting = false;
   bool locking = false;
+  TeamSubmission? submission;
 
   /// Set when a pool student joins while this screen is open.
   String? lastJoinedName;
@@ -78,20 +82,27 @@ class LockReviewViewModel extends ChangeNotifier {
         await _crash.setKey('team_id', team.id);
         state = Data(team);
         await _watch?.cancel();
-        _watch = _teams.watchTeam(team.id).listen(
-          (t) {
-            final before = state is Data<Team> ? (state as Data<Team>).value.memberCount : t.memberCount;
-            if (t.memberCount > before) lastJoinedName = t.members.last.fullName;
-            state = Data(t);
-            notifyListeners();
-          },
-          // e.g. the team was deleted or access was revoked: show the error
-          // state with Retry instead of an uncaught zone error.
-          onError: (Object e, StackTrace st) async {
-            state = Failure(await toFailure(e, st, crash: _crash, reason: 'lock_review_watch'));
-            notifyListeners();
-          },
-        );
+        await _submissionWatch?.cancel();
+        _submissionWatch = _submissions.watchForTeam(team.id).listen((value) {
+          submission = value;
+          notifyListeners();
+        });
+        _watch = _teams
+            .watchTeam(team.id)
+            .listen(
+              (t) {
+                final before = state is Data<Team> ? (state as Data<Team>).value.memberCount : t.memberCount;
+                if (t.memberCount > before) lastJoinedName = t.members.last.fullName;
+                state = Data(t);
+                notifyListeners();
+              },
+              // e.g. the team was deleted or access was revoked: show the error
+              // state with Retry instead of an uncaught zone error.
+              onError: (Object e, StackTrace st) async {
+                state = Failure(await toFailure(e, st, crash: _crash, reason: 'lock_review_watch'));
+                notifyListeners();
+              },
+            );
       }
     } catch (e, st) {
       state = Failure(await toFailure(e, st, crash: _crash, reason: 'lock_review_load'));
@@ -123,6 +134,23 @@ class LockReviewViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       final team = await _teams.lockTeam(s.value.id, _student.id);
+      await _submissions.submit(
+        teamId: team.id,
+        leaderId: _student.id,
+        teamName: team.name,
+        lockCode: team.lockCode ?? '',
+        memberSnapshot: team.members
+            .map(
+              (member) => <String, dynamic>{
+                'studentId': member.studentId,
+                'fullName': member.fullName,
+                'studentCode': member.studentCode,
+                'email': member.email,
+                'role': member.role,
+              },
+            )
+            .toList(growable: false),
+      );
       await _crash.setKey('team_id', team.id);
       state = Data(team);
       await _analytics.logLockRoster(teamId: team.id, memberCount: team.memberCount);
@@ -147,6 +175,7 @@ class LockReviewViewModel extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _watch?.cancel();
+    _submissionWatch?.cancel();
     super.dispose();
   }
 }

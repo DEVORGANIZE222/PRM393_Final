@@ -29,39 +29,50 @@ beforeEach(async () => {
 });
 
 describe('PRM393 Final Security Rules (Appendix B)', () => {
-  test('R-01: registrations - user create with status=approved is DENIED', async () => {
+  test('R-01: team submission - leader cannot self-approve', async () => {
     const userDb = testEnv.authenticatedContext('student_01', { email: 'student@fpt.edu.vn' }).firestore();
-    const docRef = userDb.collection('registrations').doc('reg_01');
+    const docRef = userDb.collection('teamSubmissions').doc('team_01');
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await context.firestore().collection('allowedEmails').doc('student@fpt.edu.vn').set({ enabled: true });
+      await context.firestore().collection('teams').doc('team_01').set({ locked: true, leaderId: 'student_01' });
+    });
     
     // User tries to approve themselves directly
     await assertFails(docRef.set({
-      eventId: 'ev_01',
-      uid: 'student_01',
+      teamId: 'team_01',
+      leaderId: 'student_01',
+      teamName: 'Team 01',
+      lockCode: 'CM-01',
+      memberSnapshot: [],
       status: 'approved',
-      reason: 'Self approve',
-      createdAt: new Date(),
+      reason: '',
+      submittedAt: new Date(),
     }));
   });
 
-  test('R-02: registrations - staff update pending -> approved is ALLOWED', async () => {
+  test('R-02: admin updates pending team submission -> approved', async () => {
     // Setup pending doc as admin
     await testEnv.withSecurityRulesDisabled(async (adminContext) => {
-      await adminContext.firestore().collection('users').doc('staff_01').set({ role: 'staff' });
-      await adminContext.firestore().collection('registrations').doc('reg_02').set({
-        eventId: 'ev_01',
-        uid: 'student_02',
+      await adminContext.firestore().collection('users').doc('admin_01').set({ role: 'admin' });
+      await adminContext.firestore().collection('teamSubmissions').doc('team_02').set({
+        teamId: 'team_02',
+        leaderId: 'student_02',
+        teamName: 'Team 02',
+        lockCode: 'CM-02',
+        memberSnapshot: [],
         status: 'pending',
         reason: '',
       });
     });
 
-    const staffDb = testEnv.authenticatedContext('staff_01', { email: 'staff@fpt.edu.vn' }).firestore();
-    const docRef = staffDb.collection('registrations').doc('reg_02');
+    const adminDb = testEnv.authenticatedContext('admin_01', { email: 'admin@fpt.edu.vn' }).firestore();
+    const docRef = adminDb.collection('teamSubmissions').doc('team_02');
 
     // Staff approves the pending submission
     await assertSucceeds(docRef.update({
       status: 'approved',
-      reason: 'Verified qualification',
+      reviewedBy: 'admin_01',
+      reviewedAt: new Date(),
     }));
   });
 

@@ -13,7 +13,7 @@ service cloud.firestore {
     }
 
     function isStaff() {
-      return request.auth != null && (getUserRole() == 'staff' || getUserRole() == 'admin');
+      return isAdmin();
     }
 
     function isAdmin() {
@@ -22,12 +22,14 @@ service cloud.firestore {
 
     // --- Role-Based Access Control (Appendix A & B) ---
 
-    // users/{userId}: R-03: users cannot update their own role; only Admin can.
+    // Web administration has one privileged role: admin. Roles are assigned
+    // only through the Firebase Console during bootstrap, never by the web UI.
     match /users/{userId} {
       allow read: if request.auth != null && (request.auth.uid == userId || isStaff());
       allow create: if request.auth != null && request.auth.uid == userId
           && request.resource.data.role == 'user';
-      allow update: if isAdmin();
+      allow update: if isAdmin()
+          && request.resource.data.role == resource.data.role;
       allow delete: if false;
     }
 
@@ -38,26 +40,38 @@ service cloud.firestore {
       allow delete: if false; // soft delete / archive instead
     }
 
-    // registrations/{id}:
-    // R-01: user creating with status == 'approved' is DENIED (must be 'pending').
-    // R-02: staff updating status 'pending' -> 'approved' / 'rejected' is ALLOWED.
-    match /registrations/{regId} {
-      allow create: if request.auth != null
-          && request.resource.data.uid == request.auth.uid
-          && request.resource.data.status == 'pending';
-      allow read: if request.auth != null
-          && (resource.data.uid == request.auth.uid || isStaff());
-      allow update: if isStaff()
-          && (request.resource.data.status in ['approved', 'rejected'])
-          && resource.data.status == 'pending';
-      allow delete: if request.auth != null
-          && resource.data.uid == request.auth.uid
-          && resource.data.status == 'pending';
+    // A leader submits an already locked roster. Only admins can make the
+    // pending -> approved/rejected decision; rejection must explain why.
+    match /teamSubmissions/{teamId} {
+      allow create: if isRosterMember()
+          && request.resource.data.keys().hasAll([
+            'teamId', 'leaderId', 'teamName', 'lockCode', 'memberSnapshot',
+            'status', 'submittedAt', 'reason'
+          ])
+          && request.resource.data.teamId == teamId
+          && request.resource.data.leaderId == request.auth.uid
+          && request.resource.data.status == 'pending'
+          && request.resource.data.reason == ''
+          && exists(/databases/$(database)/documents/teams/$(teamId))
+          && get(/databases/$(database)/documents/teams/$(teamId)).data.locked == true
+          && get(/databases/$(database)/documents/teams/$(teamId)).data.leaderId == request.auth.uid;
+      allow read: if isAdmin()
+          || (isRosterMember() && resource.data.leaderId == request.auth.uid);
+      allow update: if isAdmin()
+          && resource.data.status == 'pending'
+          && request.resource.data.status in ['approved', 'rejected']
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'status', 'reason', 'reviewedAt', 'reviewedBy'
+          ])
+          && (request.resource.data.status == 'approved'
+              || request.resource.data.reason is string
+                  && request.resource.data.reason.size() > 0);
+      allow delete: if false;
     }
 
     // announcements/{id}: Staff broadcast announcements; mobile reads in inbox.
     match /announcements/{announcementId} {
-      allow read: if request.auth != null;
+      allow read: if isAdmin() || (isRosterMember() && resource.data.status == 'published');
       allow create, update, delete: if isStaff();
     }
 
@@ -65,19 +79,22 @@ service cloud.firestore {
     // class roster is deliberately denied so student emails are not exposed.
     match /allowedEmails/{email} {
       allow get: if request.auth != null && request.auth.token.email == email;
-      allow list, create, update, delete: if false;
+      // Admin imports and maintains the roster/Google allowlist. Extra roster
+      // metadata is ignored by mobile authentication, which reads `enabled`.
+      allow list, create, update, delete: if isAdmin();
     }
 
     match /students/{userId} {
-      allow read, create, update: if isRosterMember() && request.auth.uid == userId;
+      allow read: if (isRosterMember() && request.auth.uid == userId) || isAdmin();
+      allow create, update: if isRosterMember() && request.auth.uid == userId;
       allow delete: if false;
       match /notifications/{notificationId} {
-        allow read, write: if isRosterMember() && request.auth.uid == userId;
+        allow read, write: if (isRosterMember() && request.auth.uid == userId) || isAdmin();
       }
     }
 
     match /teams/{teamId} {
-      allow read: if isRosterMember();
+      allow read: if isRosterMember() || isAdmin();
 
       // Only roster members who are currently on the team (or joining it) may
       // update a team document. Each mutation type (join, leave, vote, lock, pool invite)
@@ -183,9 +200,9 @@ service cloud.firestore {
       // unassigned candidates: inviteFromPool queries `assigned == false` and
       // re-reads the chosen record inside its transaction. Assigned records
       // stay private to their owner.
-      allow get: if isRosterMember()
-                    && (request.auth.uid == userId || resource.data.assigned == false);
-      allow list: if isRosterMember() && resource.data.assigned == false;
+      allow get: if isAdmin() || (isRosterMember()
+                    && (request.auth.uid == userId || resource.data.assigned == false));
+      allow list: if isAdmin() || (isRosterMember() && resource.data.assigned == false);
 
       // Only the verified leader of assignedTeamId can mark a pool student as assigned (via inviteFromPool).
       allow update: if isRosterMember()
@@ -202,8 +219,17 @@ service cloud.firestore {
     }
 
     match /configuration/{document} {
-      allow read: if isRosterMember();
-      allow write: if false;
+      allow read: if isRosterMember() || isAdmin();
+      // configuration/registration is the public-to-students projection of
+      // the active semester. Admin writes preserve its existing field names.
+      allow write: if isAdmin();
+    }
+
+    // Semester management is web-admin only. The active semester is projected
+    // to configuration/registration for the mobile client.
+    match /semesters/{semesterId} {
+      allow read, create, update: if isAdmin();
+      allow delete: if false;
     }
   }
 }

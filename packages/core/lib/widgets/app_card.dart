@@ -39,10 +39,7 @@ class AppCard extends StatelessWidget {
       button: onTap != null,
       container: true,
       child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: AppRadius.cardAll,
-          boxShadow: color == null ? cardShadow : null,
-        ),
+        decoration: BoxDecoration(borderRadius: AppRadius.cardAll, boxShadow: color == null ? cardShadow : null),
         child: Material(
           color: color ?? c.surfaceContainerLowest,
           shape: RoundedRectangleBorder(
