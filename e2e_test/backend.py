@@ -208,6 +208,8 @@ class Backend:
             writes.append(self.delete(f"students/{me.uid}/notifications/{notification_id}"))
         # A pool record left by place_in_pool would be the first candidate a leader invites.
         writes.append(self.delete(f"waitingPool/{me.uid}"))
+        for team_id in self.list("mentor_requests"):
+            writes.append(self.delete(f"mentor_requests/{team_id}"))
         self.commit(writes)
 
         if team == "team_ai04":

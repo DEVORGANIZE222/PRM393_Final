@@ -6,6 +6,7 @@ export 'models/event_item.dart';
 export 'models/registration_item.dart';
 export 'models/announcement_item.dart';
 export 'models/team.dart';
+export 'models/mentor.dart';
 export 'models/student.dart';
 export 'models/registration.dart';
 export 'models/semester.dart';
@@ -15,6 +16,7 @@ export 'models/view_state.dart';
 
 // Shared Firestore services
 export 'services/shared_firestore_service.dart';
+export 'services/mentor_repository.dart';
 export 'services/team_submission_service.dart';
 export 'services/semester_service.dart';
 

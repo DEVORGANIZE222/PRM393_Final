@@ -20,6 +20,13 @@ service cloud.firestore {
       return request.auth != null && getUserRole() == 'admin';
     }
 
+    // A lecturer is a roster entry that an admin linked to a `mentors` document.
+    function myMentorId() {
+      return isRosterMember()
+          ? get(/databases/$(database)/documents/allowedEmails/$(request.auth.token.email)).data.get('mentorId', null)
+          : null;
+    }
+
     // --- Role-Based Access Control (Appendix A & B) ---
 
     // Web administration has one privileged role: admin. Roles are assigned
@@ -90,6 +97,11 @@ service cloud.firestore {
       allow delete: if false;
       match /notifications/{notificationId} {
         allow read, write: if (isRosterMember() && request.auth.uid == userId) || isAdmin();
+        // A lecturer tells the leader their answer, in the same transaction.
+        allow create: if myMentorId() != null
+            && getAfter(/databases/$(database)/documents/mentor_requests/$(request.resource.data.teamId)).data.mentorId == myMentorId()
+            && getAfter(/databases/$(database)/documents/mentor_requests/$(request.resource.data.teamId)).data.senderId == userId
+            && getAfter(/databases/$(database)/documents/mentor_requests/$(request.resource.data.teamId)).data.status != 'pending';
       }
     }
 
@@ -99,12 +111,26 @@ service cloud.firestore {
       // Only roster members who are currently on the team (or joining it) may
       // update a team document. Each mutation type (join, leave, vote, lock, pool invite)
       // is validated individually against before/after state.
-      allow update: if isRosterMember() && isValidTeamUpdate();
+      allow update: if (isRosterMember() && isValidTeamUpdate()) || isMentorAccept();
       allow create: if isRosterMember()
           && request.resource.data.memberIds.size() == 1
           && request.resource.data.memberIds[0] == request.auth.uid
           && request.resource.data.locked == false;
       allow delete: if false;
+
+      // The lecturer a team asked becomes its mentor. Works on locked teams too:
+      // choosing a mentor does not touch the roster. The request must turn
+      // approved in the same transaction, so nobody can claim a team unasked.
+      function isMentorAccept() {
+        let accepted = getAfter(/databases/$(database)/documents/mentor_requests/$(teamId)).data;
+        return myMentorId() != null
+            && resource.data.get('mentorId', null) == null
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mentorId', 'supervisor'])
+            && request.resource.data.mentorId == myMentorId()
+            && accepted.mentorId == myMentorId()
+            && accepted.status == 'approved'
+            && request.resource.data.supervisor == accepted.mentorName;
+      }
 
       function isValidTeamUpdate() {
         let uid = request.auth.uid;
@@ -216,6 +242,49 @@ service cloud.firestore {
         return exists(/databases/$(database)/documents/teams/$(teamId))
             && get(/databases/$(database)/documents/teams/$(teamId)).data.leaderId == request.auth.uid;
       }
+    }
+
+    // Lecturer profiles come from the seed (tool/seed_firestore_lab3.py).
+    // `currentAssigned` and the team list only move when the lecturer accepts
+    // a team, one at a time and within quota.
+    match /mentors/{mentorId} {
+      allow read: if isRosterMember();
+      allow update: if myMentorId() == mentorId
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['currentAssigned', 'mentoredTeamNames'])
+                    && request.resource.data.currentAssigned == resource.data.currentAssigned + 1
+                    && request.resource.data.currentAssigned <= resource.data.maxQuota;
+      allow create, delete: if false;
+    }
+
+    // One document per team (id = team id): a team asks one mentor at a time.
+    match /mentor_requests/{teamId} {
+      function team() {
+        return get(/databases/$(database)/documents/teams/$(teamId)).data;
+      }
+
+      function isValidNewRequest() {
+        let after = request.resource.data;
+        return team().leaderId == request.auth.uid
+            && team().get('mentorId', null) == null
+            && after.teamId == teamId
+            && after.senderId == request.auth.uid
+            && after.status == 'pending'
+            && get(/databases/$(database)/documents/mentors/$(after.mentorId)).data.status == 'active';
+      }
+
+      function isMentorDecision() {
+        return resource.data.status == 'pending'
+            && resource.data.mentorId == myMentorId()
+            && request.resource.data.status in ['approved', 'rejected']
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'decisionReason', 'decidedAt']);
+      }
+
+      allow read: if isRosterMember();
+      allow create: if isRosterMember() && isValidNewRequest();
+      // After a refusal the team's next request replaces the old one.
+      allow update: if isMentorDecision()
+                    || (isRosterMember() && resource.data.status == 'rejected' && isValidNewRequest());
+      allow delete: if isRosterMember() && resource.data.status == 'pending' && team().leaderId == request.auth.uid;
     }
 
     match /configuration/{document} {

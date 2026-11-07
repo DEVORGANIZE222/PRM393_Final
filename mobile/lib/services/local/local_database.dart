@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/services.dart' show rootBundle;
 
 import '../../models/app_notification.dart';
+import '../../models/mentor.dart';
 import '../../models/student.dart';
 import '../../models/team.dart';
 import '../../models/view_state.dart';
@@ -27,13 +28,19 @@ class LocalDatabase {
   final Map<String, List<AppNotification>> notifications = {};
   final List<TeamMember> poolStudents = [];
   final Set<String> fillsOnNextJoin = {};
+  final Map<String, Mentor> mentors = {};
+
+  /// teamId → that team's request.
+  final Map<String, MentorRequest> mentorRequests = {};
   late final DateTime launchedAt;
 
   final _teamChanges = StreamController<Team>.broadcast();
   final _notificationChanges = StreamController<String>.broadcast();
+  final _mentorRequestChanges = StreamController<String>.broadcast();
 
   Stream<Team> get teamChanges => _teamChanges.stream;
   Stream<String> get notificationChanges => _notificationChanges.stream;
+  Stream<String> get mentorRequestChanges => _mentorRequestChanges.stream;
 
   Map<String, dynamic> get seed => _seed;
 
@@ -78,6 +85,16 @@ class LocalDatabase {
   void putTeam(Team team) {
     teams[team.id] = team;
     _teamChanges.add(team);
+  }
+
+  void putMentorRequest(MentorRequest request) {
+    mentorRequests[request.teamId] = request;
+    _mentorRequestChanges.add(request.teamId);
+  }
+
+  void removeMentorRequest(String teamId) {
+    mentorRequests.remove(teamId);
+    _mentorRequestChanges.add(teamId);
   }
 
   void addNotification(String uid, AppNotification n) {

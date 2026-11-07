@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../models/mentor.dart';
 import '../models/student.dart';
 import '../models/team.dart';
 import '../models/view_state.dart';
@@ -12,15 +13,21 @@ enum TeamPhase { inFormation, electLeader, readyToLock, locked }
 
 /// SCR_05: team workspace. Empty state = not in a team.
 class MyTeamViewModel extends ChangeNotifier {
-  MyTeamViewModel(this._student, this._teams, this._crash);
+  MyTeamViewModel(this._student, this._teams, this._mentors, this._crash);
 
   final Student _student;
   final TeamRepository _teams;
+  final MentorRepository _mentors;
   final CrashReporter _crash;
   StreamSubscription<Team?>? _watch;
+  StreamSubscription<MentorRequest?>? _requestWatch;
+  String? _requestTeamId;
 
   ViewState<Team> state = const Loading();
   bool leaving = false;
+
+  /// The team's mentor request, kept live for the Mentor card.
+  MentorRequest? mentorRequest;
 
   String get myId => _student.id;
 
@@ -40,10 +47,12 @@ class MyTeamViewModel extends ChangeNotifier {
     try {
       final team = await _teams.teamOf(_student.id);
       state = team == null ? const Empty() : Data(team);
+      _followRequest(team);
       await _watch?.cancel();
       _watch = _teams.watchTeamOf(_student.id).listen(
         (t) {
           state = t == null ? const Empty() : Data(t);
+          _followRequest(t);
           notifyListeners();
         },
         onError: (Object e, StackTrace st) async {
@@ -55,6 +64,22 @@ class MyTeamViewModel extends ChangeNotifier {
       state = Failure(await toFailure(e, st, crash: _crash, reason: 'my_team_load'));
     }
     notifyListeners();
+  }
+
+  void _followRequest(Team? team) {
+    if (team?.id == _requestTeamId) return;
+    _requestTeamId = team?.id;
+    _requestWatch?.cancel();
+    mentorRequest = null;
+    if (team == null) return;
+    _requestWatch = _mentors.watchRequestOfTeam(team.id).listen(
+      (request) {
+        mentorRequest = request;
+        notifyListeners();
+      },
+      // The rest of My Team still works; only the card falls back to "no request".
+      onError: (Object e, StackTrace st) => _crash.recordError(e, st, reason: 'my_team_mentor_request'),
+    );
   }
 
   Future<AppFailure?> leave(Team team) async {
@@ -111,6 +136,7 @@ class MyTeamViewModel extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _watch?.cancel();
+    _requestWatch?.cancel();
     super.dispose();
   }
 }

@@ -57,6 +57,17 @@ PRM393_Final_DEVORGANIZE222/
 
 ---
 
+## Mentor Selection (mobile)
+
+1. Lecturers come from `tool/seed_firestore_lab3.py` (`mentors`). A Google account becomes a lecturer when its roster entry has `allowedEmails/{email}.mentorId` set to one of them (Firebase Console).
+2. A team leader opens My Team → Mentor and sends a request.
+3. The lecturer signs in to the same mobile app, lands on the Mentor Portal and accepts or declines with a reason.
+4. The team's Mentor card updates in real time and the leader gets an inbox message.
+
+The web admin is unchanged.
+
+---
+
 ## 3. How to Run Each Client & Emulators
 
 ### A. Run Mobile Client (Android)

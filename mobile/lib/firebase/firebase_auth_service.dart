@@ -163,6 +163,7 @@ class FirebaseAuthService implements AuthService {
       avatarUrl: (saved['avatarUrl'] as String?) ?? photoUrl,
       skills: List<String>.from(saved['skills'] ?? const []),
       preferredRoles: List<String>.from(saved['preferredRoles'] ?? const []),
+      mentorId: allowed.data()?['mentorId'] as String?,
     );
     if (_messagingInitializedFor.add(user.uid)) {
       await _messaging.initialize(user.uid);

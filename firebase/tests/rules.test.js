@@ -94,5 +94,160 @@ describe('PRM393 Final Security Rules (Appendix B)', () => {
       role: 'admin',
     }));
   });
-});
 
+  describe('mentor selection', () => {
+    const team = (extra = {}) => ({
+      name: 'Team AI-04', supervisor: 'Assigned by Academic Office', leaderId: 'leader_01',
+      members: [], memberIds: ['leader_01', 'member_01'], votes: {}, locked: false, invitesSent: 0, ...extra,
+    });
+    const request = (extra = {}) => ({
+      teamId: 't1', teamName: 'Team AI-04', mentorId: 'm1', mentorName: 'Dr. A', senderId: 'leader_01',
+      senderName: 'Leader', message: 'Please', status: 'pending', ...extra,
+    });
+    const mentor = (extra = {}) => ({
+      fullName: 'Dr. A', email: 'a@fpt.edu.vn', maxQuota: 1, currentAssigned: 0, mentoredTeamNames: [],
+      status: 'active', ...extra,
+    });
+    const student = (uid, email) => testEnv.authenticatedContext(uid, { email }).firestore();
+    const lecturer = () => testEnv.authenticatedContext('lect_m1', { email: 'a@fpt.edu.vn' }).firestore();
+    const otherLecturer = () => testEnv.authenticatedContext('lect_m2', { email: 'b@fpt.edu.vn' }).firestore();
+    const leader = () => student('leader_01', 'leader@fpt.edu.vn');
+    const member = () => student('member_01', 'member@fpt.edu.vn');
+
+    const seed = (extra) => testEnv.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await db.doc('allowedEmails/leader@fpt.edu.vn').set({ enabled: true });
+      await db.doc('allowedEmails/member@fpt.edu.vn').set({ enabled: true });
+      await db.doc('allowedEmails/a@fpt.edu.vn').set({ enabled: true, mentorId: 'm1' });
+      await db.doc('allowedEmails/b@fpt.edu.vn').set({ enabled: true, mentorId: 'm2' });
+      await db.doc('mentors/m1').set(mentor({ fullName: 'Dr. A' }));
+      await db.doc('mentors/m2').set(mentor({ fullName: 'Dr. B', currentAssigned: 1, mentoredTeamNames: ['X'] }));
+      await db.doc('teams/t1').set(team());
+      if (extra) await extra(db);
+    });
+    const pending = (db) => db.doc('mentor_requests/t1').set(request());
+
+    const accept = (db, { mentorId = 'm1', name = 'Dr. A', assigned = 1 } = {}) => {
+      const batch = db.batch();
+      batch.update(db.doc('mentor_requests/t1'), { status: 'approved' });
+      batch.update(db.doc('teams/t1'), { mentorId, supervisor: name });
+      batch.update(db.doc(`mentors/${mentorId}`), { currentAssigned: assigned, mentoredTeamNames: ['Team AI-04'] });
+      batch.set(db.doc('students/leader_01/notifications/n1'), { teamId: 't1', title: 'Accepted', read: false });
+      return batch.commit();
+    };
+
+    test('R-04: mentors - student reads the directory', async () => {
+      await seed();
+      await assertSucceeds(member().doc('mentors/m1').get());
+    });
+
+    test('R-05: mentors - a student cannot change a quota', async () => {
+      await seed();
+      await assertFails(leader().doc('mentors/m1').update({ currentAssigned: 0, maxQuota: 99 }));
+    });
+
+    test('R-06: mentor_requests - leader creates a pending request', async () => {
+      await seed();
+      await assertSucceeds(leader().doc('mentor_requests/t1').set(request()));
+    });
+
+    test('R-07: mentor_requests - a member who is not the leader is denied', async () => {
+      await seed();
+      await assertFails(member().doc('mentor_requests/t1').set(request({ senderId: 'member_01' })));
+    });
+
+    test('R-08: mentor_requests - leader cannot create an approved request', async () => {
+      await seed();
+      await assertFails(leader().doc('mentor_requests/t1').set(request({ status: 'approved' })));
+    });
+
+    test('R-09: mentor_requests - a team with a mentor cannot ask again', async () => {
+      await seed((db) => db.doc('teams/t1').update({ mentorId: 'm2' }));
+      await assertFails(leader().doc('mentor_requests/t1').set(request()));
+    });
+
+    test('R-10: mentor_requests - a second request cannot replace a pending one', async () => {
+      await seed(pending);
+      await assertFails(leader().doc('mentor_requests/t1').set(request({ mentorId: 'm2' })));
+    });
+
+    test('R-11: mentor_requests - leader asks again after a refusal', async () => {
+      await seed((db) => db.doc('mentor_requests/t1').set(request({ status: 'rejected' })));
+      await assertSucceeds(leader().doc('mentor_requests/t1').set(request({ mentorId: 'm2', mentorName: 'Dr. B' })));
+    });
+
+    test('R-12: mentor_requests - leader withdraws a pending request', async () => {
+      await seed(pending);
+      await assertSucceeds(leader().doc('mentor_requests/t1').delete());
+    });
+
+    test('R-13: mentor_requests - a member cannot withdraw it', async () => {
+      await seed(pending);
+      await assertFails(member().doc('mentor_requests/t1').delete());
+    });
+
+    test('R-14: mentor_requests - the asked lecturer declines with a reason', async () => {
+      await seed(pending);
+      await assertSucceeds(lecturer().doc('mentor_requests/t1').update({ status: 'rejected', decisionReason: 'Full' }));
+    });
+
+    test('R-15: mentor_requests - another lecturer cannot answer', async () => {
+      await seed(pending);
+      await assertFails(otherLecturer().doc('mentor_requests/t1').update({ status: 'rejected' }));
+    });
+
+    test('R-16: mentor_requests - a student cannot approve their own request', async () => {
+      await seed(pending);
+      await assertFails(leader().doc('mentor_requests/t1').update({ status: 'approved' }));
+    });
+
+    test('R-17: accept - request, team and quota change in one write', async () => {
+      await seed(pending);
+      await assertSucceeds(accept(lecturer()));
+    });
+
+    test('R-18: accept - a locked team can still get its mentor', async () => {
+      await seed(async (db) => {
+        await pending(db);
+        await db.doc('teams/t1').update({ locked: true });
+      });
+      await assertSucceeds(accept(lecturer()));
+    });
+
+    test('R-19: accept - a lecturer cannot go over quota', async () => {
+      await seed((db) => db.doc('mentor_requests/t1').set(request({ mentorId: 'm2', mentorName: 'Dr. B' })));
+      await assertFails(accept(otherLecturer(), { mentorId: 'm2', name: 'Dr. B', assigned: 2 }));
+    });
+
+    test('R-20: teams - a lecturer cannot claim a team without an approved request', async () => {
+      await seed(pending);
+      await assertFails(lecturer().doc('teams/t1').update({ mentorId: 'm1', supervisor: 'Dr. A' }));
+    });
+
+    test('R-21: teams - a leader cannot set the mentor directly', async () => {
+      await seed();
+      await assertFails(leader().doc('teams/t1').update({ mentorId: 'm1', supervisor: 'Dr. A' }));
+    });
+
+    test('R-22: mentor_requests - an archived lecturer cannot be asked', async () => {
+      await seed((db) => db.doc('mentors/m1').update({ status: 'archived' }));
+      await assertFails(leader().doc('mentor_requests/t1').set(request()));
+    });
+
+    test('R-23: allowedEmails - a student cannot link themselves to a lecturer', async () => {
+      await seed();
+      await assertFails(leader().doc('allowedEmails/leader@fpt.edu.vn').update({ mentorId: 'm1' }));
+    });
+
+    test('R-24: notifications - a lecturer who answered reaches the leader', async () => {
+      await seed(pending);
+      await assertSucceeds(accept(lecturer()));
+    });
+
+    test('R-25: notifications - another lecturer cannot write to a student inbox', async () => {
+      await seed(pending);
+      await assertFails(otherLecturer().doc('students/leader_01/notifications/n2').set({ teamId: 't1', title: 'Spam' }));
+    });
+
+  });
+});
