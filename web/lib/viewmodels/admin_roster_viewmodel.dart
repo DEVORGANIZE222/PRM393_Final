@@ -34,7 +34,7 @@ class AdminRosterViewModel extends ChangeNotifier {
   int get enabledCount => entries.where((entry) => entry.enabled).length;
 
   void load() {
-    _subscription?.cancel();
+    if (_subscription != null) return;
     _subscription = _service.watchWhitelist().listen(
       (value) {
         entries = value;

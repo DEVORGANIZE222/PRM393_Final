@@ -20,9 +20,9 @@ class RosterScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
-        create: (_) => AdminRosterViewModel(AdminRosterService())..load(),
-        child: const _RosterView(),
-      );
+    create: (_) => AdminRosterViewModel(AdminRosterService())..load(),
+    child: const _RosterView(),
+  );
 }
 
 class _RosterView extends StatefulWidget {
@@ -37,6 +37,8 @@ class _RosterViewState extends State<_RosterView> {
   String _selectedMajor = 'all';
   String _selectedFileName = '';
   Uint8List? _selectedFileBytes;
+  int _page = 0;
+  static const int _pageSize = 25;
 
   // Single manual student controllers
   final _codeController = TextEditingController();
@@ -67,18 +69,16 @@ class _RosterViewState extends State<_RosterView> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Không thể chọn tệp: $e'), backgroundColor: AdminPalette.danger),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Không thể chọn tệp: $e'), backgroundColor: AdminPalette.danger));
       }
     }
   }
 
   Future<void> _importFile(AdminRosterViewModel model) async {
     if (_selectedFileBytes == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng chọn tệp .xlsx hoặc .csv trước khi import.')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Vui lòng chọn tệp .xlsx hoặc .csv trước khi import.')));
       return;
     }
 
@@ -103,27 +103,18 @@ class _RosterViewState extends State<_RosterView> {
     final email = _emailController.text.trim().toLowerCase();
 
     if (code.isEmpty || name.isEmpty || email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập đầy đủ MSSV, Họ tên và Email.')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Vui lòng nhập đầy đủ MSSV, Họ tên và Email.')));
       return;
     }
 
     if (!email.contains('@')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Địa chỉ email không hợp lệ.')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Địa chỉ email không hợp lệ.')));
       return;
     }
 
     await model.addSingle(
-      RosterEntry(
-        email: email,
-        fullName: name,
-        studentCode: code,
-        major: _manualMajor,
-        enabled: true,
-      ),
+      RosterEntry(email: email, fullName: name, studentCode: code, major: _manualMajor, enabled: true),
     );
 
     if (mounted && model.error == null) {
@@ -141,7 +132,9 @@ class _RosterViewState extends State<_RosterView> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Xác nhận xóa sinh viên'),
-        content: Text('Bạn có chắc chắn muốn xóa sinh viên ${entry.fullName} (${entry.studentCode}) khỏi whitelist Google Access?'),
+        content: Text(
+          'Bạn có chắc chắn muốn xóa sinh viên ${entry.fullName} (${entry.studentCode}) khỏi whitelist Google Access?',
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Hủy')),
           FilledButton(
@@ -203,14 +196,73 @@ class _RosterViewState extends State<_RosterView> {
 
   String _normalized(String value) {
     const accents = {
-      'à': 'a', 'á': 'a', 'ạ': 'a', 'ả': 'a', 'ã': 'a', 'â': 'a', 'ầ': 'a', 'ấ': 'a', 'ậ': 'a', 'ẩ': 'a', 'ẫ': 'a',
-      'ă': 'a', 'ằ': 'a', 'ắ': 'a', 'ặ': 'a', 'ẳ': 'a', 'ẵ': 'a',
-      'è': 'e', 'é': 'e', 'ẹ': 'e', 'ẻ': 'e', 'ẽ': 'e', 'ê': 'e', 'ề': 'e', 'ế': 'e', 'ệ': 'e', 'ể': 'e', 'ễ': 'e',
-      'ì': 'i', 'í': 'i', 'ị': 'i', 'ỉ': 'i', 'ĩ': 'i',
-      'ò': 'o', 'ó': 'o', 'ọ': 'o', 'ỏ': 'o', 'õ': 'o', 'ô': 'o', 'ồ': 'o', 'ố': 'o', 'ộ': 'o', 'ổ': 'o', 'ỗ': 'o',
-      'ơ': 'o', 'ờ': 'o', 'ớ': 'o', 'ợ': 'o', 'ở': 'o', 'ỡ': 'o',
-      'ù': 'u', 'ú': 'u', 'ụ': 'u', 'ủ': 'u', 'ũ': 'u', 'ư': 'u', 'ừ': 'u', 'ứ': 'u', 'ự': 'u', 'ử': 'u', 'ữ': 'u',
-      'ỳ': 'y', 'ý': 'y', 'ỵ': 'y', 'ỷ': 'y', 'ỹ': 'y', 'đ': 'd',
+      'à': 'a',
+      'á': 'a',
+      'ạ': 'a',
+      'ả': 'a',
+      'ã': 'a',
+      'â': 'a',
+      'ầ': 'a',
+      'ấ': 'a',
+      'ậ': 'a',
+      'ẩ': 'a',
+      'ẫ': 'a',
+      'ă': 'a',
+      'ằ': 'a',
+      'ắ': 'a',
+      'ặ': 'a',
+      'ẳ': 'a',
+      'ẵ': 'a',
+      'è': 'e',
+      'é': 'e',
+      'ẹ': 'e',
+      'ẻ': 'e',
+      'ẽ': 'e',
+      'ê': 'e',
+      'ề': 'e',
+      'ế': 'e',
+      'ệ': 'e',
+      'ể': 'e',
+      'ễ': 'e',
+      'ì': 'i',
+      'í': 'i',
+      'ị': 'i',
+      'ỉ': 'i',
+      'ĩ': 'i',
+      'ò': 'o',
+      'ó': 'o',
+      'ọ': 'o',
+      'ỏ': 'o',
+      'õ': 'o',
+      'ô': 'o',
+      'ồ': 'o',
+      'ố': 'o',
+      'ộ': 'o',
+      'ổ': 'o',
+      'ỗ': 'o',
+      'ơ': 'o',
+      'ờ': 'o',
+      'ớ': 'o',
+      'ợ': 'o',
+      'ở': 'o',
+      'ỡ': 'o',
+      'ù': 'u',
+      'ú': 'u',
+      'ụ': 'u',
+      'ủ': 'u',
+      'ũ': 'u',
+      'ư': 'u',
+      'ừ': 'u',
+      'ứ': 'u',
+      'ự': 'u',
+      'ử': 'u',
+      'ữ': 'u',
+      'ỳ': 'y',
+      'ý': 'y',
+      'ỵ': 'y',
+      'ỷ': 'y',
+      'ỹ': 'y',
+      'đ': 'd',
     };
     return value
         .toLowerCase()
@@ -227,18 +279,25 @@ class _RosterViewState extends State<_RosterView> {
     // Filter by query and major
     final allEntries = model.entries;
     final term = model.query.trim().toLowerCase();
-    final filtered = allEntries.where((entry) {
-      final matchesQuery = term.isEmpty ||
-          entry.email.toLowerCase().contains(term) ||
-          entry.fullName.toLowerCase().contains(term) ||
-          entry.studentCode.toLowerCase().contains(term) ||
-          entry.major.toLowerCase().contains(term);
+    final filtered = allEntries
+        .where((entry) {
+          final matchesQuery =
+              term.isEmpty ||
+              entry.email.toLowerCase().contains(term) ||
+              entry.fullName.toLowerCase().contains(term) ||
+              entry.studentCode.toLowerCase().contains(term) ||
+              entry.major.toLowerCase().contains(term);
 
-      final matchesMajor = _selectedMajor == 'all' ||
-          entry.major.toLowerCase().contains(_selectedMajor.toLowerCase());
+          final matchesMajor =
+              _selectedMajor == 'all' || entry.major.toLowerCase().contains(_selectedMajor.toLowerCase());
 
-      return matchesQuery && matchesMajor;
-    }).toList(growable: false);
+          return matchesQuery && matchesMajor;
+        })
+        .toList(growable: false);
+
+    final totalPages = (filtered.length / _pageSize).ceil().clamp(1, 9999);
+    final safePage = _page.clamp(0, totalPages - 1);
+    final pagedItems = filtered.skip(safePage * _pageSize).take(_pageSize).toList(growable: false);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 32, 24, 48),
@@ -288,14 +347,8 @@ class _RosterViewState extends State<_RosterView> {
           const SizedBox(height: 24),
 
           // Notifications
-          if (model.error != null) ...[
-            _Banner(message: model.error!, error: true),
-            const SizedBox(height: 16),
-          ],
-          if (model.success != null) ...[
-            _Banner(message: model.success!, error: false),
-            const SizedBox(height: 16),
-          ],
+          if (model.error != null) ...[_Banner(message: model.error!, error: true), const SizedBox(height: 16)],
+          if (model.success != null) ...[_Banner(message: model.success!, error: false), const SizedBox(height: 16)],
 
           // ── 2-Column Responsive Layout (service-layout-grid) ──
           LayoutBuilder(
@@ -356,7 +409,9 @@ class _RosterViewState extends State<_RosterView> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
-                                  _selectedFileName.isNotEmpty ? Icons.description_outlined : Icons.cloud_upload_outlined,
+                                  _selectedFileName.isNotEmpty
+                                      ? Icons.description_outlined
+                                      : Icons.cloud_upload_outlined,
                                   size: 36,
                                   color: _selectedFileName.isNotEmpty ? AdminPalette.primary : AdminPalette.muted,
                                 ),
@@ -380,16 +435,16 @@ class _RosterViewState extends State<_RosterView> {
                         ),
                         const SizedBox(height: 18),
                         FilledButton.icon(
-                          onPressed: (model.importing || _selectedFileBytes == null)
-                              ? null
-                              : () => _importFile(model),
+                          onPressed: (model.importing || _selectedFileBytes == null) ? null : () => _importFile(model),
                           icon: model.importing
                               ? const SizedBox.square(
                                   dimension: 16,
                                   child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                                 )
                               : const Icon(Icons.file_upload_outlined, size: 18),
-                          label: Text(model.importing ? 'Đang đọc và nhập dữ liệu...' : 'Import & Cấp quyền Google Access'),
+                          label: Text(
+                            model.importing ? 'Đang đọc và nhập dữ liệu...' : 'Import & Cấp quyền Google Access',
+                          ),
                           style: FilledButton.styleFrom(
                             backgroundColor: AdminPalette.primary,
                             minimumSize: const Size.fromHeight(44),
@@ -470,7 +525,11 @@ class _RosterViewState extends State<_RosterView> {
                           ),
                           Text(
                             '${filtered.length} / ${allEntries.length}',
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AdminPalette.muted),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AdminPalette.muted,
+                            ),
                           ),
                         ],
                       ),
@@ -481,7 +540,10 @@ class _RosterViewState extends State<_RosterView> {
                         children: [
                           Expanded(
                             child: TextField(
-                              onChanged: model.setQuery,
+                              onChanged: (val) {
+                                model.setQuery(val);
+                                setState(() => _page = 0);
+                              },
                               style: const TextStyle(fontSize: 13.5),
                               decoration: const InputDecoration(
                                 prefixIcon: Icon(Icons.search, size: 20),
@@ -503,7 +565,10 @@ class _RosterViewState extends State<_RosterView> {
                               DropdownMenuItem(value: 'Marketing', child: Text('MKT (Marketing)')),
                               DropdownMenuItem(value: 'Business', child: Text('IB (Kinh doanh QT)')),
                             ],
-                            onChanged: (val) => setState(() => _selectedMajor = val ?? 'all'),
+                            onChanged: (val) => setState(() {
+                              _selectedMajor = val ?? 'all';
+                              _page = 0;
+                            }),
                           ),
                         ],
                       ),
@@ -516,32 +581,80 @@ class _RosterViewState extends State<_RosterView> {
                         child: model.loading
                             ? const Center(child: CircularProgressIndicator(color: AdminPalette.primary))
                             : filtered.isEmpty
-                                ? const Center(
-                                    child: Padding(
-                                      padding: EdgeInsets.all(32),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(Icons.people_outline, size: 36, color: AdminPalette.slate400),
-                                          SizedBox(height: 8),
-                                          Text('Không tìm thấy sinh viên nào phù hợp.', style: TextStyle(color: AdminPalette.muted)),
-                                        ],
+                            ? const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(32),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.people_outline, size: 36, color: AdminPalette.slate400),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'Không tìm thấy sinh viên nào phù hợp.',
+                                        style: TextStyle(color: AdminPalette.muted),
                                       ),
-                                    ),
-                                  )
-                                : ListView.separated(
-                                    itemCount: filtered.length,
-                                    separatorBuilder: (_, __) => const Divider(height: 1),
-                                    itemBuilder: (context, index) {
-                                      final item = filtered[index];
-                                      return _RosterRow(
-                                        entry: item,
-                                        isUpdating: model.updatingEmail == item.email,
-                                        onToggleEnabled: (val) => model.setEnabled(item, val),
-                                        onDelete: () => _confirmDelete(context, model, item),
-                                      );
-                                    },
+                                    ],
                                   ),
+                                ),
+                              )
+                            : ListView.separated(
+                                itemCount: pagedItems.length,
+                                separatorBuilder: (_, __) => const Divider(height: 1),
+                                itemBuilder: (context, index) {
+                                  final item = pagedItems[index];
+                                  return _RosterRow(
+                                    entry: item,
+                                    isUpdating: model.updatingEmail == item.email,
+                                    onToggleEnabled: (val) => model.setEnabled(item, val),
+                                    onDelete: () => _confirmDelete(context, model, item),
+                                  );
+                                },
+                              ),
+                      ),
+                      const SizedBox(height: 12),
+                      const Divider(height: 1),
+                      const SizedBox(height: 8),
+                      // ── Pagination Controls ──
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Hiển thị ${filtered.isEmpty ? 0 : safePage * _pageSize + 1} – ${(safePage + 1) * _pageSize > filtered.length ? filtered.length : (safePage + 1) * _pageSize} trên ${filtered.length} sinh viên',
+                            style: const TextStyle(fontSize: 12.5, color: AdminPalette.muted),
+                          ),
+                          Row(
+                            children: [
+                              OutlinedButton(
+                                onPressed: safePage > 0 ? () => setState(() => _page = safePage - 1) : null,
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  minimumSize: const Size(36, 32),
+                                ),
+                                child: const Text('‹ Trước', style: TextStyle(fontSize: 12.5)),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Trang ${safePage + 1} / $totalPages',
+                                style: const TextStyle(
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: AdminPalette.ink,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              OutlinedButton(
+                                onPressed: safePage < totalPages - 1
+                                    ? () => setState(() => _page = safePage + 1)
+                                    : null,
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  minimumSize: const Size(36, 32),
+                                ),
+                                child: const Text('Sau ›', style: TextStyle(fontSize: 12.5)),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -558,13 +671,7 @@ class _RosterViewState extends State<_RosterView> {
                   ],
                 );
               } else {
-                return Column(
-                  children: [
-                    leftForm,
-                    const SizedBox(height: 20),
-                    rightList,
-                  ],
-                );
+                return Column(children: [leftForm, const SizedBox(height: 20), rightList]);
               }
             },
           ),
@@ -575,12 +682,7 @@ class _RosterViewState extends State<_RosterView> {
 }
 
 class _ModeTab extends StatelessWidget {
-  const _ModeTab({
-    required this.icon,
-    required this.label,
-    required this.active,
-    required this.onTap,
-  });
+  const _ModeTab({required this.icon, required this.label, required this.active, required this.onTap});
 
   final IconData icon;
   final String label;
@@ -589,32 +691,32 @@ class _ModeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => InkWell(
-        onTap: onTap,
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(6),
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      decoration: BoxDecoration(
+        color: active ? AdminPalette.subtle : Colors.transparent,
         borderRadius: BorderRadius.circular(6),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-          decoration: BoxDecoration(
-            color: active ? AdminPalette.subtle : Colors.transparent,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: active ? AdminPalette.borderStrong : Colors.transparent),
+        border: Border.all(color: active ? AdminPalette.borderStrong : Colors.transparent),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 15, color: active ? AdminPalette.primary : AdminPalette.muted),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+              color: active ? AdminPalette.primary : AdminPalette.muted,
+            ),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 15, color: active ? AdminPalette.primary : AdminPalette.muted),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                  color: active ? AdminPalette.primary : AdminPalette.muted,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+        ],
+      ),
+    ),
+  );
 }
 
 class _RosterRow extends StatelessWidget {
@@ -708,11 +810,7 @@ class _RosterRow extends StatelessWidget {
           if (isUpdating)
             const SizedBox.square(dimension: 24, child: CircularProgressIndicator(strokeWidth: 2))
           else
-            Switch(
-              value: entry.enabled,
-              onChanged: onToggleEnabled,
-              activeColor: AdminPalette.primary,
-            ),
+            Switch(value: entry.enabled, onChanged: onToggleEnabled, activeColor: AdminPalette.primary),
 
           // Delete Student Button
           IconButton(
@@ -733,31 +831,31 @@ class _Banner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: error ? AdminPalette.dangerLight : AdminPalette.primaryLight,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: error ? const Color(0xFFFECACA) : AdminPalette.primaryBorder),
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: error ? AdminPalette.dangerLight : AdminPalette.primaryLight,
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(color: error ? const Color(0xFFFECACA) : AdminPalette.primaryBorder),
+    ),
+    child: Row(
+      children: [
+        Icon(
+          error ? Icons.error_outline : Icons.check_circle_outline,
+          color: error ? AdminPalette.danger : AdminPalette.primary,
+          size: 20,
         ),
-        child: Row(
-          children: [
-            Icon(
-              error ? Icons.error_outline : Icons.check_circle_outline,
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            message,
+            style: TextStyle(
               color: error ? AdminPalette.danger : AdminPalette.primary,
-              size: 20,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                message,
-                style: TextStyle(
-                  color: error ? AdminPalette.danger : AdminPalette.primary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
-      );
+      ],
+    ),
+  );
 }

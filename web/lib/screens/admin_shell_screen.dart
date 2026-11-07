@@ -24,6 +24,35 @@ class AdminShellScreen extends StatefulWidget {
 
 class _AdminShellScreenState extends State<AdminShellScreen> {
   int _selected = 0;
+  late final Stream<QuerySnapshot<Map<String, dynamic>>> _pendingStream = FirebaseFirestore.instance
+      .collection('teamSubmissions')
+      .where('status', isEqualTo: 'pending')
+      .snapshots();
+
+  Widget _buildPage(int index) {
+    switch (index) {
+      case 0:
+        return DashboardScreen(
+          onOpenReview: () => setState(() => _selected = 1),
+          onOpenGroups: () => setState(() => _selected = 2),
+          onOpenAnnouncements: () => setState(() => _selected = 5),
+        );
+      case 1:
+        return const ReviewQueueScreen();
+      case 2:
+        return const GroupsScreen();
+      case 3:
+        return const RosterScreen();
+      case 4:
+        return const ManagementScreen();
+      case 5:
+        return const AnnouncementScreen();
+      case 6:
+        return const GoogleAccessScreen();
+      default:
+        return const SizedBox.shrink();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,25 +63,8 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
         : profileName;
     final photoUrl = session.firebaseUser?.photoURL;
 
-    final pages = [
-      DashboardScreen(
-        onOpenReview: () => setState(() => _selected = 1),
-        onOpenGroups: () => setState(() => _selected = 2),
-        onOpenAnnouncements: () => setState(() => _selected = 5),
-      ),
-      const ReviewQueueScreen(),
-      const GroupsScreen(),
-      const RosterScreen(),
-      const ManagementScreen(),
-      const AnnouncementScreen(),
-      const GoogleAccessScreen(),
-    ];
-
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: FirebaseFirestore.instance
-          .collection('teamSubmissions')
-          .where('status', isEqualTo: 'pending')
-          .snapshots(),
+      stream: _pendingStream,
       builder: (context, snapshot) {
         final pendingCount = snapshot.hasData ? snapshot.data!.docs.length : 0;
 
@@ -155,7 +167,10 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
               ),
               Expanded(
                 child: Center(
-                  child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1240), child: pages[_selected]),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1240),
+                    child: _buildPage(_selected),
+                  ),
                 ),
               ),
             ],

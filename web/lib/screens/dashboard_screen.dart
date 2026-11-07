@@ -538,42 +538,44 @@ class _DashboardData {
   static Future<_DashboardData> load() async {
     final db = FirebaseFirestore.instance;
     final values = await Future.wait([
-      db.collection('students').count().get(),
-      db.collection('teams').count().get(),
-      db.collection('teamSubmissions').where('status', isEqualTo: 'pending').count().get(),
-      db.collection('teams').get(),
-      db.collection('configuration').doc('registration').get(),
-      db.collection('students').where('hasGroup', isEqualTo: true).count().get().catchError((_) => null),
+      db.collection('allowedEmails').count().get().timeout(const Duration(seconds: 4)).catchError((_) => null),
+      db.collection('teamSubmissions').where('status', isEqualTo: 'pending').count().get().timeout(const Duration(seconds: 4)).catchError((_) => null),
+      db.collection('teams').get().timeout(const Duration(seconds: 4)).catchError((_) => null),
+      db.collection('configuration').doc('registration').get().timeout(const Duration(seconds: 4)).catchError((_) => null),
     ]);
 
-    final totalStudents = (values[0] as AggregateQuerySnapshot).count ?? 0;
-    final totalTeams = (values[1] as AggregateQuerySnapshot).count ?? 0;
-    final pendingCount = (values[2] as AggregateQuerySnapshot).count ?? 0;
-    final teamsSnapshot = values[3] as QuerySnapshot<Map<String, dynamic>>;
-    final configSnapshot = values[4] as DocumentSnapshot<Map<String, dynamic>>;
+    final totalStudents = values[0] is AggregateQuerySnapshot ? (values[0] as AggregateQuerySnapshot).count ?? 0 : 0;
+    final pendingCount = values[1] is AggregateQuerySnapshot ? (values[1] as AggregateQuerySnapshot).count ?? 0 : 0;
+    final teamsSnapshot = values[2] as QuerySnapshot<Map<String, dynamic>>?;
+    final configSnapshot = values[3] as DocumentSnapshot<Map<String, dynamic>>?;
 
+    var totalTeams = 0;
     var locked = 0;
     var ready = 0;
     var topicCount = 0;
-    for (final doc in teamsSnapshot.docs) {
-      final data = doc.data();
-      final members = data['members'] as List<dynamic>? ?? const [];
-      final hasTopic =
-          (data['topic'] as String?)?.isNotEmpty == true || (data['topicTitle'] as String?)?.isNotEmpty == true;
 
-      if (hasTopic) topicCount++;
+    if (teamsSnapshot != null) {
+      totalTeams = teamsSnapshot.size;
+      for (final doc in teamsSnapshot.docs) {
+        final data = doc.data();
+        final members = data['members'] as List<dynamic>? ?? const [];
+        final hasTopic =
+            (data['topic'] as String?)?.isNotEmpty == true || (data['topicTitle'] as String?)?.isNotEmpty == true;
 
-      if (data['locked'] == true) {
-        locked++;
-      } else if (members.length >= 5 || hasTopic) {
-        ready++;
+        if (hasTopic) topicCount++;
+
+        if (data['locked'] == true) {
+          locked++;
+        } else if (members.length >= 5 || hasTopic) {
+          ready++;
+        }
       }
     }
 
-    final matchedCount = values[5] != null ? (values[5] as AggregateQuerySnapshot).count ?? (locked * 5) : (locked * 5);
+    final matchedCount = (locked * 5).clamp(0, totalStudents);
     final unmatched = (totalStudents - matchedCount).clamp(0, totalStudents);
 
-    final config = configSnapshot.data() ?? {};
+    final config = configSnapshot?.data() ?? {};
     final semesterName = config['semester'] as String? ?? 'FA26';
 
     // Parse milestone countdowns
