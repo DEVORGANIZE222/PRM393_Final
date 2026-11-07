@@ -47,8 +47,6 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
         return const ManagementScreen();
       case 5:
         return const AnnouncementScreen();
-      case 6:
-        return const GoogleAccessScreen();
       default:
         return const SizedBox.shrink();
     }
@@ -61,7 +59,11 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
     final name = profileName == null || profileName.isEmpty
         ? (session.firebaseUser?.email?.split('@').first ?? 'Quản trị viên')
         : profileName;
-    final photoUrl = session.firebaseUser?.photoURL;
+    final photoUrl =
+        session.firebaseUser?.photoURL ??
+        (session.firebaseUser?.providerData.isNotEmpty == true
+            ? session.firebaseUser!.providerData.first.photoURL
+            : null);
 
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: _pendingStream,
@@ -75,7 +77,6 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
           const _NavItem('Sinh viên', Icons.people_outline),
           const _NavItem('Học kỳ', Icons.calendar_month_outlined),
           const _NavItem('Phát thông báo', Icons.campaign_outlined),
-          const _NavItem('Google Access', Icons.shield_outlined),
         ];
 
         return Scaffold(
@@ -97,7 +98,7 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
-                          final compact = constraints.maxWidth < 850;
+                          final compact = constraints.maxWidth < 1050;
                           return Row(
                             children: [
                               const _Brand(),
@@ -143,7 +144,7 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
           body: Column(
             children: [
               LayoutBuilder(
-                builder: (context, constraints) => constraints.maxWidth >= 1100
+                builder: (context, constraints) => constraints.maxWidth >= 1050
                     ? const SizedBox.shrink()
                     : Container(
                         color: AdminPalette.surface,
@@ -291,17 +292,32 @@ class _ProfileBadge extends StatelessWidget {
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        CircleAvatar(
-          radius: 16,
-          backgroundColor: AdminPalette.primaryLight,
-          foregroundColor: AdminPalette.primaryDark,
-          backgroundImage: photoUrl == null || photoUrl!.isEmpty ? null : NetworkImage(photoUrl!),
-          child: photoUrl == null || photoUrl!.isEmpty
-              ? Text(
-                  name.isNotEmpty ? name[0].toUpperCase() : 'U',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+        ClipOval(
+          child: photoUrl != null && photoUrl!.isNotEmpty
+              ? Image.network(
+                  photoUrl!,
+                  width: 32,
+                  height: 32,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => CircleAvatar(
+                    radius: 16,
+                    backgroundColor: AdminPalette.primaryLight,
+                    foregroundColor: AdminPalette.primaryDark,
+                    child: Text(
+                      name.isNotEmpty ? name[0].toUpperCase() : 'A',
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                    ),
+                  ),
                 )
-              : null,
+              : CircleAvatar(
+                  radius: 16,
+                  backgroundColor: AdminPalette.primaryLight,
+                  foregroundColor: AdminPalette.primaryDark,
+                  child: Text(
+                    name.isNotEmpty ? name[0].toUpperCase() : 'A',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                  ),
+                ),
         ),
         const SizedBox(width: 8),
         Column(

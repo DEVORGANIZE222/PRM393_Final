@@ -46,4 +46,6 @@ class SemesterService {
     'status': 'archived',
     'updatedAt': FieldValue.serverTimestamp(),
   });
+
+  Future<void> delete(Semester semester) => _db.collection('semesters').doc(semester.id).delete();
 }

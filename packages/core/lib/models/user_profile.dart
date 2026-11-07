@@ -3,6 +3,7 @@ class UserProfile {
   final String email;
   final String displayName;
   final String role; // 'user', 'staff', 'admin'
+  final String? avatarUrl;
   final DateTime? createdAt;
 
   const UserProfile({
@@ -10,6 +11,7 @@ class UserProfile {
     required this.email,
     required this.displayName,
     this.role = 'user',
+    this.avatarUrl,
     this.createdAt,
   });
 
@@ -23,11 +25,18 @@ class UserProfile {
       email: data['email'] as String? ?? '',
       displayName: data['displayName'] as String? ?? '',
       role: data['role'] as String? ?? 'user',
+      avatarUrl: data['avatarUrl'] as String? ?? data['photoURL'] as String?,
       createdAt: data['createdAt'] != null ? (data['createdAt'] as dynamic).toDate() as DateTime : null,
     );
   }
 
   Map<String, dynamic> toFirestore() {
-    return {'email': email, 'displayName': displayName, 'role': role, if (createdAt != null) 'createdAt': createdAt};
+    return {
+      'email': email,
+      'displayName': displayName,
+      'role': role,
+      if (avatarUrl != null) 'avatarUrl': avatarUrl,
+      if (createdAt != null) 'createdAt': createdAt,
+    };
   }
 }

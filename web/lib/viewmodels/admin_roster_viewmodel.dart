@@ -115,9 +115,23 @@ class AdminRosterViewModel extends ChangeNotifier {
   Future<void> deleteStudent(String email) async {
     try {
       await _service.deleteStudent(email);
-      success = 'Đã xóa sinh viên khỏi hệ thống.';
+      success = 'Đã xóa sinh viên khỏi hệ thống Google Access.';
     } catch (e) {
       error = 'Không thể xóa sinh viên: $e';
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteAllStudents({String? semesterCode}) async {
+    error = null;
+    success = null;
+    notifyListeners();
+    try {
+      final count = await _service.deleteAllStudents(semesterCode: semesterCode);
+      success = 'Đã xóa thành công $count sinh viên khỏi hệ thống Google Access.';
+    } catch (e) {
+      error = 'Không thể xóa tất cả sinh viên: $e';
     } finally {
       notifyListeners();
     }
