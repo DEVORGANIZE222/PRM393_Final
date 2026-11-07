@@ -79,6 +79,9 @@ class _SemesterScreenState extends State<SemesterScreen> {
       }
       if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
       final all = snapshot.data!;
+      final countAll = all.length;
+      final countActive = all.where((item) => item.isActive).length;
+      final countArchived = all.where((item) => item.status == 'archived').length;
       final query = _query.trim().toLowerCase();
       final items = all
           .where(
@@ -88,7 +91,7 @@ class _SemesterScreenState extends State<SemesterScreen> {
           )
           .toList();
       return SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 38, 24, 48),
+        padding: const EdgeInsets.fromLTRB(24, 32, 24, 48),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -98,11 +101,19 @@ class _SemesterScreenState extends State<SemesterScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Quản lý Học kỳ', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800)),
+                      Text(
+                        'Quản lý Học kỳ',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          color: AdminPalette.ink,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
                       SizedBox(height: 6),
                       Text(
                         'Khởi tạo mốc ghép nhóm và mở đăng ký cho ứng dụng sinh viên.',
-                        style: TextStyle(color: AdminPalette.muted),
+                        style: TextStyle(fontSize: 14, color: AdminPalette.muted),
                       ),
                     ],
                   ),
@@ -111,24 +122,52 @@ class _SemesterScreenState extends State<SemesterScreen> {
                   onPressed: () => _edit(),
                   icon: const Icon(Icons.add),
                   label: const Text('Tạo học kỳ mới'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AdminPalette.primary,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 26),
+            const SizedBox(height: 24),
             SizedBox(
-              width: 420,
+              width: 320,
               child: TextField(
                 onChanged: (value) => setState(() => _query = value),
-                decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'Tìm kiếm học kỳ...'),
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.search, size: 20),
+                  hintText: 'Tìm kiếm học kỳ...',
+                  contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                ),
               ),
             ),
             const SizedBox(height: 16),
-            _Tabs(
-              value: _filter,
-              onChanged: (value) => setState(() => _filter = value),
-              all: all.length,
-              active: all.where((item) => item.isActive).length,
-              archived: all.where((item) => item.status == 'archived').length,
+            Container(
+              decoration: BoxDecoration(
+                color: AdminPalette.subtle,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.all(3),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _TabPill(
+                    label: 'Tất cả ($countAll)',
+                    active: _filter == 'all',
+                    onTap: () => setState(() => _filter = 'all'),
+                  ),
+                  _TabPill(
+                    label: 'Đang diễn ra ($countActive)',
+                    active: _filter == 'active',
+                    onTap: () => setState(() => _filter = 'active'),
+                  ),
+                  _TabPill(
+                    label: 'Đã kết thúc ($countArchived)',
+                    active: _filter == 'archived',
+                    onTap: () => setState(() => _filter = 'archived'),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 28),
             if (items.isEmpty)
@@ -162,33 +201,37 @@ class _SemesterScreenState extends State<SemesterScreen> {
   );
 }
 
-class _Tabs extends StatelessWidget {
-  const _Tabs({
-    required this.value,
-    required this.onChanged,
-    required this.all,
-    required this.active,
-    required this.archived,
-  });
-  final String value;
-  final ValueChanged<String> onChanged;
-  final int all, active, archived;
+class _TabPill extends StatelessWidget {
+  const _TabPill({required this.label, required this.active, required this.onTap});
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+
   @override
-  Widget build(BuildContext context) => Wrap(
-    spacing: 26,
-    children: [('all', 'Tất cả ($all)'), ('active', 'Đang diễn ra ($active)'), ('archived', 'Đã kết thúc ($archived)')]
-        .map(
-          (item) => TextButton(
-            onPressed: () => onChanged(item.$1),
-            style: TextButton.styleFrom(
-              foregroundColor: value == item.$1 ? AdminPalette.primary : AdminPalette.muted,
-              side: value == item.$1 ? const BorderSide(color: AdminPalette.primary) : BorderSide.none,
-            ),
-            child: Text(item.$2, style: const TextStyle(fontWeight: FontWeight.w700)),
+  Widget build(BuildContext context) => InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(6),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          decoration: BoxDecoration(
+            color: active ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(6),
+            boxShadow: active
+                ? const [
+                    BoxShadow(color: Color(0x0A000000), blurRadius: 4, offset: Offset(0, 1)),
+                  ]
+                : null,
           ),
-        )
-        .toList(),
-  );
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+              color: active ? AdminPalette.ink : AdminPalette.muted,
+            ),
+          ),
+        ),
+      );
 }
 
 class _SemesterCard extends StatelessWidget {

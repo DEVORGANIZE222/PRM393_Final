@@ -43,6 +43,13 @@ class AdminRosterService {
     'updatedAt': FieldValue.serverTimestamp(),
   }, SetOptions(merge: true));
 
+  Future<void> addSingleStudent(RosterEntry entry) => _db.collection('allowedEmails').doc(entry.email).set({
+    ...entry.toFirestore(),
+    'updatedAt': FieldValue.serverTimestamp(),
+  }, SetOptions(merge: true));
+
+  Future<void> deleteStudent(String email) => _db.collection('allowedEmails').doc(email).delete();
+
   static List<RosterEntry> parseCsv(String content) {
     final lines = content.split(RegExp(r'\r?\n')).where((line) => line.trim().isNotEmpty).toList();
     if (lines.length < 2) throw const FormatException('Use a CSV file with a header row and at least one student.');

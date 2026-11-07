@@ -6,14 +6,22 @@ abstract final class AdminPalette {
   static const page = Color(0xFFF8F9FA);
   static const surface = Color(0xFFFFFFFF);
   static const subtle = Color(0xFFF1F5F9);
+  static const hover = Color(0xFFF8FAFC);
   static const border = Color(0xFFE2E8F0);
+  static const borderStrong = Color(0xFFCBD5E1);
   static const ink = Color(0xFF0F172A);
   static const muted = Color(0xFF475569);
+  static const slate400 = Color(0xFF94A3B8);
   static const primary = Color(0xFF15803D);
   static const primaryDark = Color(0xFF166534);
   static const primaryLight = Color(0xFFDCFCE7);
+  static const primaryBorder = Color(0xFFBBF7D0);
+  static const teal = Color(0xFF0F766E);
+  static const tealLight = Color(0xFFCCFBF1);
   static const warning = Color(0xFFB45309);
+  static const warningLight = Color(0xFFFEF3C7);
   static const danger = Color(0xFFBA1A1A);
+  static const dangerLight = Color(0xFFFEE2E2);
 }
 
 ThemeData buildAdminTheme() {

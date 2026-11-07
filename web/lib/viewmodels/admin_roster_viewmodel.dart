@@ -98,6 +98,31 @@ class AdminRosterViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> addSingle(RosterEntry entry) async {
+    error = null;
+    success = null;
+    notifyListeners();
+    try {
+      await _service.addSingleStudent(entry);
+      success = 'Đã thêm sinh viên ${entry.studentCode} (${entry.fullName}) thành công!';
+    } catch (e) {
+      error = 'Không thể thêm sinh viên: $e';
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteStudent(String email) async {
+    try {
+      await _service.deleteStudent(email);
+      success = 'Đã xóa sinh viên khỏi hệ thống.';
+    } catch (e) {
+      error = 'Không thể xóa sinh viên: $e';
+    } finally {
+      notifyListeners();
+    }
+  }
+
   @override
   void dispose() {
     _subscription?.cancel();
