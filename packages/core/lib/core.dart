@@ -17,7 +17,6 @@ export 'models/view_state.dart';
 // Shared Firestore services
 export 'services/shared_firestore_service.dart';
 export 'services/mentor_repository.dart';
-export 'services/mentor_admin_service.dart';
 export 'services/team_submission_service.dart';
 export 'services/semester_service.dart';
 

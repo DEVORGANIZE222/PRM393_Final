@@ -90,7 +90,6 @@ class _GroupCard extends StatelessWidget {
               const Divider(height: 30),
               Text('${members.length}/$capacity thành viên'),
               Text('Trưởng nhóm: ${data['leaderId'] ?? 'Chưa bầu'}'),
-              Text('Giảng viên: ${data['mentorId'] == null ? 'Chưa có' : data['supervisor']}'),
               if (data['lockCode'] != null) Text('Mã khóa: ${data['lockCode']}'),
             ],
           ),

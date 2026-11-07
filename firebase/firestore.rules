@@ -244,29 +244,16 @@ service cloud.firestore {
       }
     }
 
+    // Lecturer profiles come from the seed (tool/seed_firestore_lab3.py).
+    // `currentAssigned` and the team list only move when the lecturer accepts
+    // a team, one at a time and within quota.
     match /mentors/{mentorId} {
-      allow read: if isRosterMember() || isAdmin();
-      allow create: if isAdmin() && isValidMentorProfile() && request.resource.data.currentAssigned == 0;
-
-      // Admins own the profile; `currentAssigned` and the team list only move
-      // when the lecturer accepts a team, one at a time and within quota.
-      allow update: if (isAdmin()
-                        && isValidMentorProfile()
-                        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['currentAssigned', 'mentoredTeamNames'])
-                        && request.resource.data.maxQuota >= resource.data.currentAssigned)
-                    || (myMentorId() == mentorId
-                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['currentAssigned', 'mentoredTeamNames'])
-                        && request.resource.data.currentAssigned == resource.data.currentAssigned + 1
-                        && request.resource.data.currentAssigned <= resource.data.maxQuota);
-      allow delete: if false;
-
-      function isValidMentorProfile() {
-        let after = request.resource.data;
-        return after.fullName is string && after.fullName.size() > 0
-            && after.email is string
-            && after.maxQuota is int && after.maxQuota >= 1
-            && after.status in ['active', 'archived'];
-      }
+      allow read: if isRosterMember();
+      allow update: if myMentorId() == mentorId
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['currentAssigned', 'mentoredTeamNames'])
+                    && request.resource.data.currentAssigned == resource.data.currentAssigned + 1
+                    && request.resource.data.currentAssigned <= resource.data.maxQuota;
+      allow create, delete: if false;
     }
 
     // One document per team (id = team id): a team asks one mentor at a time.
@@ -292,7 +279,7 @@ service cloud.firestore {
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'decisionReason', 'decidedAt']);
       }
 
-      allow read: if isRosterMember() || isAdmin();
+      allow read: if isRosterMember();
       allow create: if isRosterMember() && isValidNewRequest();
       // After a refusal the team's next request replaces the old one.
       allow update: if isMentorDecision()

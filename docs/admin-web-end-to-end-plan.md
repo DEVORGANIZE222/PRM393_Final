@@ -14,7 +14,7 @@ Therefore:
 - **Management entity = semester and its registration window.** The web manages semesters; the currently active semester is projected to `configuration/registration`, which the mobile app already reads for its countdown and open/closed state.
 - **Review Queue = locked-team submission review.** A team leader submits a locked roster from the mobile app; an admin approves or rejects it with a reason; the leader sees the result live on mobile.
 - **Announcements are a real inbox source.** The mobile notification repository already listens to `announcements`, so the web announcement form must write that collection.
-- The single web role is **admin**. Students and lecturers use mobile. Admins manage lecturers on the web (**Giảng viên**).
+- The single web role is **admin**. Students use mobile. Mentor is deliberately out of this implementation scope.
 
 This meets the assignment's required cross-role flow without changing the project topic or inventing unrelated entities.
 
@@ -178,4 +178,4 @@ There is no custom server, Cloud Function, or role-changing web UI. Admin bootst
 
 ## 10. Scope guard
 
-This plan intentionally does **not** add events, topic marketplace, Cloud Functions, a custom API server, or arbitrary team administration. Those are outside the current mobile flow and would make the final assignment less complete, not more complete.
+This plan intentionally does **not** add a mentor portal, events, topic marketplace, Cloud Functions, a custom API server, or arbitrary team administration. Those are outside the current mobile flow and would make the final assignment less complete, not more complete.

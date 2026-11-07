@@ -63,8 +63,8 @@ ALLOWED_EMAILS = [
 ]
 
 # Lecturers. Team AI-04 has no mentor so the demo can choose one; Nguyen Thu Ha
-# is full so the quota state shows. An admin links a Google account from the
-# web admin (Giảng viên), which sets allowedEmails/{email}.mentorId.
+# is full so the quota state shows. A Google account becomes one of these
+# lecturers when its allowedEmails/{email} entry has mentorId set.
 MENTORS = [
     {
         "id": "m_thanh", "fullName": "Dr. Nguyen Thanh", "email": "thanhnt@fpt.edu.vn",

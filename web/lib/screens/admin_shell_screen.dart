@@ -8,7 +8,6 @@ import 'dashboard_screen.dart';
 import 'groups_screen.dart';
 import 'roster_screen.dart';
 import 'management_screen.dart';
-import 'mentors_screen.dart';
 import 'review_queue_screen.dart';
 import 'announcement_screen.dart';
 
@@ -27,7 +26,6 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
     _NavItem('Sinh viên', Icons.people_outline),
     _NavItem('Học kỳ', Icons.calendar_month_outlined),
     _NavItem('Nhóm & Đề tài', Icons.layers_outlined),
-    _NavItem('Giảng viên', Icons.school_outlined),
     _NavItem('Google Access', Icons.shield_outlined),
   ];
 
@@ -41,13 +39,12 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
     final photoUrl = session.firebaseUser?.photoURL;
     final pages = [
       DashboardScreen(
-        onOpenReview: () => setState(() => _selected = 6),
-        onOpenAnnouncements: () => setState(() => _selected = 7),
+        onOpenReview: () => setState(() => _selected = 5),
+        onOpenAnnouncements: () => setState(() => _selected = 6),
       ),
       const RosterScreen(),
       const ManagementScreen(),
       const GroupsScreen(),
-      const MentorsScreen(),
       const GoogleAccessScreen(),
       const ReviewQueueScreen(),
       const AnnouncementScreen(),
