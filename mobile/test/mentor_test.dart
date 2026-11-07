@@ -12,6 +12,7 @@ import 'package:exematching/services/services.dart';
 import 'package:exematching/theme/app_theme.dart';
 import 'package:exematching/viewmodels/mentor_detail_viewmodel.dart';
 import 'package:exematching/viewmodels/mentor_list_viewmodel.dart';
+import 'package:exematching/viewmodels/mentor_team_viewmodel.dart';
 import 'package:exematching/viewmodels/session_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -262,6 +263,33 @@ void main() {
       await repo.respond(request: (await repo.requestOfTeam('t1'))!, accept: true);
       expect((await open('m1', leader)).actionFor(thanh), MentorAction.assigned);
       expect((await open('m3', leader)).actionFor(anh), MentorAction.otherMentor);
+    });
+  });
+
+  group('a supervised team', () {
+    const lecturer = Student(
+      id: 'u_lect',
+      email: 'thanhnt@fpt.edu.vn',
+      fullName: 'Nguyen Thanh',
+      studentCode: '',
+      major: '',
+      cohort: '',
+      mentorId: 'm1',
+    );
+
+    MentorTeamViewModel vm() => MentorTeamViewModel('t1', lecturer, LocalTeamRepository(db), DebugCrashReporter());
+
+    test('only the accepting lecturer sees the contacts', () {
+      expect(vm().supervises(team()), isFalse);
+      expect(vm().supervises(team(mentorId: 'm2')), isFalse);
+      expect(vm().supervises(team(mentorId: 'm1')), isTrue);
+    });
+
+    test('emails list the leader first, once each', () {
+      final t = team(mentorId: 'm1');
+      expect(vm().emails(t).first, 'minh.le@fpt.edu.vn');
+      expect(vm().emails(t), hasLength(3));
+      expect(vm().emails(t).toSet(), hasLength(3));
     });
   });
 

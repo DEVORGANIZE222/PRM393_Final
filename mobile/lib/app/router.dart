@@ -11,6 +11,7 @@ import '../screens/lock_review/lock_review_screen.dart';
 import '../screens/mentor/mentor_detail_screen.dart';
 import '../screens/mentor/mentor_list_screen.dart';
 import '../screens/mentor/mentor_portal_screen.dart';
+import '../screens/mentor/mentor_team_screen.dart';
 import '../screens/my_team/my_team_screen.dart';
 import '../screens/notifications/notifications_screen.dart';
 import '../screens/pool/random_pool_screen.dart';
@@ -26,6 +27,7 @@ import '../viewmodels/lock_review_viewmodel.dart';
 import '../viewmodels/mentor_detail_viewmodel.dart';
 import '../viewmodels/mentor_list_viewmodel.dart';
 import '../viewmodels/mentor_portal_viewmodel.dart';
+import '../viewmodels/mentor_team_viewmodel.dart';
 import '../viewmodels/my_team_viewmodel.dart';
 import '../viewmodels/notifications_viewmodel.dart';
 import '../viewmodels/pool_status_viewmodel.dart';
@@ -96,6 +98,20 @@ GoRouter buildRouter(SessionViewModel session) {
           )..load(),
           child: const MentorPortalScreen(),
         ),
+        routes: [
+          GoRoute(
+            path: 'team/:teamId',
+            builder: (context, state) => ChangeNotifierProvider(
+              create: (c) => MentorTeamViewModel(
+                state.pathParameters['teamId']!,
+                me(c),
+                c.read<TeamRepository>(),
+                c.read<CrashReporter>(),
+              )..load(),
+              child: const MentorTeamScreen(),
+            ),
+          ),
+        ],
       ),
       GoRoute(
         path: '/mentors',

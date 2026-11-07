@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/mentor.dart';
@@ -443,6 +444,7 @@ class _TeamCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppCard(
       semanticId: 'card_team_${team.id}',
+      onTap: () => context.push('/mentor-portal/team/${team.id}'),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
