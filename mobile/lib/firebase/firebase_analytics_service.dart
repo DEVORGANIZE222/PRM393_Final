@@ -97,6 +97,11 @@ class FirebaseAnalyticsService implements AnalyticsService {
   }
 
   @override
+  Future<void> logRespondMentor({required String teamId, required bool accepted}) async {
+    await _event('respond_mentor', {'team_id': teamId, 'accepted': accepted ? 1 : 0});
+  }
+
+  @override
   Future<void> logAiRequest({required String feature, required String model}) async {
     debugPrint('analytics_event ai_request {feature: $feature, model: $model}');
     await _event('ai_request', {'feature': feature, 'model': model});

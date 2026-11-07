@@ -82,8 +82,15 @@ class TeamMember {
     return '$studentId@fpt.edu.vn';
   }
 
-  factory TeamMember.fromStudent(Student s, String role) =>
-      TeamMember(studentId: s.id, fullName: s.fullName, studentCode: s.studentCode, role: role, email: s.email, avatarUrl: s.avatarUrl, skills: s.skills);
+  factory TeamMember.fromStudent(Student s, String role) => TeamMember(
+    studentId: s.id,
+    fullName: s.fullName,
+    studentCode: s.studentCode,
+    role: role,
+    email: s.email,
+    avatarUrl: s.avatarUrl,
+    skills: s.skills,
+  );
 
   factory TeamMember.fromJson(Map<String, dynamic> j) => TeamMember(
     studentId: j['studentId'] as String,
@@ -152,8 +159,7 @@ class Team {
   int get openSlots => (capacity - memberCount).clamp(0, capacity);
   bool get isFull => openSlots == 0;
   bool get meetsSizeRule => memberCount >= TeamRules.minMembers && memberCount <= TeamRules.maxMembers;
-  bool get hasLeader =>
-      leaderId != null && (locked || (memberCount >= 3 && votesFor(leaderId!) >= votesNeeded));
+  bool get hasLeader => leaderId != null && (locked || (memberCount >= 3 && votesFor(leaderId!) >= votesNeeded));
   bool isMember(String studentId) => members.any((m) => m.studentId == studentId);
 
   TeamMember? get leader => members.where((m) => m.studentId == leaderId).firstOrNull;
@@ -202,15 +208,15 @@ class Team {
 
   factory Team.fromJson(Map<String, dynamic> j) => Team(
     id: j['id'] as String,
-    code: j['code'] as String,
-    name: j['name'] as String,
-    topic: j['topic'] as String,
-    description: j['description'] as String,
-    category: j['category'] as String,
-    tags: List<String>.from(j['tags'] as List),
-    members: [for (final m in j['members'] as List) TeamMember.fromJson(m as Map<String, dynamic>)],
+    code: j['code'] as String? ?? j['id'] as String,
+    name: j['name'] as String? ?? j['id'] as String,
+    topic: j['topic'] as String? ?? '',
+    description: j['description'] as String? ?? '',
+    category: j['category'] as String? ?? '',
+    tags: List<String>.from(j['tags'] as List? ?? const []),
+    members: [for (final m in j['members'] as List? ?? const []) TeamMember.fromJson(m as Map<String, dynamic>)],
     openRoles: List<String>.from(j['openRoles'] as List? ?? const []),
-    supervisor: j['supervisor'] as String,
+    supervisor: j['supervisor'] as String? ?? '',
     capacity: j['capacity'] as int? ?? TeamRules.maxMembers,
     leaderId: j['leaderId'] as String?,
     votes: Map<String, String>.from(j['votes'] as Map? ?? const {}),

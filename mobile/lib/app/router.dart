@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:core/core.dart' show TeamSubmissionService;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -9,6 +10,7 @@ import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/lock_review/lock_review_screen.dart';
 import '../screens/mentor/mentor_detail_screen.dart';
 import '../screens/mentor/mentor_list_screen.dart';
+import '../screens/mentor/mentor_portal_screen.dart';
 import '../screens/my_team/my_team_screen.dart';
 import '../screens/notifications/notifications_screen.dart';
 import '../screens/pool/random_pool_screen.dart';
@@ -23,6 +25,7 @@ import '../viewmodels/dashboard_viewmodel.dart';
 import '../viewmodels/lock_review_viewmodel.dart';
 import '../viewmodels/mentor_detail_viewmodel.dart';
 import '../viewmodels/mentor_list_viewmodel.dart';
+import '../viewmodels/mentor_portal_viewmodel.dart';
 import '../viewmodels/my_team_viewmodel.dart';
 import '../viewmodels/notifications_viewmodel.dart';
 import '../viewmodels/pool_status_viewmodel.dart';
@@ -51,7 +54,10 @@ GoRouter buildRouter(SessionViewModel session) {
       // until the first auth event (a restored session arrives async).
       if (!session.ready) return at == '/splash' ? null : '/splash';
       if (!session.isSignedIn) return at == '/sign-in' ? null : '/sign-in';
-      if (at == '/sign-in' || at == '/splash') return '/home';
+      // Lecturers only have the portal; students never see it.
+      final home = session.isMentor ? '/mentor-portal' : '/home';
+      if (at == '/sign-in' || at == '/splash') return home;
+      if (session.isMentor != at.startsWith('/mentor-portal')) return home;
       return null;
     },
     routes: [
@@ -77,6 +83,18 @@ GoRouter buildRouter(SessionViewModel session) {
             c.read<CrashReporter>(),
           )..start(),
           child: const NotificationsScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/mentor-portal',
+        builder: (context, _) => ChangeNotifierProvider(
+          create: (c) => MentorPortalViewModel(
+            me(c),
+            c.read<MentorRepository>(),
+            c.read<AnalyticsService>(),
+            c.read<CrashReporter>(),
+          )..load(),
+          child: const MentorPortalScreen(),
         ),
       ),
       GoRoute(
@@ -112,12 +130,8 @@ GoRouter buildRouter(SessionViewModel session) {
         path: '/create-team',
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, _) => ChangeNotifierProvider(
-          create: (c) => CreateTeamViewModel(
-            me(c),
-            c.read<TeamRepository>(),
-            c.read<AnalyticsService>(),
-            c.read<CrashReporter>(),
-          ),
+          create: (c) =>
+              CreateTeamViewModel(me(c), c.read<TeamRepository>(), c.read<AnalyticsService>(), c.read<CrashReporter>()),
           child: const CreateTeamScreen(),
         ),
       ),
@@ -228,6 +242,7 @@ GoRouter buildRouter(SessionViewModel session) {
                       create: (c) => LockReviewViewModel(
                         me(c),
                         c.read<TeamRepository>(),
+                        c.read<TeamSubmissionService>(),
                         c.read<AnalyticsService>(),
                         c.read<CrashReporter>(),
                       )..load(),

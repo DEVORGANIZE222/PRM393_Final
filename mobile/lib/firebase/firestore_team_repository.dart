@@ -320,7 +320,9 @@ class FirestoreTeamRepository implements TeamRepository {
       team = team.copyWith(votes: votes);
       final winner = team.members.where((m) => team.votesFor(m.studentId) >= team.votesNeeded).firstOrNull;
       team = winner == null ? team.copyWith(clearLeader: true) : team.copyWith(leaderId: winner.studentId);
-      tx.update(ref, _teamUpdate(team));
+      // Only what a vote changes: rewriting `members` adds `email` to seeded
+      // members, which the rules reject because a vote must leave them as is.
+      tx.update(ref, {'votes': team.votes, 'leaderId': team.leaderId});
       return team;
     });
   }
@@ -352,7 +354,11 @@ class FirestoreTeamRepository implements TeamRepository {
             'CM-${team.code.replaceAll('-', '')}-${Random().nextInt(65536).toRadixString(16).toUpperCase().padLeft(4, '0')}',
         lockedAt: DateTime.now(),
       );
-      tx.update(ref, _teamUpdate(team));
+      tx.update(ref, {
+        'locked': true,
+        'lockCode': team.lockCode,
+        'lockedAt': Timestamp.fromDate(team.lockedAt!),
+      });
       return team;
     });
   }

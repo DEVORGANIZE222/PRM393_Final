@@ -21,6 +21,7 @@ class SessionViewModel extends ChangeNotifier {
 
   Student? get student => _student;
   bool get isSignedIn => _student != null;
+  bool get isMentor => _student?.isMentor ?? false;
 
   /// False until the first auth event, so the router doesn't flash Sign In.
   bool get ready => _ready;

@@ -152,6 +152,9 @@ def ask_gemini(diff: str, attempts: int = 3) -> list[dict]:
 
 
 def main() -> None:
+    if not os.environ.get("GEMINI_API_KEY"):
+        print("::notice::Skipped: add the repository secret GEMINI_API_KEY to enable the Gemini review.")
+        return
     if os.environ.get("EVENT_ACTION") == "synchronize":
         message = github("GET", f"/commits/{os.environ['HEAD_SHA']}")["commit"]["message"]
         if "[gemini-review]" not in message:

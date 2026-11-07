@@ -44,7 +44,7 @@ List<Mentor> filterMentors(
 }) {
   final q = query.trim().toLowerCase();
   return mentors.where((m) {
-    if (availableOnly && !m.isAvailable) return false;
+    if (m.archived || (availableOnly && !m.isAvailable)) return false;
     if (expertise != null && !m.expertise.contains(expertise)) return false;
     if (q.isEmpty) return true;
     return [m.fullName, m.title, m.department, m.bio, ...m.expertise].join(' ').toLowerCase().contains(q);
@@ -91,21 +91,7 @@ class FirestoreMentorRepository implements MentorRepository {
 
   MentorRequest? _request(DocumentSnapshot<Map<String, dynamic>> doc) {
     final d = doc.data();
-    if (d == null) return null;
-    final createdAt = d['createdAt'];
-    return MentorRequest(
-      teamId: doc.id,
-      teamName: d['teamName'] as String? ?? '',
-      mentorId: d['mentorId'] as String? ?? '',
-      mentorName: d['mentorName'] as String? ?? '',
-      senderId: d['senderId'] as String? ?? '',
-      senderName: d['senderName'] as String? ?? '',
-      message: d['message'] as String? ?? '',
-      // Null while the server timestamp of a local write is still pending.
-      createdAt: createdAt is Timestamp ? createdAt.toDate() : DateTime.now(),
-      status: MentorRequestStatus.fromString(d['status'] as String?),
-      decisionReason: d['decisionReason'] as String?,
-    );
+    return d == null ? null : MentorRequest.fromJson({...d, 'teamId': doc.id});
   }
 
   Future<T> _guard<T>(Future<T> Function() action) async {
@@ -192,12 +178,14 @@ class FirestoreMentorRepository implements MentorRepository {
       final mentor = _mentor(await tx.get(mentorRef));
       final team = _team(await tx.get(teamRef));
       if (stored == null || !stored.isPending) throw MentorRules.requestClosed;
+      final inbox = _db.collection('students').doc(stored.senderId).collection('notifications').doc();
       if (!accept) {
         tx.update(ref, {
           'status': MentorRequestStatus.rejected.name,
           'decisionReason': reason ?? '',
           'decidedAt': FieldValue.serverTimestamp(),
         });
+        tx.set(inbox, _answer(stored, title: '${mentor.fullName} declined your request', body: reason ?? ''));
         return;
       }
       final blocker = MentorRules.acceptBlocker(request: stored, team: team, mentor: mentor);
@@ -209,6 +197,20 @@ class FirestoreMentorRepository implements MentorRepository {
         'currentAssigned': updated.currentAssigned,
         'mentoredTeamNames': updated.mentoredTeamNames,
       });
+      tx.set(
+        inbox,
+        _answer(stored, title: '${mentor.fullName} is your mentor', body: '${stored.teamName} now has a supervisor.'),
+      );
     });
   });
+
+  Map<String, dynamic> _answer(MentorRequest request, {required String title, required String body}) => {
+    'kind': 'system',
+    'title': title,
+    'body': body,
+    'createdAt': FieldValue.serverTimestamp(),
+    'read': false,
+    'teamId': request.teamId,
+    'actionLabel': 'View team',
+  };
 }

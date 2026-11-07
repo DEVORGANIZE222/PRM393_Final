@@ -24,9 +24,7 @@ class AnnouncementItem {
       body: data['body'] as String? ?? '',
       authorId: data['authorId'] as String? ?? '',
       authorName: data['authorName'] as String? ?? '',
-      createdAt: data['createdAt'] != null
-          ? (data['createdAt'] as Timestamp).toDate()
-          : DateTime.now(),
+      createdAt: data['createdAt'] != null ? (data['createdAt'] as Timestamp).toDate() : DateTime.now(),
     );
   }
 
@@ -40,4 +38,3 @@ class AnnouncementItem {
     };
   }
 }
-

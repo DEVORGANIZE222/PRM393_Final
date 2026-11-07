@@ -258,9 +258,8 @@ class _Review extends StatelessWidget {
                 try {
                   await context.read<TeamRepository>().unlockTeam(team.id, team.leaderId!);
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${team.name} unlocked successfully!')),
-                    );
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text('${team.name} unlocked successfully!')));
                     context.pop();
                   }
                 } catch (e) {
@@ -347,6 +346,7 @@ class _Locked extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final submission = context.watch<LockReviewViewModel>().submission;
     return Semantics(
       identifier: 'state_locked',
       container: true,
@@ -368,6 +368,32 @@ class _Locked extends StatelessWidget {
             style: context.text.bodyLarge,
             textAlign: TextAlign.center,
           ),
+          if (submission != null) ...[
+            const SizedBox(height: 16),
+            InfoBanner(
+              semanticId: 'banner_team_submission_status',
+              tone: submission.status == 'approved'
+                  ? Tone.success
+                  : submission.status == 'rejected'
+                  ? Tone.error
+                  : Tone.info,
+              icon: submission.status == 'approved'
+                  ? Icons.verified_outlined
+                  : submission.status == 'rejected'
+                  ? Icons.edit_note_outlined
+                  : Icons.hourglass_top_outlined,
+              title: submission.status == 'approved'
+                  ? 'Roster approved'
+                  : submission.status == 'rejected'
+                  ? 'Changes requested'
+                  : 'Submitted to the Academic Office',
+              message: submission.status == 'rejected' && submission.reason.isNotEmpty
+                  ? submission.reason
+                  : submission.status == 'pending'
+                  ? 'Your roster is waiting for an academic review.'
+                  : 'Your team roster has been approved.',
+            ),
+          ],
           const SizedBox(height: AppSpacing.xl),
           AppCard(
             semanticId: 'card_lock_code',

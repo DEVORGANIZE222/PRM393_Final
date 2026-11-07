@@ -176,6 +176,9 @@ class DebugAnalyticsService implements AnalyticsService {
   Future<void> logRequestMentor({required String teamId, required String mentorId}) =>
       _log('request_mentor', {'team_id': teamId, 'mentor_id': mentorId});
   @override
+  Future<void> logRespondMentor({required String teamId, required bool accepted}) =>
+      _log('respond_mentor', {'team_id': teamId, 'accepted': accepted ? 1 : 0});
+  @override
   Future<void> logAiRequest({required String feature, required String model}) =>
       _log('ai_request', {'feature': feature, 'model': model});
   @override

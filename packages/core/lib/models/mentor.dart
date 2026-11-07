@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
+
 import 'student.dart';
 import 'team.dart';
 import 'view_state.dart';
@@ -31,6 +33,7 @@ class Mentor {
     this.maxQuota = 5,
     this.currentAssigned = 0,
     this.mentoredTeamNames = const [],
+    this.archived = false,
   });
 
   final String id;
@@ -45,7 +48,10 @@ class Mentor {
   final int currentAssigned;
   final List<String> mentoredTeamNames;
 
-  bool get isAvailable => currentAssigned < maxQuota;
+  /// Archived lecturers stay on their teams but leave the student directory.
+  final bool archived;
+
+  bool get isAvailable => !archived && currentAssigned < maxQuota;
   int get remainingSlots => (maxQuota - currentAssigned).clamp(0, maxQuota);
 
   String get initials {
@@ -66,6 +72,7 @@ class Mentor {
     maxQuota: (j['maxQuota'] as num?)?.toInt() ?? 5,
     currentAssigned: (j['currentAssigned'] as num?)?.toInt() ?? 0,
     mentoredTeamNames: List<String>.from(j['mentoredTeamNames'] as List? ?? const []),
+    archived: j['status'] == 'archived',
   );
 
   /// One more supervised team, after a request is accepted.
@@ -81,6 +88,7 @@ class Mentor {
     maxQuota: maxQuota,
     currentAssigned: currentAssigned + 1,
     mentoredTeamNames: [...mentoredTeamNames, teamName],
+    archived: archived,
   );
 }
 
@@ -114,6 +122,23 @@ class MentorRequest {
 
   bool get isPending => status == MentorRequestStatus.pending;
   bool get isRejected => status == MentorRequestStatus.rejected;
+
+  factory MentorRequest.fromJson(Map<String, dynamic> d) {
+    final createdAt = d['createdAt'];
+    return MentorRequest(
+      teamId: d['teamId'] as String,
+      teamName: d['teamName'] as String? ?? '',
+      mentorId: d['mentorId'] as String? ?? '',
+      mentorName: d['mentorName'] as String? ?? '',
+      senderId: d['senderId'] as String? ?? '',
+      senderName: d['senderName'] as String? ?? '',
+      message: d['message'] as String? ?? '',
+      // Null while the server timestamp of a local write is still pending.
+      createdAt: createdAt is Timestamp ? createdAt.toDate() : DateTime.now(),
+      status: MentorRequestStatus.fromString(d['status'] as String?),
+      decisionReason: d['decisionReason'] as String?,
+    );
+  }
 
   factory MentorRequest.create({
     required Team team,

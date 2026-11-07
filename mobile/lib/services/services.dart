@@ -178,6 +178,7 @@ abstract interface class AnalyticsService {
   Future<void> logExportReport({required String teamId, required int fileSizeKb});
   Future<void> logViewMentor({required String mentorId});
   Future<void> logRequestMentor({required String teamId, required String mentorId});
+  Future<void> logRespondMentor({required String teamId, required bool accepted});
   Future<void> logAiRequest({required String feature, required String model});
   Future<void> logAiResultAccepted({required String feature});
   Future<void> logAiError({required String feature, required String errorReason});

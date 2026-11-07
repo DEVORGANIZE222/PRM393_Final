@@ -63,8 +63,8 @@ ALLOWED_EMAILS = [
 ]
 
 # Lecturers. Team AI-04 has no mentor so the demo can choose one; Nguyen Thu Ha
-# is full so the quota state shows. An admin links a staff account to one of
-# these by setting users/{uid}.mentorId.
+# is full so the quota state shows. An admin links a Google account from the
+# web admin (Giảng viên), which sets allowedEmails/{email}.mentorId.
 MENTORS = [
     {
         "id": "m_thanh", "fullName": "Dr. Nguyen Thanh", "email": "thanhnt@fpt.edu.vn",
@@ -163,6 +163,7 @@ def build_seed_writes() -> list[dict]:
         fields["maxQuota"] = {"integerValue": str(mentor["maxQuota"])}
         fields["currentAssigned"] = {"integerValue": str(len(mentor["teams"]))}
         fields["mentoredTeamNames"] = {"arrayValue": {"values": [{"stringValue": t} for t in mentor["teams"]]}}
+        fields["status"] = {"stringValue": "active"}
         writes.append({"update": {"name": f"{BASE_URL}/mentors/{mentor['id']}", "fields": fields}})
 
     # 3. waitingPool / s_khanh

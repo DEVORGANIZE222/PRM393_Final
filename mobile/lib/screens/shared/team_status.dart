@@ -139,7 +139,7 @@ class TeamStatusCard extends StatelessWidget {
               const SizedBox(width: AppSpacing.sm),
               _Stat(value: team.hasLeader ? 'Passed' : 'Pending', label: 'Leader Vote', ok: team.hasLeader),
               const SizedBox(width: AppSpacing.sm),
-              const _Stat(value: 'Assigned', label: 'Supervisor', ok: true),
+              _Stat(value: team.hasMentor ? 'Assigned' : 'Not yet', label: 'Supervisor', ok: team.hasMentor),
             ],
           ),
         ],

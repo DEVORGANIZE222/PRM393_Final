@@ -57,19 +57,12 @@ PRM393_Final_DEVORGANIZE222/
 
 ---
 
-## Mentor Selection (cross-role flow)
+## Mentor Selection (second cross-role flow)
 
-A team leader chooses a lecturer on mobile (My Team → Mentor), and the lecturer answers in the web admin (Mentor Requests). The answer reaches My Team in real time.
-
-To make a staff account a lecturer, an admin sets `users/{uid}.role = staff` and `users/{uid}.mentorId` to a document in `mentors` (for example `m_thanh`). The directory comes from `tool/seed_firestore_lab3.py`.
-
-The web admin signs in to Firebase only when it gets the web app's config:
-
-```bash
-flutter run -d chrome --dart-define=FIREBASE_WEB_API_KEY=... --dart-define=FIREBASE_WEB_APP_ID=... --dart-define=FIREBASE_WEB_SENDER_ID=... --dart-define=FIREBASE_WEB_PROJECT_ID=... --dart-define=FIREBASE_WEB_AUTH_DOMAIN=...
-```
-
-Without them it opens as a layout preview with no sign-in.
+1. An admin adds a lecturer in the web admin (**Giảng viên**) with their Google email. That creates `mentors/{id}` and sets `allowedEmails/{email}.mentorId`.
+2. A team leader opens My Team → Mentor on mobile and sends a request.
+3. The lecturer signs in to the same mobile app, lands on the Mentor Portal and accepts or declines. Web stays admin-only.
+4. The team's Mentor card updates in real time and the leader gets an inbox message. The admin sees the result on **Giảng viên**.
 
 ---
 

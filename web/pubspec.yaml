@@ -18,6 +18,8 @@ dependencies:
   firebase_auth: ^6.0.0
   cloud_firestore: ^6.0.0
   google_sign_in: ^6.2.2
+  file_picker: ^10.3.3
+  excel: ^4.0.6
 
 dev_dependencies:
   flutter_test:
@@ -26,4 +28,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/exematching_logo.png
 

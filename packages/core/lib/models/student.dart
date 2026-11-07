@@ -1,4 +1,4 @@
-/// A signed-in student (Lab 2 persona: FPT Capstone senior).
+/// A signed-in user: a Capstone student, or a lecturer when [mentorId] is set.
 class Student {
   const Student({
     required this.id,
@@ -10,6 +10,7 @@ class Student {
     this.avatarUrl,
     this.skills = const [],
     this.preferredRoles = const [],
+    this.mentorId,
   });
 
   final String id;
@@ -21,6 +22,11 @@ class Student {
   final String? avatarUrl;
   final List<String> skills;
   final List<String> preferredRoles;
+
+  /// The lecturer's `mentors` document, from their roster entry (`allowedEmails`).
+  final String? mentorId;
+
+  bool get isMentor => mentorId != null;
 
   String get firstName => fullName.split(' ').first;
 

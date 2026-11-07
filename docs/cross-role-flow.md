@@ -12,21 +12,20 @@ sequenceDiagram
   participant FS as Cloud Firestore
   actor Staff as Web Admin (Staff / Mentor)
 
-  Note over Student,FS: Step 1: Submission
-  Student->>FS: write registrations/{id} (status: "pending")
-  Note right of FS: Security Rule: allow create if auth.uid == uid and status == "pending"
+  Note over Student,FS: Step 1: Locked roster submission
+  Student->>FS: lock teams/{teamId}, create teamSubmissions/{teamId} (pending)
+  Note right of FS: Rule verifies locked team and leader identity
   
   Note over FS,Staff: Step 2: Real-time Discovery
   FS-->>Staff: Real-time Snapshot (Review Queue updates automatically)
   
   Note over Staff,FS: Step 3: Approval Decision
-  Staff->>FS: update registrations/{id} (status: "approved")
-  Note right of FS: Security Rule: allow update if isStaff() and transition pending -> approved
+  Staff->>FS: update teamSubmissions/{teamId} (approved/rejected + reason)
+  Note right of FS: Security Rule: Admin only, pending -> final decision
   
   Note over FS,Student: Step 4: Notification & Real-time Update
-  FS-->>Student: Real-time Snapshot on Mobile (Status badge turns Green: Approved)
-  Staff->>FS: write announcements/{id} (Title: "Capstone Roster Finalized")
-  FS-->>Student: Mobile Inbox badge updates in real time
+  FS-->>Student: Mobile lock-review status updates in real time
+  FS-->>Student: Personal inbox notification records the decision
 ```
 
 ## 3. Measured Latency & Timing

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../models/mentor.dart';
@@ -20,6 +22,7 @@ class MentorDetailViewModel extends ChangeNotifier {
   final TeamRepository _teams;
   final AnalyticsService _analytics;
   final CrashReporter _crash;
+  StreamSubscription<MentorRequest?>? _requestWatch;
 
   ViewState<Mentor> state = const Loading();
   Team? team;
@@ -50,7 +53,11 @@ class MentorDetailViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       final mentor = await _mentors.getMentor(mentorId);
-      await _refreshTeam();
+      team = await _teams.teamOf(_me.id);
+      if (team != null) {
+        request = await _mentors.requestOfTeam(team!.id);
+        _followRequest(team!.id);
+      }
       state = Data(mentor);
       await _analytics.logViewMentor(mentorId: mentor.id);
     } catch (e, st) {
@@ -59,9 +66,17 @@ class MentorDetailViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _refreshTeam() async {
-    team = await _teams.teamOf(_me.id);
-    request = team == null ? null : await _mentors.requestOfTeam(team!.id);
+  /// Live, because a read right after a write can return the cached document
+  /// while My Team is listening to it, and the lecturer can answer at any time.
+  void _followRequest(String teamId) {
+    _requestWatch?.cancel();
+    _requestWatch = _mentors.watchRequestOfTeam(teamId).listen(
+      (value) {
+        request = value;
+        notifyListeners();
+      },
+      onError: (Object e, StackTrace st) => _crash.recordError(e, st, reason: 'mentor_detail_request'),
+    );
   }
 
   Future<AppFailure?> sendRequest(String message) async {
@@ -72,7 +87,6 @@ class MentorDetailViewModel extends ChangeNotifier {
     try {
       await _mentors.requestMentor(teamId: t.id, mentorId: mentorId, sender: _me, message: message.trim());
       await _analytics.logRequestMentor(teamId: t.id, mentorId: mentorId);
-      await _refreshTeam();
       return null;
     } catch (e, st) {
       return toFailure(e, st, crash: _crash, reason: 'request_mentor');
@@ -89,7 +103,6 @@ class MentorDetailViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       await _mentors.withdrawRequest(t.id);
-      await _refreshTeam();
       return null;
     } catch (e, st) {
       return toFailure(e, st, crash: _crash, reason: 'withdraw_mentor_request');
@@ -97,5 +110,20 @@ class MentorDetailViewModel extends ChangeNotifier {
       withdrawing = false;
       notifyListeners();
     }
+  }
+
+  bool _disposed = false;
+
+  // The request stream can fire after the screen closed.
+  @override
+  void notifyListeners() {
+    if (!_disposed) super.notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    _requestWatch?.cancel();
+    super.dispose();
   }
 }

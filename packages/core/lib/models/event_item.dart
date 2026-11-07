@@ -20,20 +20,12 @@ class EventItem {
       id: id,
       title: data['title'] as String? ?? '',
       description: data['description'] as String? ?? '',
-      startAt: data['startAt'] != null
-          ? (data['startAt'] as Timestamp).toDate()
-          : DateTime.now(),
+      startAt: data['startAt'] != null ? (data['startAt'] as Timestamp).toDate() : DateTime.now(),
       status: data['status'] as String? ?? 'draft',
     );
   }
 
   Map<String, dynamic> toFirestore() {
-    return {
-      'title': title,
-      'description': description,
-      'startAt': Timestamp.fromDate(startAt),
-      'status': status,
-    };
+    return {'title': title, 'description': description, 'startAt': Timestamp.fromDate(startAt), 'status': status};
   }
 }
-

@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/app_notification.dart';
@@ -60,32 +61,38 @@ class FirebaseNotificationRepository implements NotificationRepository {
 
     void emitMerged() {
       if (controller.isClosed) return;
-      final merged = [...personalNotifs, ...announcements]
-        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      final merged = [...personalNotifs, ...announcements]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
       controller.add(merged);
     }
 
     final sub1 = _items(studentId)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .listen((s) {
-      personalNotifs = s.docs.map(_from).toList();
-      emitMerged();
-    }, onError: (e) {
-      if (!controller.isClosed) controller.addError(e);
-    });
+        .listen(
+          (s) {
+            personalNotifs = s.docs.map(_from).toList();
+            emitMerged();
+          },
+          onError: (e) {
+            if (!controller.isClosed) controller.addError(e);
+          },
+        );
 
     final sub2 = _db
         .collection('announcements')
+        .where('status', isEqualTo: 'published')
         .orderBy('createdAt', descending: true)
         .limit(20)
         .snapshots()
-        .listen((s) {
-      announcements = s.docs.map(_fromAnnouncement).toList();
-      emitMerged();
-    }, onError: (_) {
-      // Announcements listener falls back gracefully if collection not yet created
-    });
+        .listen(
+          (s) {
+            announcements = s.docs.map(_fromAnnouncement).toList();
+            emitMerged();
+          },
+          onError: (_) {
+            // Announcements listener falls back gracefully if collection not yet created
+          },
+        );
 
     controller.onCancel = () {
       sub1.cancel();

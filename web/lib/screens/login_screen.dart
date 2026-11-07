@@ -1,133 +1,29 @@
-import 'package:core/core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../theme/admin_theme.dart';
+import '../viewmodels/admin_session_viewmodel.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
-
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  String? _errorMessage;
-  bool _isLoading = false;
-
-  void _handleGoogleSignIn() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    // Without the FIREBASE_WEB_* values there is no backend to sign in to:
-    // keep the local layout preview working.
-    if (Firebase.apps.isEmpty) {
-      setState(() => _isLoading = false);
-      context.go('/admin');
-      return;
-    }
-
-    try {
-      final user = (await FirebaseAuth.instance.signInWithPopup(GoogleAuthProvider())).user!;
-      final profile = await SharedFirestoreService().getUserProfile(user.uid);
-      if (profile == null || !profile.isStaff) {
-        await FirebaseAuth.instance.signOut();
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-            _errorMessage = 'This account is not staff. Ask an admin to change its role.';
-          });
-        }
-        return;
-      }
-      if (mounted) {
-        setState(() => _isLoading = false);
-        context.go('/admin');
-      }
-    } on FirebaseAuthException catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = e.code == 'popup-closed-by-user' ? null : 'Sign-in failed: ${e.message ?? e.code}';
-        });
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Container(
-          width: 420,
-          padding: const EdgeInsets.all(32),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.06),
-                blurRadius: 20,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Icon(Icons.admin_panel_settings, size: 48, color: Color(0xFF107C41)),
-              const SizedBox(height: 16),
-              const Text(
-                'Staff & Admin Portal',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Sign in with your authorized @fpt.edu.vn account to manage teams and review submissions.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.black54),
-              ),
-              const SizedBox(height: 24),
-              if (_errorMessage != null)
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red.shade200),
-                  ),
-                  child: Text(
-                    _errorMessage!,
-                    style: TextStyle(color: Colors.red.shade700, fontSize: 13),
-                  ),
-                ),
-              ElevatedButton.icon(
-                onPressed: _isLoading ? null : _handleGoogleSignIn,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF107C41),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                icon: _isLoading
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Icon(Icons.login),
-                label: const Text('Sign in with Google (Staff/Admin)'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    final session = context.watch<AdminSessionViewModel>();
+    return Scaffold(body: SafeArea(child: LayoutBuilder(builder: (context, c) {
+      final narrow = c.maxWidth < 780;
+      return Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1400), child: Padding(
+        padding: EdgeInsets.all(narrow ? 24 : 48), child: Column(children: [
+          const Row(children: [_Brand(), Spacer(), _PortalChip()]),
+          Expanded(child: Center(child: narrow ? SingleChildScrollView(child: Column(children: [const _Intro(), const SizedBox(height: 32), _SignIn(session: session)])) : Row(children: [const Expanded(flex: 6, child: _Intro()), const SizedBox(width: 72), Expanded(flex: 4, child: _SignIn(session: session))]))),
+          const Divider(), const SizedBox(height: 12), const Row(children: [Text('© 2026 ExeMatching · FPT University · Dự án Khởi nghiệp EXE', style: TextStyle(color: AdminPalette.muted)), Spacer(), Text('Hệ thống ghép nhóm & điều phối đề tài chính thức', style: TextStyle(color: AdminPalette.muted))]),
+        ]),
+      )));
+    })));
   }
 }
 
+class _Brand extends StatelessWidget { const _Brand(); @override Widget build(BuildContext c) => Row(children: [Image.asset('assets/exematching_logo.png',width:36,height:36,fit:BoxFit.contain),const SizedBox(width:10),const Text.rich(TextSpan(style: TextStyle(fontSize:28,fontWeight:FontWeight.w800),children:[TextSpan(text:'Exe',style:TextStyle(color:AdminPalette.ink)),TextSpan(text:'Matching',style:TextStyle(color:AdminPalette.primary))]))]); }
+class _PortalChip extends StatelessWidget { const _PortalChip(); @override Widget build(BuildContext c) => Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), decoration: BoxDecoration(color: AdminPalette.subtle, border: Border.all(color: AdminPalette.border), borderRadius: BorderRadius.circular(99)), child: const Text('FPT University · Cổng Khởi nghiệp EXE', style: TextStyle(color: AdminPalette.muted))); }
+class _Intro extends StatelessWidget { const _Intro(); @override Widget build(BuildContext c) => Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [Container(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8), decoration: BoxDecoration(color: AdminPalette.primaryLight, border: Border.all(color: const Color(0xFFBBF7D0)), borderRadius: BorderRadius.circular(99)), child: const Text('●  Học kỳ Fall 2026 · Cổng ghép nhóm Dự án Khởi nghiệp', style: TextStyle(color: AdminPalette.primary, fontWeight: FontWeight.w600))), const SizedBox(height: 26), const Text('Khởi đầu dự án khởi nghiệp với đội ngũ ăn ý', style: TextStyle(fontSize: 48, height: 1.16, fontWeight: FontWeight.w800, color: AdminPalette.ink)), const SizedBox(height: 18), const Text('Không gian điều phối sinh viên, dự án khởi nghiệp và phân công giảng viên mentor theo tiêu chuẩn Đại học FPT.', style: TextStyle(fontSize: 18, height: 1.6, color: AdminPalette.muted)), const SizedBox(height: 32), const _Steps()]); }
+class _Steps extends StatelessWidget { const _Steps(); @override Widget build(BuildContext c) => Container(padding: const EdgeInsets.all(26), decoration: BoxDecoration(color: Colors.white, border: Border.all(color: AdminPalette.border), borderRadius: BorderRadius.circular(16)), child: const Column(children: [_Step('1','Khởi tạo hồ sơ & chuyên ngành','Đồng bộ dữ liệu Roster theo các khối ngành SE, AI, IA, MKT, IB.'),_Step('2','Khớp đề tài & tìm đồng đội','Tự do tìm nhóm theo kỹ năng bù trừ hoặc sử dụng thuật toán gợi ý ghép đội.'),_Step('3','Chốt nhóm & Ghép Mentor hướng dẫn','Khóa danh sách nhóm tối đa 5 thành viên và gửi đề xuất ghép mentor phụ trách.')])); }
+class _Step extends StatelessWidget { const _Step(this.n,this.title,this.detail); final String n,title,detail; @override Widget build(BuildContext c) => Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [CircleAvatar(radius: 18, backgroundColor: AdminPalette.primaryLight, foregroundColor: AdminPalette.primary, child: Text(n)),const SizedBox(width: 18),Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,children:[Text(title,style:const TextStyle(fontSize:16,fontWeight:FontWeight.w700)),Text(detail,style:const TextStyle(color:AdminPalette.muted))]))])); }
+class _SignIn extends StatelessWidget { const _SignIn({required this.session}); final AdminSessionViewModel session; @override Widget build(BuildContext c) => Container(width:420,padding:const EdgeInsets.all(36),decoration:BoxDecoration(color:Colors.white,border:Border.all(color:AdminPalette.border),borderRadius:BorderRadius.circular(16),boxShadow:const[BoxShadow(color:Color(0x0A000000),blurRadius:20,offset:Offset(0,8))]),child:Column(mainAxisSize:MainAxisSize.min,crossAxisAlignment:CrossAxisAlignment.stretch,children:[const Icon(Icons.account_circle_outlined,size:36,color:AdminPalette.primary),const SizedBox(height:20),const Text('Đăng nhập tài khoản',style:TextStyle(fontSize:24,fontWeight:FontWeight.w800)),const SizedBox(height:8),const Text('Sử dụng email FPT University (@fpt.edu.vn) để truy cập không gian học kỳ của bạn.',style:TextStyle(color:AdminPalette.muted,height:1.5)),const SizedBox(height:24),if(session.error!=null)Container(padding:const EdgeInsets.all(12),margin:const EdgeInsets.only(bottom:16),decoration:BoxDecoration(color:const Color(0xFFFEE2E2),border:Border.all(color:AdminPalette.danger),borderRadius:BorderRadius.circular(8)),child:Text(session.error!,style:const TextStyle(color:AdminPalette.danger))),OutlinedButton.icon(onPressed:session.signingIn?null:session.signIn,icon:session.signingIn?const SizedBox.square(dimension:18,child:CircularProgressIndicator(strokeWidth:2)):const Icon(Icons.g_mobiledata,color:Color(0xFF4285F4),size:28),label:Text(session.signingIn?'Đang đăng nhập...':'Đăng nhập với Google'),style:OutlinedButton.styleFrom(minimumSize:const Size.fromHeight(50))),const SizedBox(height:24),Container(padding:const EdgeInsets.all(14),decoration:BoxDecoration(color:const Color(0xFFF0FDF4),border:Border.all(color:const Color(0xFFDCFCE7)),borderRadius:BorderRadius.circular(10)),child:const Row(crossAxisAlignment:CrossAxisAlignment.start,children:[Icon(Icons.verified_user_outlined,color:AdminPalette.primary,size:20),SizedBox(width:12),Expanded(child:Text('Chỉ email sinh viên và giảng viên có trong whitelist mới có quyền truy cập.',style:TextStyle(color:AdminPalette.primary,height:1.4)))]) )])); }
