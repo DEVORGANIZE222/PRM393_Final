@@ -43,6 +43,29 @@ class AdminRosterService {
     'updatedAt': FieldValue.serverTimestamp(),
   }, SetOptions(merge: true));
 
+  Future<void> addSingleStudent(RosterEntry entry) => _db.collection('allowedEmails').doc(entry.email).set({
+    ...entry.toFirestore(),
+    'updatedAt': FieldValue.serverTimestamp(),
+  }, SetOptions(merge: true));
+
+  Future<void> deleteStudent(String email) => _db.collection('allowedEmails').doc(email).delete();
+
+  Future<int> deleteAllStudents({String? semesterCode}) async {
+    Query<Map<String, dynamic>> query = _db.collection('allowedEmails');
+    if (semesterCode != null && semesterCode.isNotEmpty) {
+      query = query.where('semesterCode', isEqualTo: semesterCode);
+    }
+    final snapshot = await query.get();
+    for (var i = 0; i < snapshot.docs.length; i += 400) {
+      final batch = _db.batch();
+      for (final doc in snapshot.docs.skip(i).take(400)) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+    }
+    return snapshot.size;
+  }
+
   static List<RosterEntry> parseCsv(String content) {
     final lines = content.split(RegExp(r'\r?\n')).where((line) => line.trim().isNotEmpty).toList();
     if (lines.length < 2) throw const FormatException('Use a CSV file with a header row and at least one student.');

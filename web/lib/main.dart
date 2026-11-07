@@ -60,7 +60,7 @@ class _AdminRouterState extends State<_AdminRouter> {
 
   @override
   Widget build(BuildContext context) => MaterialApp.router(
-    title: 'PRM393 Web Admin',
+    title: 'ExeMatching - Capstone Project Portal',
     debugShowCheckedModeBanner: false,
     theme: buildAdminTheme(),
     routerConfig: _router,

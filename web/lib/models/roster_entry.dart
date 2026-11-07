@@ -5,6 +5,7 @@ class RosterEntry {
     this.studentCode = '',
     this.major = '',
     this.cohort = '',
+    this.semesterCode = '',
     this.enabled = true,
   });
 
@@ -13,6 +14,7 @@ class RosterEntry {
   final String studentCode;
   final String major;
   final String cohort;
+  final String semesterCode;
   final bool enabled;
 
   factory RosterEntry.fromFirestore(String email, Map<String, dynamic> data) => RosterEntry(
@@ -21,6 +23,7 @@ class RosterEntry {
     studentCode: data['studentCode'] as String? ?? '',
     major: data['major'] as String? ?? '',
     cohort: data['cohort'] as String? ?? '',
+    semesterCode: data['semesterCode'] as String? ?? '',
     enabled: data['enabled'] as bool? ?? true,
   );
 
@@ -30,6 +33,7 @@ class RosterEntry {
     'studentCode': studentCode,
     'major': major,
     'cohort': cohort,
+    'semesterCode': semesterCode,
     'enabled': enabled,
   };
 }

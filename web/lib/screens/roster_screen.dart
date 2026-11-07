@@ -1,18 +1,24 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:excel/excel.dart' hide Border, BorderStyle;
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/roster_entry.dart';
 import '../services/admin_roster_service.dart';
+import '../theme/admin_theme.dart';
 import '../viewmodels/admin_roster_viewmodel.dart';
 
+/// EdTech SaaS Students & Roster Management — ExeMatching
+/// Matches C:\Users\Administrator\Desktop\EXETeamMatching\fe\src\features\students\StudentsPage.jsx
+/// Fully integrates Google Access whitelist, semester-based import, bulk delete,
+/// top-aligned notifications, robust major/accent search matching, and 25-item pagination.
 class RosterScreen extends StatelessWidget {
   const RosterScreen({super.key});
+
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
     create: (_) => AdminRosterViewModel(AdminRosterService())..load(),
@@ -20,33 +26,193 @@ class RosterScreen extends StatelessWidget {
   );
 }
 
-class _RosterView extends StatelessWidget {
+class _RosterView extends StatefulWidget {
   const _RosterView();
 
-  Future<void> _selectRoster(BuildContext context) async {
-    final model = context.read<AdminRosterViewModel>();
+  @override
+  State<_RosterView> createState() => _RosterViewState();
+}
+
+class _RosterViewState extends State<_RosterView> {
+  String _addMode = 'excel'; // 'excel' | 'manual'
+  String _selectedMajor = 'all';
+  String _importSemester = 'FA26';
+  String _selectedFileName = '';
+  Uint8List? _selectedFileBytes;
+  int _page = 0;
+  static const int _pageSize = 25;
+
+  String? _localMessage;
+  bool _isLocalError = false;
+
+  // Single manual student controllers
+  final _codeController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  String _manualMajor = 'Công nghệ thông tin';
+
+  @override
+  void dispose() {
+    _codeController.dispose();
+    _nameController.dispose();
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  void _showMessage(String msg, {bool error = false}) {
+    setState(() {
+      _localMessage = msg;
+      _isLocalError = error;
+    });
+  }
+
+  Future<void> _pickFile() async {
     try {
       final selected = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: const ['csv', 'xlsx'],
+        allowedExtensions: const ['xlsx', 'csv'],
         withData: true,
       );
-      final bytes = selected?.files.single.bytes;
-      if (bytes == null || !context.mounted) {
-        return;
-      }
-      final extension = selected!.files.single.extension?.toLowerCase();
-      if (extension == 'xlsx') {
-        await model.importEntries(_parseXlsx(bytes));
+      if (selected == null || selected.files.isEmpty) return;
+      final file = selected.files.first;
+      setState(() {
+        _selectedFileName = file.name;
+        _selectedFileBytes = file.bytes;
+        _localMessage = null;
+      });
+    } catch (e) {
+      _showMessage('Không thể chọn tệp: $e', error: true);
+    }
+  }
+
+  Future<void> _importFile(AdminRosterViewModel model) async {
+    if (_selectedFileBytes == null) {
+      _showMessage('Vui lòng chọn tệp .xlsx hoặc .csv trước khi import.', error: true);
+      return;
+    }
+
+    try {
+      if (_selectedFileName.toLowerCase().endsWith('.xlsx')) {
+        await model.importEntries(_parseXlsx(_selectedFileBytes!, semesterCode: _importSemester));
       } else {
-        await model.importCsv(utf8.decode(bytes, allowMalformed: true));
+        final parsed = AdminRosterService.parseCsv(utf8.decode(_selectedFileBytes!, allowMalformed: true));
+        final withSemester = parsed
+            .map(
+              (e) => RosterEntry(
+                email: e.email,
+                fullName: e.fullName,
+                studentCode: e.studentCode,
+                major: e.major,
+                cohort: e.cohort,
+                semesterCode: _importSemester,
+                enabled: e.enabled,
+              ),
+            )
+            .toList();
+        await model.importEntries(withSemester);
       }
+      setState(() {
+        _selectedFileName = '';
+        _selectedFileBytes = null;
+      });
+      _showMessage('Đã nạp thành công danh sách sinh viên kỳ $_importSemester vào hệ thống Google Access!');
     } catch (error) {
       model.reportImportError(error);
     }
   }
 
-  List<RosterEntry> _parseXlsx(Uint8List bytes) {
+  Future<void> _addSingleStudent(AdminRosterViewModel model) async {
+    final code = _codeController.text.trim().toUpperCase();
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim().toLowerCase();
+
+    if (code.isEmpty || name.isEmpty || email.isEmpty) {
+      _showMessage('Vui lòng nhập đầy đủ MSSV, Họ tên và Email.', error: true);
+      return;
+    }
+
+    if (!email.contains('@')) {
+      _showMessage('Địa chỉ email không hợp lệ (cần có ký tự @).', error: true);
+      return;
+    }
+
+    await model.addSingle(
+      RosterEntry(
+        email: email,
+        fullName: name,
+        studentCode: code,
+        major: _manualMajor,
+        semesterCode: _importSemester,
+        enabled: true,
+      ),
+    );
+
+    if (model.error == null) {
+      _codeController.clear();
+      _nameController.clear();
+      _emailController.clear();
+      _showMessage('Đã thêm sinh viên $code ($name) thành công và cấp quyền Google Access!');
+    }
+  }
+
+  Future<void> _confirmDelete(BuildContext context, AdminRosterViewModel model, RosterEntry entry) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xác nhận xóa sinh viên'),
+        content: Text(
+          'Xóa sinh viên ${entry.fullName} (${entry.studentCode}) khỏi hệ thống? Sinh viên này sẽ mất quyền đăng nhập Google.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Hủy')),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AdminPalette.danger),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Xác nhận xóa'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await model.deleteStudent(entry.email);
+      _showMessage('Đã xóa sinh viên ${entry.studentCode} khỏi Google Access.');
+    }
+  }
+
+  Future<void> _confirmDeleteAll(BuildContext context, AdminRosterViewModel model) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: const [
+            Icon(Icons.warning_amber_rounded, color: AdminPalette.danger),
+            SizedBox(width: 8),
+            Text('Xác nhận xóa TOÀN BỘ sinh viên'),
+          ],
+        ),
+        content: const Text(
+          'CẢNH BÁO: Thao tác này sẽ xóa toàn bộ sinh viên khỏi hệ thống Google Access whitelist và thu hồi quyền đăng nhập của tất cả sinh viên. Bạn có chắc chắn muốn tiếp tục không?',
+          style: TextStyle(height: 1.45),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Hủy bỏ')),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AdminPalette.danger),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Xác nhận xóa tất cả'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await model.deleteAllStudents();
+      _showMessage('Đã xóa toàn bộ sinh viên khỏi hệ thống.');
+    }
+  }
+
+  List<RosterEntry> _parseXlsx(Uint8List bytes, {required String semesterCode}) {
     final workbook = Excel.decodeBytes(bytes);
     final sheet = workbook.tables.values.firstWhere((sheet) => sheet.rows.isNotEmpty);
     final rows = sheet.rows.map((row) => row.map((cell) => cell?.value?.toString().trim() ?? '').toList()).toList();
@@ -76,6 +242,7 @@ class _RosterView extends StatelessWidget {
         fullName: value(name),
         studentCode: value(code),
         major: value(major),
+        semesterCode: semesterCode,
       );
     }
     if (unique.isEmpty) {
@@ -167,164 +334,684 @@ class _RosterView extends StatelessWidget {
         .replaceAll(RegExp(r'[^a-z0-9]'), '');
   }
 
+  bool _matchesMajor(String studentMajor, String filterCode) {
+    if (filterCode == 'all') return true;
+    final m = studentMajor.toLowerCase();
+    switch (filterCode) {
+      case 'SE':
+        return m.contains('công nghệ thông tin') ||
+            m.contains('phần mềm') ||
+            m.contains('software') ||
+            m.contains('se') ||
+            m.contains('cntt');
+      case 'AI':
+        return m.contains('trí tuệ') ||
+            m.contains('nhân tạo') ||
+            m.contains('artificial') ||
+            m.contains('ai') ||
+            m.contains('ttnt');
+      case 'IA':
+        return m.contains('an toàn') ||
+            m.contains('bảo mật') ||
+            m.contains('assurance') ||
+            m.contains('ia') ||
+            m.contains('attt');
+      case 'MKT':
+        return m.contains('marketing') || m.contains('mkt') || m.contains('tiếp thị');
+      case 'IB':
+        return m.contains('kinh doanh') ||
+            m.contains('thương mại') ||
+            m.contains('business') ||
+            m.contains('ib') ||
+            m.contains('qtkd');
+      case 'DESIGN':
+        return m.contains('thiết kế') ||
+            m.contains('mỹ thuật') ||
+            m.contains('design') ||
+            m.contains('multimedia') ||
+            m.contains('đồ họa');
+      default:
+        return m.contains(filterCode.toLowerCase());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final model = context.watch<AdminRosterViewModel>();
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 72, 24, 48),
-      children: [
-        Row(
-          children: [
-            const Expanded(
-              child: Column(
+
+    final allEntries = model.entries;
+    final rawTerm = model.query.trim().toLowerCase();
+    final normTerm = _normalized(rawTerm);
+
+    final filtered = allEntries
+        .where((entry) {
+          final normName = _normalized(entry.fullName);
+          final normCode = _normalized(entry.studentCode);
+          final normMajor = _normalized(entry.major);
+          final normEmail = entry.email.toLowerCase();
+
+          final matchesQuery =
+              rawTerm.isEmpty ||
+              normEmail.contains(rawTerm) ||
+              normName.contains(normTerm) ||
+              normCode.contains(normTerm) ||
+              normMajor.contains(normTerm);
+
+          final matchesMajor = _matchesMajor(entry.major, _selectedMajor);
+
+          return matchesQuery && matchesMajor;
+        })
+        .toList(growable: false);
+
+    final totalPages = (filtered.length / _pageSize).ceil().clamp(1, 9999);
+    final safePage = _page.clamp(0, totalPages - 1);
+    final pagedItems = filtered.skip(safePage * _pageSize).take(_pageSize).toList(growable: false);
+
+    // Active message banner (either from model or local)
+    final activeError = model.error ?? (_isLocalError ? _localMessage : null);
+    final activeSuccess = model.success ?? (!_isLocalError ? _localMessage : null);
+
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance.collection('semesters').snapshots(),
+      builder: (context, semSnapshot) {
+        final semDocs = semSnapshot.data?.docs ?? [];
+        final semesterCodes = semDocs.map((d) => d.id).toList();
+        if (!semesterCodes.contains('FA26')) semesterCodes.insert(0, 'FA26');
+        if (!semesterCodes.contains('SP27')) semesterCodes.add('SP27');
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24, 32, 24, 48),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Page Header ──
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Quản lý Sinh viên & Roster', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800)),
-                  SizedBox(height: 6),
-                  Text(
-                    'Nhập danh sách sinh viên đủ điều kiện làm Dự án Khởi nghiệp từ file Excel. Hệ thống sẽ tự động đồng bộ email vào Google Access.',
-                  ),
-                ],
-              ),
-            ),
-            Chip(label: Text('${model.entries.length} sinh viên đã nạp')),
-          ],
-        ),
-        const SizedBox(height: 24),
-        if (model.error != null) _Banner(message: model.error!, error: true),
-        if (model.success != null) _Banner(message: model.success!, error: false),
-        const SizedBox(height: 18),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Import danh sách Roster', style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 6),
-                const Text('Chọn tệp Excel (.xlsx) hoặc CSV có các cột MSSV, Họ tên, Email/Gmail và Ngành đào tạo.'),
-                const SizedBox(height: 18),
-                InkWell(
-                  onTap: model.importing ? null : () => _selectRoster(context),
-                  borderRadius: BorderRadius.circular(12),
-                  child: Ink(
-                    height: 156,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFBFDFB),
-                      border: Border.all(color: const Color(0xFFB7D9C2), style: BorderStyle.solid),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                  const Expanded(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.cloud_upload_outlined, size: 40, color: Color(0xFF168442)),
-                        const SizedBox(height: 10),
                         Text(
-                          model.importing ? 'Đang đọc và nhập dữ liệu…' : 'Nhấn để chọn tệp .xlsx / .csv',
-                          style: const TextStyle(fontWeight: FontWeight.w700),
+                          'Quản lý Sinh viên & Roster',
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            color: AdminPalette.ink,
+                            letterSpacing: -0.5,
+                          ),
                         ),
-                        const SizedBox(height: 6),
-                        const Text('Tối đa 2.000 sinh viên; dữ liệu cũ được cập nhật an toàn.'),
+                        SizedBox(height: 6),
+                        Text(
+                          'Nhập danh sách sinh viên đủ điều kiện làm Dự án Khởi nghiệp từ file Excel hoặc tạo thủ công. Đồng bộ trực tiếp quyền Google Access.',
+                          style: TextStyle(fontSize: 14, color: AdminPalette.muted),
+                        ),
                       ],
                     ),
                   ),
-                ),
-              ],
-            ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AdminPalette.primaryLight,
+                      borderRadius: BorderRadius.circular(99),
+                      border: Border.all(color: AdminPalette.primaryBorder),
+                    ),
+                    child: Text(
+                      '${allEntries.length} sinh viên đã nạp',
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AdminPalette.primary),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // ── Top-Aligned Alerts (No bottom snackbars!) ──
+              if (activeError != null) ...[_Banner(message: activeError, error: true), const SizedBox(height: 16)],
+              if (activeSuccess != null) ...[_Banner(message: activeSuccess, error: false), const SizedBox(height: 16)],
+
+              // ── 2-Column Responsive Layout ──
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isWide = constraints.maxWidth >= 960;
+
+                  final leftForm = Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(22),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Mode Switcher Tabs
+                          Row(
+                            children: [
+                              _ModeTab(
+                                icon: Icons.table_chart_outlined,
+                                label: 'Import Excel',
+                                active: _addMode == 'excel',
+                                onTap: () => setState(() => _addMode = 'excel'),
+                              ),
+                              const SizedBox(width: 8),
+                              _ModeTab(
+                                icon: Icons.person_add_outlined,
+                                label: 'Thêm thủ công 1 sinh viên',
+                                active: _addMode == 'manual',
+                                onTap: () => setState(() => _addMode = 'manual'),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          const Divider(height: 1),
+                          const SizedBox(height: 16),
+
+                          // Common Semester Dropdown
+                          DropdownButtonFormField<String>(
+                            value: _importSemester,
+                            decoration: const InputDecoration(
+                              labelText: 'Học kỳ áp dụng *',
+                              contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            ),
+                            items: semesterCodes
+                                .map((code) => DropdownMenuItem(value: code, child: Text('Học kỳ $code')))
+                                .toList(),
+                            onChanged: (val) => setState(() => _importSemester = val ?? 'FA26'),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Form 1: Excel Import
+                          if (_addMode == 'excel') ...[
+                            const Text(
+                              'File Excel cần có các cột: MSSV, Họ tên, Email/Gmail và Ngành đào tạo.',
+                              style: TextStyle(fontSize: 13, color: AdminPalette.muted),
+                            ),
+                            const SizedBox(height: 16),
+                            // Drop Zone
+                            InkWell(
+                              onTap: model.importing ? null : _pickFile,
+                              borderRadius: BorderRadius.circular(10),
+                              child: Container(
+                                height: 140,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: AdminPalette.hover,
+                                  border: Border.all(
+                                    color: _selectedFileName.isNotEmpty
+                                        ? AdminPalette.primary
+                                        : AdminPalette.borderStrong,
+                                    width: 1.5,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      _selectedFileName.isNotEmpty
+                                          ? Icons.description_outlined
+                                          : Icons.cloud_upload_outlined,
+                                      size: 36,
+                                      color: _selectedFileName.isNotEmpty ? AdminPalette.primary : AdminPalette.muted,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      _selectedFileName.isNotEmpty
+                                          ? _selectedFileName
+                                          : 'Nhấn để chọn tệp .xlsx / .csv',
+                                      style: TextStyle(
+                                        fontSize: 13.5,
+                                        fontWeight: FontWeight.w700,
+                                        color: _selectedFileName.isNotEmpty ? AdminPalette.primary : AdminPalette.ink,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    const Text(
+                                      'Hỗ trợ tệp bảng tính tối đa 2.000 sinh viên',
+                                      style: TextStyle(fontSize: 12, color: AdminPalette.muted),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 18),
+                            FilledButton.icon(
+                              onPressed: (model.importing || _selectedFileBytes == null)
+                                  ? null
+                                  : () => _importFile(model),
+                              icon: model.importing
+                                  ? const SizedBox.square(
+                                      dimension: 16,
+                                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                    )
+                                  : const Icon(Icons.file_upload_outlined, size: 18),
+                              label: Text(
+                                model.importing ? 'Đang đọc và nhập dữ liệu...' : 'Import & Cấp quyền Google Access',
+                              ),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: AdminPalette.primary,
+                                minimumSize: const Size.fromHeight(44),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                            ),
+                          ],
+
+                          // Form 2: Single Student Manual Add
+                          if (_addMode == 'manual') ...[
+                            TextField(
+                              controller: _codeController,
+                              decoration: const InputDecoration(
+                                labelText: 'Mã số sinh viên (MSSV) *',
+                                hintText: 'VD: SE170123',
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: _nameController,
+                              decoration: const InputDecoration(
+                                labelText: 'Họ và tên sinh viên *',
+                                hintText: 'VD: Nguyễn Văn An',
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: _emailController,
+                              keyboardType: TextInputType.emailAddress,
+                              decoration: const InputDecoration(
+                                labelText: 'Email trường (@fpt.edu.vn) *',
+                                hintText: 'VD: annvse170123@fpt.edu.vn',
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            DropdownButtonFormField<String>(
+                              value: _manualMajor,
+                              decoration: const InputDecoration(labelText: 'Chuyên ngành đào tạo *'),
+                              items: const [
+                                DropdownMenuItem(
+                                  value: 'Công nghệ thông tin',
+                                  child: Text('CNTT / Kỹ thuật phần mềm (SE)'),
+                                ),
+                                DropdownMenuItem(value: 'Trí tuệ nhân tạo', child: Text('Trí tuệ nhân tạo (AI)')),
+                                DropdownMenuItem(value: 'An toàn thông tin', child: Text('An toàn thông tin (IA)')),
+                                DropdownMenuItem(value: 'Quản trị kinh doanh', child: Text('Quản trị kinh doanh (IB)')),
+                                DropdownMenuItem(value: 'Digital Marketing', child: Text('Digital Marketing (MKT)')),
+                                DropdownMenuItem(
+                                  value: 'Thiết kế mỹ thuật số',
+                                  child: Text('Thiết kế mỹ thuật số / Đồ họa'),
+                                ),
+                              ],
+                              onChanged: (val) => setState(() => _manualMajor = val ?? 'Công nghệ thông tin'),
+                            ),
+                            const SizedBox(height: 18),
+                            FilledButton.icon(
+                              onPressed: () => _addSingleStudent(model),
+                              icon: const Icon(Icons.person_add_outlined, size: 18),
+                              label: const Text('Tạo & Cấp quyền Google Access'),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: AdminPalette.primary,
+                                minimumSize: const Size.fromHeight(44),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  );
+
+                  final rightList = Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(22),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header & Counter
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Danh sách sinh viên trong hệ thống',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AdminPalette.ink),
+                              ),
+                              Text(
+                                '${filtered.length} / ${allEntries.length}',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AdminPalette.muted,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Bulk Delete Bar (Xóa toàn bộ sinh viên)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFEF2F2),
+                              border: Border.all(color: const Color(0xFFFEE2E2)),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.delete_sweep_outlined, size: 18, color: AdminPalette.danger),
+                                const SizedBox(width: 8),
+                                const Expanded(
+                                  child: Text(
+                                    'Thu hồi toàn bộ quyền Google Access:',
+                                    style: TextStyle(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF991B1B),
+                                    ),
+                                  ),
+                                ),
+                                FilledButton.icon(
+                                  onPressed: allEntries.isEmpty ? null : () => _confirmDeleteAll(context, model),
+                                  icon: const Icon(Icons.delete_forever, size: 15),
+                                  label: const Text('Xóa tất cả sinh viên'),
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: AdminPalette.danger,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Filter Row
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  onChanged: (val) {
+                                    model.setQuery(val);
+                                    setState(() => _page = 0);
+                                  },
+                                  style: const TextStyle(fontSize: 13.5),
+                                  decoration: const InputDecoration(
+                                    prefixIcon: Icon(Icons.search, size: 20),
+                                    hintText: 'Tìm theo MSSV, họ tên, email hoặc ngành...',
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              DropdownButton<String>(
+                                value: _selectedMajor,
+                                underline: const SizedBox.shrink(),
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AdminPalette.ink,
+                                ),
+                                items: const [
+                                  DropdownMenuItem(value: 'all', child: Text('Tất cả ngành')),
+                                  DropdownMenuItem(value: 'SE', child: Text('CNTT / Kỹ thuật PM (SE)')),
+                                  DropdownMenuItem(value: 'AI', child: Text('Trí tuệ nhân tạo (AI)')),
+                                  DropdownMenuItem(value: 'IA', child: Text('An toàn thông tin (IA)')),
+                                  DropdownMenuItem(value: 'IB', child: Text('Quản trị kinh doanh (IB)')),
+                                  DropdownMenuItem(value: 'MKT', child: Text('Digital Marketing (MKT)')),
+                                  DropdownMenuItem(value: 'DESIGN', child: Text('Thiết kế mỹ thuật số')),
+                                ],
+                                onChanged: (val) => setState(() {
+                                  _selectedMajor = val ?? 'all';
+                                  _page = 0;
+                                }),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          const Divider(height: 1),
+
+                          // ── Virtualized List Box ──
+                          SizedBox(
+                            height: 480,
+                            child: model.loading
+                                ? const Center(child: CircularProgressIndicator(color: AdminPalette.primary))
+                                : filtered.isEmpty
+                                ? const Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(32),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.people_outline, size: 36, color: AdminPalette.slate400),
+                                          SizedBox(height: 8),
+                                          Text(
+                                            'Không tìm thấy sinh viên nào phù hợp.',
+                                            style: TextStyle(color: AdminPalette.muted),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                : ListView.separated(
+                                    itemCount: pagedItems.length,
+                                    separatorBuilder: (_, __) => const Divider(height: 1),
+                                    itemBuilder: (context, index) {
+                                      final item = pagedItems[index];
+                                      return _RosterRow(
+                                        entry: item,
+                                        isUpdating: model.updatingEmail == item.email,
+                                        onToggleEnabled: (val) => model.setEnabled(item, val),
+                                        onDelete: () => _confirmDelete(context, model, item),
+                                      );
+                                    },
+                                  ),
+                          ),
+                          const SizedBox(height: 12),
+                          const Divider(height: 1),
+                          const SizedBox(height: 8),
+
+                          // ── Pagination Controls ──
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Hiển thị ${filtered.isEmpty ? 0 : safePage * _pageSize + 1} – ${(safePage + 1) * _pageSize > filtered.length ? filtered.length : (safePage + 1) * _pageSize} trên ${filtered.length} sinh viên',
+                                style: const TextStyle(fontSize: 12.5, color: AdminPalette.muted),
+                              ),
+                              Row(
+                                children: [
+                                  OutlinedButton(
+                                    onPressed: safePage > 0 ? () => setState(() => _page = safePage - 1) : null,
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      minimumSize: const Size(36, 32),
+                                    ),
+                                    child: const Text('‹ Trước', style: TextStyle(fontSize: 12.5)),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Trang ${safePage + 1} / $totalPages',
+                                    style: const TextStyle(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: AdminPalette.ink,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  OutlinedButton(
+                                    onPressed: safePage < totalPages - 1
+                                        ? () => setState(() => _page = safePage + 1)
+                                        : null,
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      minimumSize: const Size(36, 32),
+                                    ),
+                                    child: const Text('Sau ›', style: TextStyle(fontSize: 12.5)),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+
+                  if (isWide) {
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(width: 440, child: leftForm),
+                        const SizedBox(width: 20),
+                        Expanded(child: rightList),
+                      ],
+                    );
+                  } else {
+                    return Column(children: [leftForm, const SizedBox(height: 20), rightList]);
+                  }
+                },
+              ),
+            ],
           ),
-        ),
-        const SizedBox(height: 24),
-        TextField(
-          onChanged: model.setQuery,
-          decoration: const InputDecoration(
-            prefixIcon: Icon(Icons.search),
-            labelText: 'Danh sách sinh viên trong hệ thống',
-            hintText: 'Tìm theo mã số, tên hoặc email...',
-          ),
-        ),
-        const SizedBox(height: 16),
-        if (model.loading)
-          const Center(
-            child: Padding(padding: EdgeInsets.all(40), child: CircularProgressIndicator()),
-          )
-        else
-          _RosterTable(
-            entries: model.visibleEntries,
-            updatingEmail: model.updatingEmail,
-            onEnabledChanged: model.setEnabled,
-          ),
-        const SizedBox(height: 16),
-        const Text('Import chỉ cập nhật roster và Google Access whitelist. Hồ sơ mobile hiện có không bị ghi đè.'),
-      ],
+        );
+      },
     );
   }
 }
 
-class _RosterTable extends StatelessWidget {
-  const _RosterTable({required this.entries, required this.updatingEmail, required this.onEnabledChanged});
-  final List<RosterEntry> entries;
-  final String? updatingEmail;
-  final Future<void> Function(RosterEntry, bool) onEnabledChanged;
+class _ModeTab extends StatelessWidget {
+  const _ModeTab({required this.icon, required this.label, required this.active, required this.onTap});
+
+  final IconData icon;
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(6),
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      decoration: BoxDecoration(
+        color: active ? AdminPalette.subtle : Colors.transparent,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: active ? AdminPalette.borderStrong : Colors.transparent),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 15, color: active ? AdminPalette.primary : AdminPalette.muted),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+              color: active ? AdminPalette.primary : AdminPalette.muted,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _RosterRow extends StatelessWidget {
+  const _RosterRow({
+    required this.entry,
+    required this.isUpdating,
+    required this.onToggleEnabled,
+    required this.onDelete,
+  });
+
+  final RosterEntry entry;
+  final bool isUpdating;
+  final ValueChanged<bool> onToggleEnabled;
+  final VoidCallback onDelete;
+
   @override
   Widget build(BuildContext context) {
-    if (entries.isEmpty) {
-      return const Card(
-        child: Padding(
-          padding: EdgeInsets.all(36),
-          child: Center(child: Text('No roster data yet. Import a CSV to seed Google Access.')),
-        ),
-      );
-    }
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          headingRowColor: const WidgetStatePropertyAll(Color(0xFFF1F5F9)),
-          columns: const [
-            DataColumn(label: Text('STUDENT')),
-            DataColumn(label: Text('EMAIL')),
-            DataColumn(label: Text('MAJOR')),
-            DataColumn(label: Text('GOOGLE ACCESS')),
-          ],
-          rows: entries
-              .map(
-                (entry) => DataRow(
-                  cells: [
-                    DataCell(
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            entry.fullName.isEmpty ? 'Unnamed student' : entry.fullName,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          if (entry.studentCode.isNotEmpty)
-                            Text(entry.studentCode, style: const TextStyle(fontSize: 12)),
-                        ],
+    final initial = entry.fullName.isNotEmpty ? entry.fullName[0].toUpperCase() : 'S';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      child: Row(
+        children: [
+          // Avatar
+          CircleAvatar(
+            radius: 18,
+            backgroundColor: AdminPalette.primaryLight,
+            foregroundColor: AdminPalette.primaryDark,
+            child: Text(initial, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+          ),
+          const SizedBox(width: 12),
+
+          // Student Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        entry.fullName.isNotEmpty ? entry.fullName : 'Chưa có tên',
+                        style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AdminPalette.ink),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    DataCell(Text(entry.email)),
-                    DataCell(Text(entry.major.isEmpty ? '—' : entry.major)),
-                    DataCell(
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Switch(
-                            value: entry.enabled,
-                            onChanged: updatingEmail == entry.email ? null : (value) => onEnabledChanged(entry, value),
-                          ),
-                          Text(entry.enabled ? 'Enabled' : 'Disabled'),
-                        ],
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                      decoration: BoxDecoration(
+                        color: entry.enabled ? AdminPalette.primaryLight : AdminPalette.warningLight,
+                        borderRadius: BorderRadius.circular(99),
+                      ),
+                      child: Text(
+                        entry.enabled ? 'Google Access' : 'Tạm khóa',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: entry.enabled ? AdminPalette.primary : AdminPalette.warning,
+                        ),
                       ),
                     ),
                   ],
                 ),
-              )
-              .toList(),
-        ),
+                const SizedBox(height: 2),
+                Text(
+                  '${entry.studentCode.isNotEmpty ? entry.studentCode : 'MSSV'} · ${entry.email}${entry.semesterCode.isNotEmpty ? ' · Kỳ ${entry.semesterCode}' : ''}',
+                  style: const TextStyle(fontSize: 12, color: AdminPalette.muted),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+
+          // Major Pill
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: AdminPalette.subtle,
+              border: Border.all(color: AdminPalette.border),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              entry.major.isNotEmpty ? entry.major : 'Kỹ thuật PM',
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AdminPalette.muted),
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          // Google Access Toggle Switch
+          if (isUpdating)
+            const SizedBox.square(dimension: 24, child: CircularProgressIndicator(strokeWidth: 2))
+          else
+            Switch(value: entry.enabled, onChanged: onToggleEnabled, activeColor: AdminPalette.primary),
+
+          // Delete Student Button
+          IconButton(
+            tooltip: 'Xóa khỏi whitelist Google Access',
+            icon: const Icon(Icons.delete_outline, size: 18, color: AdminPalette.slate400),
+            onPressed: onDelete,
+          ),
+        ],
       ),
     );
   }
@@ -334,16 +1021,34 @@ class _Banner extends StatelessWidget {
   const _Banner({required this.message, required this.error});
   final String message;
   final bool error;
+
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 16),
-    child: Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: error ? const Color(0xFFFFEDEC) : const Color(0xFFECFDF3),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(message, style: TextStyle(color: error ? const Color(0xFFB42318) : const Color(0xFF067647))),
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: error ? AdminPalette.dangerLight : AdminPalette.primaryLight,
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(color: error ? const Color(0xFFFECACA) : AdminPalette.primaryBorder),
+    ),
+    child: Row(
+      children: [
+        Icon(
+          error ? Icons.error_outline : Icons.check_circle_outline,
+          color: error ? AdminPalette.danger : AdminPalette.primary,
+          size: 20,
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            message,
+            style: TextStyle(
+              color: error ? AdminPalette.danger : AdminPalette.primary,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+            ),
+          ),
+        ),
+      ],
     ),
   );
 }

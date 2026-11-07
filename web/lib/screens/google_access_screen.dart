@@ -20,7 +20,7 @@ class _GoogleAccessBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = context.watch<AdminRosterViewModel>();
     return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 38, 24, 48),
+      padding: const EdgeInsets.fromLTRB(24, 32, 24, 48),
       children: [
         Row(
           children: [
@@ -28,11 +28,19 @@ class _GoogleAccessBody extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Quản lý Google Access Whitelist', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800)),
+                  Text(
+                    'Quản lý Google Access Whitelist',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      color: AdminPalette.ink,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
                   SizedBox(height: 6),
                   Text(
                     'Chỉ email FPT trong whitelist mới có thể đăng nhập ứng dụng sinh viên.',
-                    style: TextStyle(color: AdminPalette.muted),
+                    style: TextStyle(fontSize: 14, color: AdminPalette.muted),
                   ),
                 ],
               ),

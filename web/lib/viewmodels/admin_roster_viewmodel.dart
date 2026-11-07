@@ -34,7 +34,7 @@ class AdminRosterViewModel extends ChangeNotifier {
   int get enabledCount => entries.where((entry) => entry.enabled).length;
 
   void load() {
-    _subscription?.cancel();
+    if (_subscription != null) return;
     _subscription = _service.watchWhitelist().listen(
       (value) {
         entries = value;
@@ -94,6 +94,45 @@ class AdminRosterViewModel extends ChangeNotifier {
       error = 'Could not update ${entry.email}.';
     } finally {
       updatingEmail = null;
+      notifyListeners();
+    }
+  }
+
+  Future<void> addSingle(RosterEntry entry) async {
+    error = null;
+    success = null;
+    notifyListeners();
+    try {
+      await _service.addSingleStudent(entry);
+      success = 'Đã thêm sinh viên ${entry.studentCode} (${entry.fullName}) thành công!';
+    } catch (e) {
+      error = 'Không thể thêm sinh viên: $e';
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteStudent(String email) async {
+    try {
+      await _service.deleteStudent(email);
+      success = 'Đã xóa sinh viên khỏi hệ thống Google Access.';
+    } catch (e) {
+      error = 'Không thể xóa sinh viên: $e';
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteAllStudents({String? semesterCode}) async {
+    error = null;
+    success = null;
+    notifyListeners();
+    try {
+      final count = await _service.deleteAllStudents(semesterCode: semesterCode);
+      success = 'Đã xóa thành công $count sinh viên khỏi hệ thống Google Access.';
+    } catch (e) {
+      error = 'Không thể xóa tất cả sinh viên: $e';
+    } finally {
       notifyListeners();
     }
   }
