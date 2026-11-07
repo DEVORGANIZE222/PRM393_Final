@@ -7,8 +7,11 @@ import '../models/view_state.dart';
 /// their roster entry (`allowedEmails/{email}`) carries `mentorId`, so the
 /// profile and that entry always change in the same batch.
 class MentorAdminService {
-  MentorAdminService({FirebaseFirestore? firestore}) : _db = firestore ?? FirebaseFirestore.instance;
-  final FirebaseFirestore _db;
+  MentorAdminService({FirebaseFirestore? firestore}) : _firestore = firestore;
+  final FirebaseFirestore? _firestore;
+
+  // Resolved on first use, so tests can replace the service without Firebase.
+  FirebaseFirestore get _db => _firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _mentors => _db.collection('mentors');
   CollectionReference<Map<String, dynamic>> get _roster => _db.collection('allowedEmails');
