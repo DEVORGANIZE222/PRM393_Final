@@ -270,7 +270,7 @@ service cloud.firestore {
             && after.teamId == teamId
             && after.senderId == request.auth.uid
             && after.status == 'pending'
-            && get(/databases/$(database)/documents/mentors/$(after.mentorId)).data.status == 'active';
+            && get(/databases/$(database)/documents/mentors/$(after.mentorId)).data.get('status', 'active') != 'archived';
       }
 
       function isMentorDecision() {
