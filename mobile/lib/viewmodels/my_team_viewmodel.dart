@@ -97,6 +97,20 @@ class MyTeamViewModel extends ChangeNotifier {
     }
   }
 
+  Future<AppFailure?> kickMember(Team team, String memberId) async {
+    leaving = true;
+    notifyListeners();
+    try {
+      await _teams.leaveTeam(team.id, memberId);
+      return null;
+    } catch (e, st) {
+      return toFailure(e, st, crash: _crash, reason: 'kick_member');
+    } finally {
+      leaving = false;
+      notifyListeners();
+    }
+  }
+
   Future<AppFailure?> seedMembers(Team team, {int count = 2}) async {
     try {
       await _teams.seedMembersToTeam(team.id, count: count);

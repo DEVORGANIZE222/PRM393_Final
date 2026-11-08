@@ -467,7 +467,9 @@ class _SemesterCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      semester.name,
+                      semester.name.trim().toUpperCase() == semester.displayCode.trim().toUpperCase()
+                          ? 'Học kỳ ${semester.displayCode}'
+                          : semester.name,
                       style: const TextStyle(
                         fontSize: 16.5,
                         fontWeight: FontWeight.w700,

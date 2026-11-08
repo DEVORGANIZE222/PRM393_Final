@@ -66,7 +66,8 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
         session.firebaseUser?.photoURL ??
         (session.firebaseUser?.providerData.isNotEmpty == true
             ? session.firebaseUser!.providerData.first.photoURL
-            : null);
+            : null) ??
+        session.profile?.avatarUrl;
 
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: _pendingStream,

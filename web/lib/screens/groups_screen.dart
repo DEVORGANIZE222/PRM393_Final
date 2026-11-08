@@ -253,14 +253,38 @@ class _GroupCard extends StatelessWidget {
     final locked = data['locked'] == true;
     final isFull = locked || members.length >= capacity;
 
-    final topic = data['topic'] as String? ?? data['topicTitle'] as String? ?? 'Chưa đăng ký đề tài';
-    final description = data['description'] as String? ?? data['projectDescription'] as String? ?? 'Chưa có mô tả dự án.';
+    final rawTopic = (data['topic'] as String? ?? data['topicTitle'] as String? ?? '').trim();
+    final rawDesc = (data['description'] as String? ?? data['projectDescription'] as String? ?? '').trim();
+
+    final topic = rawTopic.isNotEmpty ? rawTopic : 'Chưa đăng ký đề tài';
+    final hasDistinctDesc = rawDesc.isNotEmpty &&
+        rawDesc != 'Chưa có mô tả dự án.' &&
+        rawDesc.toLowerCase() != rawTopic.toLowerCase();
+
     final tags = (data['recruitmentNeeds'] as List<dynamic>? ?? data['tags'] as List<dynamic>? ?? const [])
         .map((e) => e is Map ? (e['roleCode']?.toString() ?? '') : e.toString())
         .where((e) => e.isNotEmpty)
         .toList();
 
-    final leaderName = data['leaderName'] as String? ?? data['leaderId'] as String? ?? 'Chưa bầu';
+    // Resolve real leader's name from members list instead of displaying raw UID
+    final leaderId = data['leaderId'] as String?;
+    String leaderName = 'Chưa bầu';
+    if (leaderId != null && leaderId.isNotEmpty) {
+      final leaderMember = members.firstWhere(
+        (m) => m is Map && (m['studentId'] == leaderId || m['id'] == leaderId),
+        orElse: () => null,
+      );
+      if (leaderMember is Map) {
+        leaderName = leaderMember['fullName']?.toString() ??
+            leaderMember['name']?.toString() ??
+            data['leaderName'] as String? ??
+            leaderId;
+      } else if (data['leaderName'] != null && (data['leaderName'] as String).isNotEmpty) {
+        leaderName = data['leaderName'] as String;
+      } else {
+        leaderName = leaderId;
+      }
+    }
     final lockCode = data['lockCode'] as String? ?? data['groupCode'] as String?;
 
     return Container(
@@ -358,18 +382,22 @@ class _GroupCard extends StatelessWidget {
             data['name'] as String? ?? 'Nhóm chưa đặt tên',
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AdminPalette.ink),
           ),
-          const SizedBox(height: 4),
-          Text(
-            topic,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AdminPalette.primary),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            description,
-            style: const TextStyle(fontSize: 13, color: AdminPalette.muted, height: 1.45),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
+          if (rawTopic.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              topic,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AdminPalette.primary),
+            ),
+          ],
+          if (hasDistinctDesc) ...[
+            const SizedBox(height: 6),
+            Text(
+              rawDesc,
+              style: const TextStyle(fontSize: 13, color: AdminPalette.muted, height: 1.45),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
           const SizedBox(height: 12),
 
           // ── Tags / Roles Needed ──
@@ -535,8 +563,10 @@ class _GroupCard extends StatelessWidget {
                 const Text('ĐỀ TÀI KHỞI NGHIỆP', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AdminPalette.muted)),
                 const SizedBox(height: 4),
                 Text(topic, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AdminPalette.primary)),
-                const SizedBox(height: 8),
-                Text(desc, style: const TextStyle(fontSize: 13, color: AdminPalette.muted)),
+                if (desc.isNotEmpty && desc.trim().toLowerCase() != topic.trim().toLowerCase() && desc != 'Chưa có mô tả.') ...[
+                  const SizedBox(height: 8),
+                  Text(desc, style: const TextStyle(fontSize: 13, color: AdminPalette.muted)),
+                ],
                 const SizedBox(height: 16),
                 const Divider(),
                 const SizedBox(height: 8),

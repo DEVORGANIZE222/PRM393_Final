@@ -41,12 +41,31 @@ class MyTeamScreen extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('You left ${team.name}')));
   }
 
+  Future<void> _kick(BuildContext context, Team team, TeamMember member) async {
+    final vm = context.read<MyTeamViewModel>();
+    final ok = await showAppDialog(
+      context,
+      semanticId: 'dialog_kick_member',
+      destructive: true,
+      title: 'Mời ${member.fullName} ra khỏi nhóm?',
+      message:
+          'Thành viên này sẽ bị xóa khỏi danh sách thành viên của nhóm "${team.name}". '
+          'Vị trí sẽ được mở lại cho sinh viên khác.',
+      confirmLabel: 'Mời ra khỏi nhóm',
+    );
+    if (!ok || !context.mounted) return;
+    final failure = await vm.kickMember(team, member.studentId);
+    if (!context.mounted) return;
+    if (failure != null) return showFailure(context, failure);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Đã mời ${member.fullName} ra khỏi nhóm')));
+  }
+
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<MyTeamViewModel>();
     return BlockingOverlay(
       visible: vm.leaving,
-      message: 'Leaving team…',
+      message: 'Updating team…',
       child: Scaffold(
         appBar: const AppTopBar(title: 'My Team', showBack: false, actions: [ProfileAction()]),
         body: RefreshIndicator(
@@ -58,7 +77,11 @@ class MyTeamScreen extends StatelessWidget {
                 state: vm.state,
                 onRetry: vm.load,
                 empty: const NoTeamState(),
-                builder: (context, team) => _Body(team: team, onLeave: () => _leave(context, team)),
+                builder: (context, team) => _Body(
+                  team: team,
+                  onLeave: () => _leave(context, team),
+                  onKick: (member) => _kick(context, team, member),
+                ),
               ),
             ],
           ),
@@ -69,10 +92,11 @@ class MyTeamScreen extends StatelessWidget {
 }
 
 class _Body extends StatelessWidget {
-  const _Body({required this.team, required this.onLeave});
+  const _Body({required this.team, required this.onLeave, required this.onKick});
 
   final Team team;
   final VoidCallback onLeave;
+  final ValueChanged<TeamMember> onKick;
 
   @override
   Widget build(BuildContext context) {
@@ -230,6 +254,13 @@ class _Body extends StatelessWidget {
             member: m,
             isLeader: team.hasLeader && m.studentId == team.leaderId,
             isMe: m.studentId == vm.myId,
+            trailing: (leader && m.studentId != vm.myId && phase != TeamPhase.locked)
+                ? IconButton(
+                    icon: const Icon(Icons.person_remove_outlined, color: Colors.redAccent, size: 20),
+                    tooltip: 'Mời ra khỏi nhóm',
+                    onPressed: () => onKick(m),
+                  )
+                : null,
             badges: [
               if (m.studentId == vm.myId) const StatusBadge(label: 'You', tone: Tone.info, icon: Icons.person),
               if (team.hasLeader && m.studentId == team.leaderId)

@@ -347,6 +347,10 @@ class MemberTile extends StatelessWidget {
               ],
             ),
           ),
+          if (trailing != null) ...[
+            const SizedBox(width: AppSpacing.xs),
+            trailing!,
+          ],
         ],
       ),
     );
@@ -408,6 +412,10 @@ class OpenSlotTile extends StatelessWidget {
               ],
             ),
           ),
+          if (trailing != null) ...[
+            const SizedBox(width: AppSpacing.xs),
+            trailing!,
+          ],
         ],
       ),
     );

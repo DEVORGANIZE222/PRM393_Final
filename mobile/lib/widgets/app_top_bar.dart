@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_tokens.dart';
@@ -25,7 +26,20 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
     final brand = showBack == false;
     final heading = Semantics(header: true, child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis));
     return AppBar(
-      automaticallyImplyLeading: showBack ?? true,
+      automaticallyImplyLeading: showBack == null,
+      leading: showBack == true
+          ? IconButton(
+              icon: const Icon(Icons.arrow_back),
+              tooltip: 'Back',
+              onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                } else {
+                  context.go('/home');
+                }
+              },
+            )
+          : null,
       titleSpacing: brand ? AppSpacing.lg : null,
       title: brand
           ? Row(

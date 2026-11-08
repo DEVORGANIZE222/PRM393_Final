@@ -14,10 +14,30 @@ class SemesterService {
 
   Future<void> save(Semester semester) async {
     final ref = semester.id.isEmpty ? _db.collection('semesters').doc() : _db.collection('semesters').doc(semester.id);
-    await ref.set({
+    final batch = _db.batch();
+    batch.set(ref, {
       ...semester.toFirestore(),
       if (semester.id.isEmpty) 'createdAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
+
+    // If this semester is active or currently configured, immediately sync its registration
+    // window to configuration/registration so mobile apps receive the updated dates in real-time.
+    final configDoc = await _db.collection('configuration').doc('registration').get();
+    final activeId = configDoc.data()?['activeSemesterId'] as String?;
+    final isConfigActive = activeId == ref.id || (activeId == null && semester.isActive);
+
+    if (semester.isActive || isConfigActive) {
+      batch.set(_db.collection('configuration').doc('registration'), {
+        'semester': semester.name,
+        'opensAt': Timestamp.fromDate(semester.registrationOpensAt),
+        'closesAt': Timestamp.fromDate(semester.registrationClosesAt),
+        'windowHours': semester.registrationClosesAt.difference(semester.registrationOpensAt).inHours,
+        'activeSemesterId': ref.id,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    }
+
+    await batch.commit();
   }
 
   Future<void> activate(Semester semester) async {
