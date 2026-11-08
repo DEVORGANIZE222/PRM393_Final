@@ -8,6 +8,7 @@ import 'dashboard_screen.dart';
 import 'review_queue_screen.dart';
 import 'groups_screen.dart';
 import 'roster_screen.dart';
+import 'mentor_management_screen.dart';
 import 'management_screen.dart';
 import 'announcement_screen.dart';
 import 'google_access_screen.dart';
@@ -35,7 +36,7 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
         return DashboardScreen(
           onOpenReview: () => setState(() => _selected = 1),
           onOpenGroups: () => setState(() => _selected = 2),
-          onOpenAnnouncements: () => setState(() => _selected = 5),
+          onOpenAnnouncements: () => setState(() => _selected = 6),
         );
       case 1:
         return const ReviewQueueScreen();
@@ -44,8 +45,10 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
       case 3:
         return const RosterScreen();
       case 4:
-        return const ManagementScreen();
+        return const MentorManagementScreen();
       case 5:
+        return const ManagementScreen();
+      case 6:
         return const AnnouncementScreen();
       default:
         return const SizedBox.shrink();
@@ -75,6 +78,7 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
           _NavItem('Duyệt nhóm & Đề tài', Icons.inbox_outlined, badge: pendingCount > 0 ? '$pendingCount' : null),
           const _NavItem('Nhóm & Đề tài', Icons.layers_outlined),
           const _NavItem('Sinh viên', Icons.people_outline),
+          const _NavItem('Giảng viên Mentor', Icons.school_outlined),
           const _NavItem('Học kỳ', Icons.calendar_month_outlined),
           const _NavItem('Phát thông báo', Icons.campaign_outlined),
         ];
