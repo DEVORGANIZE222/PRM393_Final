@@ -145,12 +145,16 @@ abstract final class ConfigKeys {
     'urgent_deadline_days': 3,
     'banner_announcement': 'Registration deadline is approaching.',
     registrationClosed: false,
+    'enable_ai_feature': true,
+    'ai_model_name': 'gemini-2.5-flash',
+    'gemini_api_key': 'AQ.Ab8RN6ItdExVkCIHMs4o5xE_K0sOk05ro2VfRBo3a88lwDcYYA',
   };
 }
 
 abstract interface class ConfigService {
   int getInt(String key);
   bool getBool(String key);
+  String getString(String key);
 
   /// Fetches and activates new values. Returns true when something changed.
   Future<bool> refresh();

@@ -61,9 +61,16 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
         }
         if (proposal.description.isNotEmpty) {
           _topicController.text = proposal.description;
+          _descController.text = proposal.description;
         }
-        _selectedTags.addAll(proposal.suggestedTags);
-        _selectedRoles.addAll(proposal.suggestedRoles);
+        if (proposal.suggestedTags.isNotEmpty) {
+          _selectedTags.clear();
+          _selectedTags.addAll(proposal.suggestedTags);
+        }
+        if (proposal.suggestedRoles.isNotEmpty) {
+          _selectedRoles.clear();
+          _selectedRoles.addAll(proposal.suggestedRoles);
+        }
         _aiDraftApplied = true;
       });
 
@@ -102,7 +109,9 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
       name: _nameController.text.trim(),
       topic: _topicController.text.trim(),
       category: _selectedCategory,
-      description: _descController.text.trim(),
+      description: _descController.text.trim().isNotEmpty
+          ? _descController.text.trim()
+          : _topicController.text.trim(),
       tags: _selectedTags.toList(),
       openRoles: _selectedRoles.toList(),
     );
@@ -209,6 +218,7 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
                       ),
                       const SizedBox(height: 10),
                       ElevatedButton.icon(
+                        key: const Key('btn_suggest_gemini_ai'),
                         onPressed: _isGeneratingAi ? null : _generateAiSuggestion,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF107C41),
@@ -266,6 +276,22 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
                     if (v == null || v.trim().isEmpty) return 'Please describe your project topic';
                     return null;
                   },
+                ),
+                const SizedBox(height: AppSpacing.lg),
+
+                // Detailed Description (Optional)
+                Text('Detailed Description (Optional)', style: context.text.labelLarge),
+                const SizedBox(height: AppSpacing.xs),
+                TextFormField(
+                  controller: _descController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: 'Detailed project scope, architecture, or deliverables...',
+                    prefixIcon: const Icon(Icons.description_outlined),
+                    border: OutlineInputBorder(borderRadius: AppRadius.cardAll),
+                    filled: true,
+                    fillColor: context.colors.surfaceContainerLowest,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
 

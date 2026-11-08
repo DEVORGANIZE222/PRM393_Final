@@ -77,3 +77,10 @@ e2e_test/.venv/
 .cache/
 
 artemis/
+
+# Node
+node_modules/
+**/node_modules/
+
+# Office temp lock files
+~$*

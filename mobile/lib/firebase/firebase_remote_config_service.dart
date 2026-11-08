@@ -50,6 +50,11 @@ class FirebaseRemoteConfigService implements ConfigService {
   }
 
   @override
+  String getString(String key) {
+    return _remoteConfig.getString(key);
+  }
+
+  @override
   Future<bool> refresh() async {
     if (kDebugMode) {
       await _remoteConfig.setConfigSettings(

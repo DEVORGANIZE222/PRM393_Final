@@ -116,6 +116,7 @@ class LocalConfigService implements ConfigService {
       final fallback = ConfigKeys.defaults[key];
       if (fallback is int) _values[key] = int.tryParse(raw) ?? fallback;
       if (fallback is bool) _values[key] = raw == 'true';
+      if (fallback is String) _values[key] = raw;
     }
   }
 
@@ -127,6 +128,10 @@ class LocalConfigService implements ConfigService {
 
   @override
   bool getBool(String key) => _values[key] as bool? ?? ConfigKeys.defaults[key] as bool;
+
+  @override
+  String getString(String key) =>
+      _values[key] as String? ?? (ConfigKeys.defaults[key] as String? ?? '');
 
   @override
   Future<bool> refresh() async => false;

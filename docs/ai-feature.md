@@ -22,6 +22,7 @@ Managed via Firebase Remote Config (`firebase/remote-config-defaults.json`):
 | `enable_ai_feature` | Boolean | `true` | Emergency kill-switch (can disable feature live) |
 | `ai_model_name` | String | `gemini-2.5-flash` | Generative model identifier |
 | `ai_prompt` | String | `Summarize project topic and extract tags...` | Base system instructions |
+| `gemini_api_key` | String | `AQ.Ab8RN6ItdExVk...` | Gemini Developer API key for server/client runtime |
 
 ---
 
