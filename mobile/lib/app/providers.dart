@@ -14,6 +14,7 @@ import '../firebase/firebase_storage_service.dart';
 import '../firebase/firestore_team_repository.dart';
 import '../services/pdf_report_service.dart';
 import '../services/services.dart';
+import '../viewmodels/notifications_viewmodel.dart';
 import '../viewmodels/session_viewmodel.dart';
 
 /// Root navigator, also used by the local account picker.
@@ -51,6 +52,31 @@ class AppServices {
       Provider<ReportService>.value(value: PdfReportService()),
       Provider<StorageService>.value(value: FirebaseStorageService()),
       ChangeNotifierProvider<SessionViewModel>(create: (_) => SessionViewModel(auth, analytics, crash)),
+      ChangeNotifierProxyProvider<SessionViewModel, NotificationsViewModel>(
+        create: (c) => NotificationsViewModel(
+          c.read<SessionViewModel>().student,
+          c.read<NotificationRepository>(),
+          c.read<TeamRepository>(),
+          c.read<CrashReporter>(),
+        ),
+        update: (c, session, vm) {
+          final s = session.student;
+          if (vm == null) {
+            final newVm = NotificationsViewModel(
+              s,
+              c.read<NotificationRepository>(),
+              c.read<TeamRepository>(),
+              c.read<CrashReporter>(),
+            );
+            if (s != null) newVm.start();
+            return newVm;
+          }
+          if (vm.studentId != s?.id) {
+            vm.updateStudent(s);
+          }
+          return vm;
+        },
+      ),
     ]);
   }
 }

@@ -98,17 +98,17 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
                 bottom: false,
                 child: Center(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1240),
+                    constraints: const BoxConstraints(maxWidth: 1440),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
-                          final compact = constraints.maxWidth < 1050;
+                          final compact = constraints.maxWidth < 1180;
                           return Row(
                             children: [
                               const _Brand(),
                               if (!compact) ...[
-                                const SizedBox(width: 16),
+                                const SizedBox(width: 12),
                                 Expanded(
                                   child: SingleChildScrollView(
                                     scrollDirection: Axis.horizontal,
@@ -128,7 +128,7 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
                                 ),
                               ],
                               if (compact) const Spacer(),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 12),
                               _ProfileBadge(name: name, photoUrl: photoUrl),
                               const SizedBox(width: 6),
                               IconButton(
@@ -149,7 +149,7 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
           body: Column(
             children: [
               LayoutBuilder(
-                builder: (context, constraints) => constraints.maxWidth >= 1050
+                builder: (context, constraints) => constraints.maxWidth >= 1180
                     ? const SizedBox.shrink()
                     : Container(
                         color: AdminPalette.surface,
@@ -238,27 +238,29 @@ class _HeaderNav extends StatelessWidget {
     onTap: onTap,
     child: Container(
       height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 7),
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: active ? AdminPalette.primary : Colors.transparent, width: 2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(item.icon, size: 16, color: active ? AdminPalette.primary : AdminPalette.muted),
-          const SizedBox(width: 6),
+          Icon(item.icon, size: 15, color: active ? AdminPalette.primary : AdminPalette.muted),
+          const SizedBox(width: 4),
           Text(
             item.label,
+            maxLines: 1,
+            softWrap: false,
             style: TextStyle(
-              fontSize: 13.5,
+              fontSize: 12.5,
               fontWeight: active ? FontWeight.w600 : FontWeight.w500,
               color: active ? AdminPalette.primary : AdminPalette.muted,
             ),
           ),
           if (item.badge != null) ...[
-            const SizedBox(width: 6),
+            const SizedBox(width: 4),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
               decoration: BoxDecoration(
                 color: AdminPalette.warningLight,
                 border: Border.all(color: const Color(0xFFFDE68A)),
@@ -267,7 +269,7 @@ class _HeaderNav extends StatelessWidget {
               child: Text(
                 item.badge!,
                 style: const TextStyle(
-                  fontSize: 11,
+                  fontSize: 10.5,
                   fontWeight: FontWeight.w700,
                   color: AdminPalette.warning,
                   height: 1,

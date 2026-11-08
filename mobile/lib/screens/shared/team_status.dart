@@ -258,9 +258,7 @@ class MemberTile extends StatelessWidget {
                       ),
                     ],
                     const Spacer(),
-                    if (trailing != null)
-                      trailing!
-                    else if (effectiveLeader)
+                    if (effectiveLeader)
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                         decoration: BoxDecoration(
@@ -412,10 +410,6 @@ class OpenSlotTile extends StatelessWidget {
               ],
             ),
           ),
-          if (trailing != null) ...[
-            const SizedBox(width: AppSpacing.xs),
-            trailing!,
-          ],
         ],
       ),
     );

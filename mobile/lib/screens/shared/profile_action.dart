@@ -13,10 +13,7 @@ class ProfileAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final student = context.watch<SessionViewModel>().student;
-    int unread = 0;
-    try {
-      unread = context.watch<NotificationsViewModel>().unread;
-    } catch (_) {}
+    final unread = context.watch<NotificationsViewModel>().unread;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -30,7 +27,11 @@ class ProfileAction extends StatelessWidget {
             onPressed: () => context.push('/alerts'),
             icon: Badge(
               isLabelVisible: unread > 0,
-              label: Text('$unread'),
+              label: Text(
+                '$unread',
+                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              backgroundColor: const Color(0xFFEF4444),
               child: const Icon(Icons.notifications_outlined, size: 22),
             ),
           ),
