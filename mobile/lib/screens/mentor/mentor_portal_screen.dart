@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +17,7 @@ import '../../widgets/app_top_bar.dart';
 import '../../widgets/states.dart';
 import '../../widgets/status.dart';
 import '../shared/feedback.dart';
+import '../shared/profile_action.dart';
 
 class MentorPortalScreen extends StatefulWidget {
   const MentorPortalScreen({super.key});
@@ -68,6 +70,7 @@ class _MentorPortalScreenState extends State<MentorPortalScreen> with SingleTick
           title: 'Mentor Portal',
           showBack: false,
           actions: [
+            const ProfileAction(),
             IconButton(
               icon: const Icon(Icons.logout),
               tooltip: 'Sign Out',
@@ -83,6 +86,7 @@ class _MentorPortalScreenState extends State<MentorPortalScreen> with SingleTick
             builder: (context, mentor) => ListView(
               padding: AppSpacing.screen,
               children: [
+                const _AnnouncementBanner(),
                 _MentorProfileCard(mentor: mentor),
                 const SizedBox(height: AppSpacing.md),
                 _QuotaStatsRow(mentor: mentor, pendingCount: vm.pendingCount),
@@ -479,6 +483,117 @@ class _TeamCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _AnnouncementBanner extends StatelessWidget {
+  const _AnnouncementBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance
+          .collection('announcements')
+          .orderBy('createdAt', descending: true)
+          .limit(1)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        final data = snapshot.data!.docs.first.data();
+        if (data['status'] != null && data['status'] != 'published') {
+          return const SizedBox.shrink();
+        }
+        final title = data['title'] as String? ?? '';
+        final body = data['body'] as String? ?? '';
+        if (title.isEmpty && body.isEmpty) return const SizedBox.shrink();
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: AppSpacing.md),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFEF3C7),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFF59E0B), width: 1.2),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => context.push('/alerts'),
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFDE68A),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.campaign, color: Color(0xFFB45309), size: 20),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF59E0B),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Text(
+                                  'THÔNG BÁO MỚI',
+                                  style: TextStyle(
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  title,
+                                  style: const TextStyle(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF78350F),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            body,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF92400E),
+                              height: 1.3,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, color: Color(0xFFB45309), size: 18),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

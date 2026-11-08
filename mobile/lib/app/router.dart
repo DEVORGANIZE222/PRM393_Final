@@ -59,7 +59,8 @@ GoRouter buildRouter(SessionViewModel session) {
       // Lecturers only have the portal; students never see it.
       final home = session.isMentor ? '/mentor-portal' : '/home';
       if (at == '/sign-in' || at == '/splash') return home;
-      if (session.isMentor != at.startsWith('/mentor-portal')) return home;
+      if (session.isMentor && at != '/alerts' && !at.startsWith('/mentor-portal')) return home;
+      if (!session.isMentor && at.startsWith('/mentor-portal')) return home;
       return null;
     },
     routes: [

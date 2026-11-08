@@ -78,7 +78,7 @@ service cloud.firestore {
 
     // announcements/{id}: Staff broadcast announcements; mobile reads in inbox.
     match /announcements/{announcementId} {
-      allow read: if isAdmin() || (isRosterMember() && resource.data.status == 'published');
+      allow read: if request.auth != null;
       allow create, update, delete: if isStaff();
     }
 

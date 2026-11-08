@@ -228,7 +228,6 @@ class MemberTile extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Flexible(
                       child: Text(
@@ -239,7 +238,7 @@ class MemberTile extends StatelessWidget {
                       ),
                     ),
                     if (effectiveIsMe) ...[
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 5),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
@@ -257,50 +256,32 @@ class MemberTile extends StatelessWidget {
                         ),
                       ),
                     ],
-                    const Spacer(),
-                    if (effectiveLeader)
+                    if (effectiveLeader) ...[
+                      const SizedBox(width: 5),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFEF3C7),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(10),
                           border: Border.all(color: const Color(0xFFF59E0B), width: 1),
                         ),
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(Icons.star_rounded, size: 12, color: Color(0xFFD97706)),
-                            SizedBox(width: 2.5),
+                            SizedBox(width: 2),
                             Text(
                               'Leader',
                               style: TextStyle(
-                                fontSize: 10,
+                                fontSize: 9.5,
                                 fontWeight: FontWeight.w700,
                                 color: Color(0xFF92400E),
                               ),
                             ),
                           ],
                         ),
-                      )
-                    else if (member.role.isNotEmpty &&
-                        member.role.toLowerCase() != 'member' &&
-                        !member.role.toLowerCase().contains('lead'))
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: const Color(0xFFCBD5E1), width: 0.8),
-                        ),
-                        child: Text(
-                          member.role,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF475569),
-                          ),
-                        ),
                       ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 3),
@@ -331,12 +312,35 @@ class MemberTile extends StatelessWidget {
                   const SizedBox(height: AppSpacing.xs),
                   Wrap(spacing: AppSpacing.xs, runSpacing: AppSpacing.xs, children: otherBadges),
                 ],
-                if (member.skills.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.xs),
+                if (member.role.isNotEmpty &&
+                    member.role.toLowerCase() != 'member' &&
+                    !member.role.toLowerCase().contains('lead') ||
+                    member.skills.isNotEmpty) ...[
+                  const SizedBox(height: 5),
                   Wrap(
-                    spacing: AppSpacing.xs,
-                    runSpacing: AppSpacing.xs,
+                    spacing: 5,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
+                      if (member.role.isNotEmpty &&
+                          member.role.toLowerCase() != 'member' &&
+                          !member.role.toLowerCase().contains('lead'))
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEFF6FF),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFFBFDBFE), width: 0.8),
+                          ),
+                          child: Text(
+                            member.role,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF1D4ED8),
+                            ),
+                          ),
+                        ),
                       for (final skill in member.skills.take(3))
                         StatusBadge(label: skill, tone: Tone.neutral),
                     ],
