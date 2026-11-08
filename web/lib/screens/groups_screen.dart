@@ -270,10 +270,28 @@ class _GroupCard extends StatelessWidget {
     final leaderId = data['leaderId'] as String?;
     String leaderName = 'Chưa bầu';
     if (leaderId != null && leaderId.isNotEmpty) {
-      final leaderMember = members.firstWhere(
-        (m) => m is Map && (m['studentId'] == leaderId || m['id'] == leaderId),
+      var leaderMember = members.firstWhere(
+        (m) =>
+            m is Map &&
+            (m['studentId'] == leaderId ||
+                m['id'] == leaderId ||
+                m['uid'] == leaderId ||
+                m['userId'] == leaderId ||
+                m['studentCode'] == leaderId ||
+                m['email'] == leaderId),
         orElse: () => null,
       );
+      if (leaderMember == null) {
+        leaderMember = members.firstWhere(
+          (m) =>
+              m is Map &&
+              (m['role'] == 'Team Lead' ||
+                  m['role'] == 'Leader' ||
+                  m['isLeader'] == true ||
+                  m['role'] == 1),
+          orElse: () => null,
+        );
+      }
       if (leaderMember is Map) {
         leaderName = leaderMember['fullName']?.toString() ??
             leaderMember['name']?.toString() ??
@@ -496,10 +514,24 @@ class _GroupCard extends StatelessWidget {
               Row(
                 children: [
                   const Text('Trưởng nhóm: ', style: TextStyle(fontSize: 12, color: AdminPalette.muted)),
-                  Text(
-                    leaderName,
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AdminPalette.ink),
-                  ),
+                  if (leaderName == leaderId && leaderId != null && leaderId.length > 15)
+                    FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                      future: FirebaseFirestore.instance.collection('students').doc(leaderId).get(),
+                      builder: (context, snap) {
+                        final realName = snap.data?.data()?['fullName'] as String? ??
+                            snap.data?.data()?['name'] as String? ??
+                            leaderName;
+                        return Text(
+                          realName,
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AdminPalette.ink),
+                        );
+                      },
+                    )
+                  else
+                    Text(
+                      leaderName,
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AdminPalette.ink),
+                    ),
                 ],
               ),
               if (lockCode != null)

@@ -79,7 +79,7 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.xl),
-            const SectionHeader(title: 'Vai trò & Kỹ năng Capstone'),
+            const SectionHeader(title: 'Capstone Role & Skills'),
             const SizedBox(height: AppSpacing.md),
             _RoleSkillsCard(student: s),
             const SizedBox(height: AppSpacing.xl),
@@ -316,25 +316,26 @@ class _RoleSkillsCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Chuyên ngành: ${major.isNotEmpty ? major : "Chưa chọn"}',
+                    Text('Major: ${major.isNotEmpty ? major : "Not selected"}',
                         style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 2),
                     Text(
-                      'Vai trò và ngôn ngữ thế mạnh giúp nhóm và mentor ghép đội hiệu quả hơn.',
+                      'Your target role and technical skills help teams and mentors match effectively.',
                       style: context.text.bodySmall?.copyWith(color: context.colors.onSurfaceVariant),
                     ),
                   ],
                 ),
               ),
               IconButton.filledTonal(
-                tooltip: 'Chỉnh sửa vai trò & kỹ năng',
+                tooltip: 'Edit Role & Skills',
                 icon: const Icon(Icons.edit_outlined, size: 18),
                 onPressed: () => _openEditSheet(context),
               ),
             ],
           ),
           const Divider(height: 24),
-          Text('VAI TRÒ TRONG NHÓM', style: context.text.labelSmall?.copyWith(fontWeight: FontWeight.w700, color: const Color(0xFF64748B))),
+          Text('TARGET ROLE IN TEAM',
+              style: context.text.labelSmall?.copyWith(fontWeight: FontWeight.w700, color: const Color(0xFF64748B))),
           const SizedBox(height: 6),
           if (role.isNotEmpty)
             Container(
@@ -350,26 +351,28 @@ class _RoleSkillsCard extends StatelessWidget {
               ),
             )
           else
-            const Text('Chưa chọn vai trò mục tiêu', style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic, color: Color(0xFF94A3B8))),
+            const Text('No target role selected',
+                style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic, color: Color(0xFF94A3B8))),
           const SizedBox(height: 14),
-          Text('NGÔN NGỮ & KỸ NĂNG THẾ MẠNH', style: context.text.labelSmall?.copyWith(fontWeight: FontWeight.w700, color: const Color(0xFF64748B))),
+          Text('TECHNICAL LANGUAGES & SKILLS',
+              style: context.text.labelSmall?.copyWith(fontWeight: FontWeight.w700, color: const Color(0xFF64748B))),
           const SizedBox(height: 6),
           if (skills.isNotEmpty)
             Wrap(
               spacing: 6,
               runSpacing: 6,
               children: [
-                for (final s in skills)
-                  StatusBadge(label: s, tone: Tone.neutral),
+                for (final s in skills) StatusBadge(label: s, tone: Tone.neutral),
               ],
             )
           else
-            const Text('Chưa chọn kỹ năng/ngôn ngữ', style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic, color: Color(0xFF94A3B8))),
+            const Text('No skills selected yet',
+                style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic, color: Color(0xFF94A3B8))),
           const SizedBox(height: 14),
           OutlinedButton.icon(
             onPressed: () => _openEditSheet(context),
             icon: const Icon(Icons.tune_outlined, size: 16),
-            label: const Text('Cập nhật vai trò & ngôn ngữ thế mạnh'),
+            label: const Text('Update Role & Technical Skills'),
             style: OutlinedButton.styleFrom(
               foregroundColor: context.colors.primary,
               side: BorderSide(color: context.colors.primary),
@@ -397,34 +400,34 @@ class _EditRoleSkillsSheetState extends State<_EditRoleSkillsSheet> {
   bool _saving = false;
 
   static const _majorConfig = <String, ({List<String> roles, List<String> skills})>{
-    'Kỹ thuật phần mềm (SE)': (
+    'Software Engineering (SE)': (
       roles: ['Fullstack Dev', 'Backend Dev', 'Frontend Dev', 'Mobile Dev', 'DevOps Engineer', 'QA / Tester'],
       skills: [
         'Flutter', 'React', 'React Native', 'TypeScript', 'Java', 'Spring Boot',
         'C#', '.NET Core', 'Python', 'Node.js', 'Go', 'PostgreSQL', 'MongoDB', 'Docker',
       ],
     ),
-    'Trí tuệ nhân tạo (AI)': (
+    'Artificial Intelligence (AI)': (
       roles: ['AI Engineer', 'Machine Learning Engineer', 'Data Scientist', 'Data Analyst', 'Computer Vision'],
       skills: [
         'Python', 'PyTorch', 'TensorFlow', 'OpenCV', 'Scikit-learn', 'LangChain',
         'Pandas', 'FastAPI', 'Hugging Face', 'SQL',
       ],
     ),
-    'An toàn thông tin (IA)': (
+    'Information Assurance (IA)': (
       roles: ['Security Engineer', 'Penetration Tester', 'SOC Analyst', 'Network Security', 'Cloud Security'],
       skills: [
         'Python', 'Linux', 'Bash', 'C/C++', 'Wireshark', 'Cryptography',
         'Metasploit', 'OWASP', 'Docker', 'Network Security',
       ],
     ),
-    'Thiết kế mỹ thuật số (GD)': (
+    'Digital Art & Design (GD)': (
       roles: ['UI/UX Designer', 'Product Designer', 'Graphic Designer', '3D / Motion Designer'],
       skills: [
         'Figma', 'Adobe XD', 'Photoshop', 'Illustrator', 'After Effects', 'Blender', 'Design Systems',
       ],
     ),
-    'Quản trị kinh doanh & Marketing (IB/MKT)': (
+    'Business & Marketing (IB/MKT)': (
       roles: ['Team Leader / PO', 'Business Analyst (BA)', 'Project Manager (PM)', 'Digital Marketer', 'Content Creator'],
       skills: [
         'Business Analysis', 'Agile/Scrum', 'Jira/Trello', 'Market Research', 'SEO/SEM', 'Google Analytics', 'Financial Modeling',
@@ -468,7 +471,7 @@ class _EditRoleSkillsSheetState extends State<_EditRoleSkillsSheet> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Đã cập nhật vai trò & ngôn ngữ thành công!'),
+            content: Text('Role & technical skills updated successfully!'),
             backgroundColor: Color(0xFF059669),
           ),
         );
@@ -477,7 +480,7 @@ class _EditRoleSkillsSheetState extends State<_EditRoleSkillsSheet> {
       if (mounted) {
         setState(() => _saving = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Không thể cập nhật: $e')),
+          SnackBar(content: Text('Could not update profile: $e')),
         );
       }
     }
@@ -509,9 +512,9 @@ class _EditRoleSkillsSheetState extends State<_EditRoleSkillsSheet> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Chọn Vai trò & Kỹ năng theo ngành', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+                      const Text('Select Role & Technical Skills', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
                       const SizedBox(height: 2),
-                      Text('Tùy biến hồ sơ năng lực của bạn trong dự án khởi nghiệp',
+                      Text('Customize your competency profile for the Capstone project',
                           style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                     ],
                   ),
@@ -525,7 +528,7 @@ class _EditRoleSkillsSheetState extends State<_EditRoleSkillsSheet> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
               children: [
-                const Text('1. CHỌN CHUYÊN NGÀNH ĐÀO TẠO',
+                const Text('1. SELECT ACADEMIC MAJOR',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF475569))),
                 const SizedBox(height: 8),
                 Wrap(
@@ -543,7 +546,7 @@ class _EditRoleSkillsSheetState extends State<_EditRoleSkillsSheet> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                const Text('2. CHỌN VAI TRÒ MỤC TIÊU TRONG NHÓM',
+                const Text('2. SELECT TARGET ROLE IN TEAM',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF475569))),
                 const SizedBox(height: 8),
                 Wrap(
@@ -561,7 +564,7 @@ class _EditRoleSkillsSheetState extends State<_EditRoleSkillsSheet> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                const Text('3. CHỌN NGÔN NGỮ & KỸ NĂNG THẾ MẠNH (Chọn nhiều)',
+                const Text('3. SELECT CORE LANGUAGES & SKILLS (Multi-select)',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF475569))),
                 const SizedBox(height: 8),
                 Wrap(
@@ -600,7 +603,7 @@ class _EditRoleSkillsSheetState extends State<_EditRoleSkillsSheet> {
                 style: FilledButton.styleFrom(backgroundColor: const Color(0xFF16A34A)),
                 child: _saving
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Text('Lưu thông tin hồ sơ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    : const Text('Save Profile Changes', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               ),
             ),
           ),

@@ -469,9 +469,20 @@ class _SubmissionCard extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 6),
-                    Text(
-                      'Trưởng nhóm: ${item.leaderId} · Thành viên: ${item.memberSnapshot.length}/5 sinh viên',
-                      style: const TextStyle(fontSize: 13, color: AdminPalette.muted),
+                    Builder(
+                      builder: (context) {
+                        final leaderMember = item.memberSnapshot.where((m) {
+                          final mid = m['studentId'] ?? m['id'] ?? m['userId'] ?? m['uid'] ?? m['studentCode'] ?? m['email'];
+                          return mid == item.leaderId || m['role'] == 'Team Lead' || m['role'] == 'Leader' || m['isLeader'] == true;
+                        }).firstOrNull;
+                        final leaderName = leaderMember?['fullName']?.toString() ??
+                            leaderMember?['name']?.toString() ??
+                            (item.leaderId.isNotEmpty ? item.leaderId : 'Chưa bầu');
+                        return Text(
+                          'Trưởng nhóm: $leaderName · Thành viên: ${item.memberSnapshot.length}/5 sinh viên',
+                          style: const TextStyle(fontSize: 13, color: AdminPalette.muted),
+                        );
+                      },
                     ),
                     // Roster Chips
                     if (item.memberSnapshot.isNotEmpty) ...[

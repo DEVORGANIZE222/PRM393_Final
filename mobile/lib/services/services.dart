@@ -118,6 +118,7 @@ abstract interface class NotificationRepository {
 
 abstract interface class RegistrationService {
   Future<RegistrationWindow> currentWindow();
+  Stream<RegistrationWindow> watchWindow();
 }
 
 abstract interface class PoolRepository {

@@ -68,4 +68,21 @@ class FirebaseRegistrationService implements RegistrationService {
       closesAt: closesAt.toDate(),
     );
   }
+
+  @override
+  Stream<RegistrationWindow> watchWindow() => _db
+      .collection('configuration')
+      .doc('registration')
+      .snapshots()
+      .where((d) => d.exists && d.data() != null)
+      .map((d) {
+        final v = d.data()!;
+        final opensAt = v['opensAt'];
+        final closesAt = v['closesAt'] ?? v['registrationDeadline'];
+        return RegistrationWindow(
+          semester: v['semester'] as String? ?? 'Current semester',
+          opensAt: opensAt is Timestamp ? opensAt.toDate() : DateTime.now(),
+          closesAt: closesAt is Timestamp ? closesAt.toDate() : DateTime.now().add(const Duration(days: 30)),
+        );
+      });
 }

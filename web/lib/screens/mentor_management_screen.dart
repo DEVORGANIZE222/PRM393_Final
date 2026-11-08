@@ -113,6 +113,42 @@ class _MentorManagementScreenState extends State<MentorManagementScreen> {
     }
   }
 
+  Future<void> _deleteMentor(Mentor mentor) async {
+    final hasTeams = mentor.currentAssigned > 0;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xác nhận xóa giảng viên', style: TextStyle(fontWeight: FontWeight.w700)),
+        content: Text(
+          hasTeams
+              ? 'CẢNH BÁO: Giảng viên "${mentor.fullName}" hiện đang hướng dẫn ${mentor.currentAssigned} nhóm (${mentor.mentoredTeamNames.join(", ")}).\n\nBạn có chắc chắn muốn xóa vĩnh viễn giảng viên này khỏi hệ thống học kỳ?'
+              : 'Bạn có chắc chắn muốn xóa vĩnh viễn giảng viên "${mentor.fullName}" khỏi danh sách? Thao tác này không thể hoàn tác.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Hủy bỏ')),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(backgroundColor: AdminPalette.danger),
+            child: const Text('Xóa giảng viên'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      final batch = _db.batch();
+      batch.delete(_db.collection('mentors').doc(mentor.id));
+      if (mentor.email.isNotEmpty) {
+        batch.delete(_db.collection('allowedEmails').doc(mentor.email.trim().toLowerCase()));
+      }
+      await batch.commit();
+      _showMessage('Đã xóa vĩnh viễn giảng viên "${mentor.fullName}" khỏi hệ thống.');
+    } catch (e) {
+      _showMessage('Không thể xóa giảng viên: $e', isError: true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
@@ -366,6 +402,7 @@ class _MentorManagementScreenState extends State<MentorManagementScreen> {
                       mentor: mentor,
                       onEditQuota: () => _openEditQuota(mentor),
                       onArchive: () => _archiveMentor(mentor),
+                      onDelete: () => _deleteMentor(mentor),
                     );
                   }).toList(),
                 ),
@@ -496,11 +533,13 @@ class _MentorCard extends StatelessWidget {
     required this.mentor,
     required this.onEditQuota,
     required this.onArchive,
+    required this.onDelete,
   });
 
   final Mentor mentor;
   final VoidCallback onEditQuota;
   final VoidCallback onArchive;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -707,14 +746,28 @@ class _MentorCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconButton(
-                onPressed: onArchive,
-                icon: Icon(
-                  mentor.archived ? Icons.unarchive_outlined : Icons.archive_outlined,
-                  size: 18,
-                  color: AdminPalette.muted,
-                ),
-                tooltip: mentor.archived ? 'Bỏ lưu trữ' : 'Lưu trữ giảng viên',
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: onArchive,
+                    icon: Icon(
+                      mentor.archived ? Icons.unarchive_outlined : Icons.archive_outlined,
+                      size: 18,
+                      color: AdminPalette.muted,
+                    ),
+                    tooltip: mentor.archived ? 'Bỏ lưu trữ' : 'Lưu trữ giảng viên',
+                  ),
+                  IconButton(
+                    onPressed: onDelete,
+                    icon: const Icon(
+                      Icons.delete_outline,
+                      size: 18,
+                      color: Color(0xFFEF4444),
+                    ),
+                    tooltip: 'Xóa giảng viên',
+                  ),
+                ],
               ),
               OutlinedButton.icon(
                 onPressed: onEditQuota,
@@ -743,11 +796,19 @@ class _EditQuotaDialog extends StatefulWidget {
 
 class _EditQuotaDialogState extends State<_EditQuotaDialog> {
   late int _quota;
+  late final TextEditingController _controller;
 
   @override
   void initState() {
     super.initState();
     _quota = widget.mentor.maxQuota;
+    _controller = TextEditingController(text: '$_quota');
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -780,30 +841,69 @@ class _EditQuotaDialogState extends State<_EditQuotaDialog> {
               'Hạn mức số nhóm tối đa (Max Quota) *',
               style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Row(
               children: [
                 IconButton.filledTonal(
-                  onPressed: _quota > minVal ? () => setState(() => _quota--) : null,
+                  onPressed: _quota > minVal
+                      ? () {
+                          setState(() {
+                            _quota--;
+                            _controller.text = '$_quota';
+                          });
+                        }
+                      : null,
                   icon: const Icon(Icons.remove, size: 18),
                 ),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: Center(
-                    child: Text(
-                      '$_quota nhóm',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AdminPalette.ink),
+                  child: TextFormField(
+                    controller: _controller,
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w800,
+                      color: AdminPalette.ink,
                     ),
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: AdminPalette.primary, width: 2),
+                      ),
+                      suffixText: 'nhóm',
+                      suffixStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AdminPalette.muted),
+                    ),
+                    onChanged: (val) {
+                      final digitsOnly = val.replaceAll(RegExp(r'\D'), '');
+                      final parsed = int.tryParse(digitsOnly);
+                      if (parsed != null) {
+                        setState(() {
+                          _quota = parsed.clamp(minVal, 30);
+                        });
+                      }
+                    },
                   ),
                 ),
+                const SizedBox(width: 12),
                 IconButton.filledTonal(
-                  onPressed: _quota < 15 ? () => setState(() => _quota++) : null,
+                  onPressed: _quota < 30
+                      ? () {
+                          setState(() {
+                            _quota++;
+                            _controller.text = '$_quota';
+                          });
+                        }
+                      : null,
                   icon: const Icon(Icons.add, size: 18),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Text(
-              'Hạn ngạch không được nhỏ hơn số nhóm đã nhận (${widget.mentor.currentAssigned} nhóm).',
+              'Nhập số trực tiếp hoặc dùng nút +/-. Hạn ngạch tối thiểu là ${widget.mentor.currentAssigned} nhóm.',
               style: const TextStyle(fontSize: 11.5, color: AdminPalette.muted),
             ),
           ],
