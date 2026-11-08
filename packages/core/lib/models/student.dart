@@ -28,6 +28,8 @@ class Student {
 
   bool get isMentor => mentorId != null;
 
+  String get role => preferredRoles.isNotEmpty ? preferredRoles.first : '';
+
   String get firstName => fullName.split(' ').first;
 
   String get initials {
@@ -35,6 +37,23 @@ class Student {
     if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
     return (parts.first[0] + parts.last[0]).toUpperCase();
   }
+
+  Student copyWith({
+    String? major,
+    List<String>? skills,
+    List<String>? preferredRoles,
+  }) => Student(
+    id: id,
+    email: email,
+    fullName: fullName,
+    studentCode: studentCode,
+    major: major ?? this.major,
+    cohort: cohort,
+    avatarUrl: avatarUrl,
+    skills: skills ?? this.skills,
+    preferredRoles: preferredRoles ?? this.preferredRoles,
+    mentorId: mentorId,
+  );
 
   factory Student.fromJson(Map<String, dynamic> j) => Student(
     id: j['id'] as String,

@@ -14,7 +14,7 @@ enum AlertFilter { all, invites, system }
 class NotificationsViewModel extends ChangeNotifier {
   NotificationsViewModel(this._student, this._repo, this._teams, this._crash);
 
-  final Student _student;
+  Student? _student;
   final NotificationRepository _repo;
   final TeamRepository _teams;
   final CrashReporter _crash;
@@ -24,6 +24,7 @@ class NotificationsViewModel extends ChangeNotifier {
   ViewState<List<AppNotification>> state = const Loading();
   AlertFilter filter = AlertFilter.all;
 
+  String? get studentId => _student?.id;
   int get unread => _all.where((n) => !n.read).length;
   int count(AlertFilter f) => _filtered(f).length;
 
@@ -33,12 +34,31 @@ class NotificationsViewModel extends ChangeNotifier {
     AlertFilter.system => _all.where((n) => n.kind != NotificationKind.invite).toList(),
   };
 
+  void updateStudent(Student? newStudent) {
+    if (_student?.id == newStudent?.id) return;
+    _student = newStudent;
+    if (_student != null) {
+      start();
+    } else {
+      _sub?.cancel();
+      _all = const [];
+      state = const Empty();
+      notifyListeners();
+    }
+  }
+
   void start() {
     _sub?.cancel();
+    if (_student == null) {
+      _all = const [];
+      state = const Empty();
+      notifyListeners();
+      return;
+    }
     state = const Loading();
     notifyListeners();
     _sub = _repo
-        .watch(_student.id)
+        .watch(_student!.id)
         .listen(
           (list) {
             _all = list;
@@ -72,19 +92,46 @@ class NotificationsViewModel extends ChangeNotifier {
     }
   }
 
-  Future<AppFailure?> open(AppNotification n) => _write(() => _repo.markRead(_student.id, n.id), 'mark_read');
-  Future<AppFailure?> markAllRead() => _write(() => _repo.markAllRead(_student.id), 'mark_all_read');
+  Future<AppFailure?> open(AppNotification n) {
+    if (_student == null) return Future.value(null);
+    final idx = _all.indexWhere((item) => item.id == n.id);
+    if (idx != -1 && !_all[idx].read) {
+      _all = [
+        for (var i = 0; i < _all.length; i++)
+          if (i == idx) _all[i].copyWith(read: true) else _all[i],
+      ];
+      _publish();
+    }
+    return _write(() => _repo.markRead(_student!.id, n.id), 'mark_read');
+  }
+
+  Future<AppFailure?> markAllRead() {
+    if (_student == null) return Future.value(null);
+    _all = [
+      for (final n in _all)
+        if (!n.read) n.copyWith(read: true) else n,
+    ];
+    _publish();
+    return _write(() => _repo.markAllRead(_student!.id), 'mark_all_read');
+  }
 
   /// Removes the invite; the screen offers Undo via [restore].
-  Future<AppFailure?> decline(AppNotification n) => _write(() => _repo.remove(_student.id, n.id), 'decline_invite');
-  Future<AppFailure?> restore(AppNotification n) => _write(() => _repo.restore(_student.id, n), 'restore_invite');
+  Future<AppFailure?> decline(AppNotification n) {
+    if (_student == null) return Future.value(null);
+    return _write(() => _repo.remove(_student!.id, n.id), 'decline_invite');
+  }
+
+  Future<AppFailure?> restore(AppNotification n) {
+    if (_student == null) return Future.value(null);
+    return _write(() => _repo.restore(_student!.id, n), 'restore_invite');
+  }
 
   /// Accepting an invite joins the team (same server checks as Flow 1).
   Future<AppFailure?> accept(AppNotification n) async {
-    if (n.teamId == null) return null;
+    if (n.teamId == null || _student == null) return null;
     try {
-      await _teams.joinTeam(n.teamId!, _student);
-      await _repo.remove(_student.id, n.id);
+      await _teams.joinTeam(n.teamId!, _student!);
+      await _repo.remove(_student!.id, n.id);
       return null;
     } on AlreadyInTeamException catch (e) {
       return AppFailure(

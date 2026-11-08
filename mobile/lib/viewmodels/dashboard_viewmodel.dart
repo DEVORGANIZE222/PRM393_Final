@@ -57,6 +57,10 @@ class DashboardData {
 class DashboardViewModel extends ChangeNotifier {
   DashboardViewModel(this._student, this._teams, this._registration, this._config, this._crash) {
     _configSub = _config.changes.listen((_) => load());
+    _windowSub = _registration.watchWindow().listen(
+      _onWindow,
+      onError: (Object e, StackTrace st) => toFailure(e, st, crash: _crash, reason: 'dashboard_window_watch'),
+    );
     _teamSub = _teams.watchTeamOf(_student.id).listen(
       _onTeam,
       // Keeps the last loaded dashboard; recorded as a handled error.
@@ -72,6 +76,7 @@ class DashboardViewModel extends ChangeNotifier {
   final ConfigService _config;
   final CrashReporter _crash;
   late final StreamSubscription<void> _configSub;
+  late final StreamSubscription<RegistrationWindow> _windowSub;
   late final StreamSubscription<Team?> _teamSub;
   late final Timer _clock;
 
@@ -108,6 +113,24 @@ class DashboardViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Registration window changed (e.g. deadline updated by Admin on Web): update in real-time.
+  void _onWindow(RegistrationWindow window) {
+    final s = state;
+    if (s is! Data<DashboardData>) {
+      load();
+      return;
+    }
+    state = Data(DashboardData(
+      student: s.value.student,
+      window: window,
+      team: s.value.team,
+      closedByConfig: s.value.closedByConfig,
+      showPoolEntry: s.value.showPoolEntry,
+      now: DateTime.now(),
+    ));
+    notifyListeners();
+  }
+
   Future<AppFailure?> unlockTeam(Team team) async {
     try {
       final updated = await _teams.unlockTeam(team.id, _student.id);
@@ -128,6 +151,7 @@ class DashboardViewModel extends ChangeNotifier {
   @override
   void dispose() {
     _clock.cancel();
+    _windowSub.cancel();
     _teamSub.cancel();
     _configSub.cancel();
     super.dispose();

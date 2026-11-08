@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +21,26 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   late Future<_DashboardData> _data = _DashboardData.load();
+  StreamSubscription? _semestersSub;
+  StreamSubscription? _configSub;
+
+  @override
+  void initState() {
+    super.initState();
+    _semestersSub = FirebaseFirestore.instance.collection('semesters').snapshots().listen((_) {
+      if (mounted) setState(() => _data = _DashboardData.load());
+    });
+    _configSub = FirebaseFirestore.instance.collection('configuration').doc('registration').snapshots().listen((_) {
+      if (mounted) setState(() => _data = _DashboardData.load());
+    });
+  }
+
+  @override
+  void dispose() {
+    _semestersSub?.cancel();
+    _configSub?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => FutureBuilder<_DashboardData>(
@@ -542,12 +564,14 @@ class _DashboardData {
       db.collection('teamSubmissions').where('status', isEqualTo: 'pending').count().get().timeout(const Duration(seconds: 4)).catchError((_) => null),
       db.collection('teams').get().timeout(const Duration(seconds: 4)).catchError((_) => null),
       db.collection('configuration').doc('registration').get().timeout(const Duration(seconds: 4)).catchError((_) => null),
+      db.collection('semesters').where('status', isEqualTo: 'active').limit(1).get().timeout(const Duration(seconds: 4)).catchError((_) => null),
     ]);
 
     final totalStudents = values[0] is AggregateQuerySnapshot ? (values[0] as AggregateQuerySnapshot).count ?? 0 : 0;
     final pendingCount = values[1] is AggregateQuerySnapshot ? (values[1] as AggregateQuerySnapshot).count ?? 0 : 0;
     final teamsSnapshot = values[2] as QuerySnapshot<Map<String, dynamic>>?;
     final configSnapshot = values[3] as DocumentSnapshot<Map<String, dynamic>>?;
+    final activeSemSnapshot = values[4] as QuerySnapshot<Map<String, dynamic>>?;
 
     var totalTeams = 0;
     var locked = 0;
@@ -576,26 +600,45 @@ class _DashboardData {
     final unmatched = (totalStudents - matchedCount).clamp(0, totalStudents);
 
     final config = configSnapshot?.data() ?? {};
-    final semesterName = config['semester'] as String? ?? 'FA26';
+    final activeSemData = activeSemSnapshot != null && activeSemSnapshot.docs.isNotEmpty
+        ? activeSemSnapshot.docs.first.data()
+        : null;
 
-    // Parse milestone countdowns
+    final semesterName = (activeSemData?['name'] as String?) ??
+        (config['semester'] as String?) ??
+        'FA26';
+
+    // Parse milestone countdowns from active semester or configuration
     final now = DateTime.now();
     DateTime regDeadline = now.add(const Duration(days: 7));
-    DateTime topicDeadline = now.add(const Duration(days: 14));
-    DateTime mentorDeadline = now.add(const Duration(days: 21));
 
-    if (config['registrationDeadline'] is Timestamp) {
+    if (activeSemData != null && activeSemData['registrationClosesAt'] is Timestamp) {
+      regDeadline = (activeSemData['registrationClosesAt'] as Timestamp).toDate();
+    } else if (config['closesAt'] is Timestamp) {
+      regDeadline = (config['closesAt'] as Timestamp).toDate();
+    } else if (config['registrationDeadline'] is Timestamp) {
       regDeadline = (config['registrationDeadline'] as Timestamp).toDate();
     }
-    if (config['topicDeadline'] is Timestamp) {
+
+    DateTime topicDeadline = regDeadline.add(const Duration(days: 7));
+    if (activeSemData != null && activeSemData['topicDeadline'] is Timestamp) {
+      topicDeadline = (activeSemData['topicDeadline'] as Timestamp).toDate();
+    } else if (config['topicDeadline'] is Timestamp) {
       topicDeadline = (config['topicDeadline'] as Timestamp).toDate();
     }
-    if (config['mentorDeadline'] is Timestamp) {
+
+    DateTime mentorDeadline = regDeadline.add(const Duration(days: 14));
+    if (activeSemData != null && activeSemData['mentorDeadline'] is Timestamp) {
+      mentorDeadline = (activeSemData['mentorDeadline'] as Timestamp).toDate();
+    } else if (config['mentorDeadline'] is Timestamp) {
       mentorDeadline = (config['mentorDeadline'] as Timestamp).toDate();
     }
 
     _Countdown _computeCountdown(DateTime deadline) {
-      final diffDays = deadline.difference(now).inDays;
+      // Calculate remaining full days considering day boundaries
+      final targetDate = DateTime(deadline.year, deadline.month, deadline.day);
+      final today = DateTime(now.year, now.month, now.day);
+      final diffDays = targetDate.difference(today).inDays;
       final formatted =
           '${deadline.day.toString().padLeft(2, '0')}/${deadline.month.toString().padLeft(2, '0')}/${deadline.year}';
       if (diffDays > 0) {
@@ -605,7 +648,7 @@ class _DashboardData {
           badge: diffDays <= 3 ? 'Sắp hết hạn' : 'Đang diễn ra',
         );
       } else if (diffDays == 0) {
-        return _Countdown(text: 'Hạn là hôm nay', subtext: 'Hạn chót: $formatted', badge: 'Hôm nay');
+        return _Countdown(text: 'Hạn hôm nay', subtext: 'Hạn chót: $formatted', badge: 'Hôm nay');
       } else {
         return _Countdown(text: 'Đã hết hạn', subtext: 'Đã đóng ngày $formatted', badge: 'Đã đóng');
       }

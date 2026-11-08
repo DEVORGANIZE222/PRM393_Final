@@ -74,6 +74,11 @@ class LocalRegistrationService implements RegistrationService {
       opensAt: closesAt.subtract(Duration(hours: r['windowHours'] as int)),
     );
   }
+
+  @override
+  Stream<RegistrationWindow> watchWindow() async* {
+    yield await currentWindow();
+  }
 }
 
 class LocalPoolRepository implements PoolRepository {

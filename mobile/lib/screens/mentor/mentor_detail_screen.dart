@@ -58,44 +58,24 @@ class _MentorDetailBody extends StatelessWidget {
   Future<void> _showRequestDialog(BuildContext context) async {
     final vm = context.read<MentorDetailViewModel>();
     final team = vm.team!;
-    final controller = TextEditingController(
-      text: 'Dear ${mentor.fullName},\n\nOur team ${team.name} is working on "${team.topic}". '
-          'We would be honored to have your guidance as our Capstone supervisor.',
-    );
-    final sent = await showDialog<bool>(
+    final defaultMessage = 'Dear ${mentor.fullName},\n\nOur team ${team.name} is working on "${team.topic}". '
+        'We would be honored to have your guidance as our Capstone supervisor.';
+
+    final message = await showDialog<String>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Request ${mentor.fullName}', style: ctx.text.titleLarge),
-        content: SingleChildScrollView(
-          child: AppTextField(
-            semanticId: 'input_mentor_message',
-            controller: controller,
-            label: 'Message to the mentor',
-            maxLines: 6,
-          ),
-        ),
-        actions: [
-          AppButton(
-            semanticId: 'btn_cancel_request_dialog',
-            label: 'Cancel',
-            expand: false,
-            variant: AppButtonVariant.text,
-            onPressed: () => Navigator.of(ctx).pop(false),
-          ),
-          AppButton(
-            semanticId: 'btn_send_mentor_request',
-            label: 'Send Request',
-            expand: false,
-            icon: Icons.send,
-            onPressed: () => Navigator.of(ctx).pop(true),
-          ),
-        ],
+      builder: (ctx) => _MentorRequestDialog(
+        mentorName: mentor.fullName,
+        initialMessage: defaultMessage,
       ),
     );
-    final message = controller.text;
-    controller.dispose();
-    if (sent != true || !context.mounted) return;
-    final failure = await vm.sendRequest(message);
+
+    if (message == null || message.trim().isEmpty) return;
+
+    // Await dialog exit animation to avoid unmount assertion conflicts
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+    if (!context.mounted) return;
+
+    final failure = await vm.sendRequest(message.trim());
     if (!context.mounted) return;
     if (failure != null) return showFailure(context, failure);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Request sent to ${mentor.fullName}')));
@@ -111,7 +91,12 @@ class _MentorDetailBody extends StatelessWidget {
       message: '${mentor.fullName} will no longer see your request, and you can ask another mentor.',
       confirmLabel: 'Withdraw',
     );
-    if (!confirmed || !context.mounted) return;
+    if (!confirmed) return;
+
+    // Await dialog exit animation
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+    if (!context.mounted) return;
+
     final failure = await vm.withdraw();
     if (!context.mounted) return;
     if (failure != null) return showFailure(context, failure);
@@ -403,6 +388,62 @@ class _MentorDetailBody extends StatelessWidget {
 
         _action(context, vm),
         const SizedBox(height: AppSpacing.xxl),
+      ],
+    );
+  }
+}
+
+class _MentorRequestDialog extends StatefulWidget {
+  const _MentorRequestDialog({required this.mentorName, required this.initialMessage});
+  final String mentorName;
+  final String initialMessage;
+
+  @override
+  State<_MentorRequestDialog> createState() => _MentorRequestDialogState();
+}
+
+class _MentorRequestDialogState extends State<_MentorRequestDialog> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialMessage);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Request ${widget.mentorName}', style: Theme.of(context).textTheme.titleLarge),
+      content: SingleChildScrollView(
+        child: AppTextField(
+          semanticId: 'input_mentor_message',
+          controller: _controller,
+          label: 'Message to the mentor',
+          maxLines: 6,
+        ),
+      ),
+      actions: [
+        AppButton(
+          semanticId: 'btn_cancel_request_dialog',
+          label: 'Cancel',
+          expand: false,
+          variant: AppButtonVariant.text,
+          onPressed: () => Navigator.of(context).pop(null),
+        ),
+        AppButton(
+          semanticId: 'btn_send_mentor_request',
+          label: 'Send Request',
+          expand: false,
+          icon: Icons.send,
+          onPressed: () => Navigator.of(context).pop(_controller.text),
+        ),
       ],
     );
   }

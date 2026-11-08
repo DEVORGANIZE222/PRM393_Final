@@ -90,6 +90,20 @@ class Mentor {
     mentoredTeamNames: [...mentoredTeamNames, teamName],
     archived: archived,
   );
+
+  Map<String, dynamic> toJson() => {
+    'fullName': fullName,
+    'email': email,
+    'title': title,
+    'department': department,
+    'expertise': expertise,
+    'bio': bio,
+    'office': office,
+    'maxQuota': maxQuota,
+    'currentAssigned': currentAssigned,
+    'mentoredTeamNames': mentoredTeamNames,
+    'status': archived ? 'archived' : 'active',
+  };
 }
 
 /// A team's request for a lecturer to supervise it. A team has at most one:

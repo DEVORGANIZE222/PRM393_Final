@@ -59,7 +59,8 @@ GoRouter buildRouter(SessionViewModel session) {
       // Lecturers only have the portal; students never see it.
       final home = session.isMentor ? '/mentor-portal' : '/home';
       if (at == '/sign-in' || at == '/splash') return home;
-      if (session.isMentor != at.startsWith('/mentor-portal')) return home;
+      if (session.isMentor && at != '/alerts' && !at.startsWith('/mentor-portal')) return home;
+      if (!session.isMentor && at.startsWith('/mentor-portal')) return home;
       return null;
     },
     routes: [
@@ -77,15 +78,7 @@ GoRouter buildRouter(SessionViewModel session) {
       GoRoute(
         path: '/alerts',
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, _) => ChangeNotifierProvider(
-          create: (c) => NotificationsViewModel(
-            me(c),
-            c.read<NotificationRepository>(),
-            c.read<TeamRepository>(),
-            c.read<CrashReporter>(),
-          )..start(),
-          child: const NotificationsScreen(),
-        ),
+        builder: (context, _) => const NotificationsScreen(),
       ),
       GoRoute(
         path: '/mentor-portal',
@@ -152,17 +145,7 @@ GoRouter buildRouter(SessionViewModel session) {
         ),
       ),
       StatefulShellRoute.indexedStack(
-        builder: (context, state, shell) => ChangeNotifierProvider(
-          create: (c) => NotificationsViewModel(
-            me(c),
-            c.read<NotificationRepository>(),
-            c.read<TeamRepository>(),
-            c.read<CrashReporter>(),
-          )..start(),
-          child: Builder(
-            builder: (c) => AppNavigationShell(shell: shell, unreadAlerts: c.watch<NotificationsViewModel>().unread),
-          ),
-        ),
+        builder: (context, state, shell) => AppNavigationShell(shell: shell),
         branches: [
           StatefulShellBranch(
             routes: [

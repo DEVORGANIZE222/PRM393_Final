@@ -78,7 +78,7 @@ service cloud.firestore {
 
     // announcements/{id}: Staff broadcast announcements; mobile reads in inbox.
     match /announcements/{announcementId} {
-      allow read: if isAdmin() || (isRosterMember() && resource.data.status == 'published');
+      allow read: if request.auth != null;
       allow create, update, delete: if isStaff();
     }
 
@@ -248,12 +248,13 @@ service cloud.firestore {
     // `currentAssigned` and the team list only move when the lecturer accepts
     // a team, one at a time and within quota.
     match /mentors/{mentorId} {
-      allow read: if isRosterMember();
-      allow update: if myMentorId() == mentorId
-                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['currentAssigned', 'mentoredTeamNames'])
-                    && request.resource.data.currentAssigned == resource.data.currentAssigned + 1
-                    && request.resource.data.currentAssigned <= resource.data.maxQuota;
-      allow create, delete: if false;
+      allow read: if isRosterMember() || isAdmin();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+                    || (myMentorId() == mentorId
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['currentAssigned', 'mentoredTeamNames'])
+                        && request.resource.data.currentAssigned == resource.data.currentAssigned + 1
+                        && request.resource.data.currentAssigned <= resource.data.maxQuota);
     }
 
     // One document per team (id = team id): a team asks one mentor at a time.
@@ -269,7 +270,7 @@ service cloud.firestore {
             && after.teamId == teamId
             && after.senderId == request.auth.uid
             && after.status == 'pending'
-            && get(/databases/$(database)/documents/mentors/$(after.mentorId)).data.status == 'active';
+            && get(/databases/$(database)/documents/mentors/$(after.mentorId)).data.get('status', 'active') != 'archived';
       }
 
       function isMentorDecision() {
@@ -279,7 +280,7 @@ service cloud.firestore {
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'decisionReason', 'decidedAt']);
       }
 
-      allow read: if isRosterMember();
+      allow read: if isRosterMember() || isAdmin();
       allow create: if isRosterMember() && isValidNewRequest();
       // After a refusal the team's next request replaces the old one.
       allow update: if isMentorDecision()
@@ -297,8 +298,8 @@ service cloud.firestore {
     // Semester management is web-admin only. The active semester is projected
     // to configuration/registration for the mobile client.
     match /semesters/{semesterId} {
-      allow read, create, update: if isAdmin();
-      allow delete: if false;
+      allow read: if isRosterMember() || isAdmin();
+      allow create, update, delete: if isAdmin();
     }
   }
 }

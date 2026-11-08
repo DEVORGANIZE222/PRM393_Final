@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +10,7 @@ import 'dashboard_screen.dart';
 import 'review_queue_screen.dart';
 import 'groups_screen.dart';
 import 'roster_screen.dart';
+import 'mentor_management_screen.dart';
 import 'management_screen.dart';
 import 'announcement_screen.dart';
 import 'google_access_screen.dart';
@@ -35,7 +38,7 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
         return DashboardScreen(
           onOpenReview: () => setState(() => _selected = 1),
           onOpenGroups: () => setState(() => _selected = 2),
-          onOpenAnnouncements: () => setState(() => _selected = 5),
+          onOpenAnnouncements: () => setState(() => _selected = 6),
         );
       case 1:
         return const ReviewQueueScreen();
@@ -44,8 +47,10 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
       case 3:
         return const RosterScreen();
       case 4:
-        return const ManagementScreen();
+        return const MentorManagementScreen();
       case 5:
+        return const ManagementScreen();
+      case 6:
         return const AnnouncementScreen();
       default:
         return const SizedBox.shrink();
@@ -63,7 +68,8 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
         session.firebaseUser?.photoURL ??
         (session.firebaseUser?.providerData.isNotEmpty == true
             ? session.firebaseUser!.providerData.first.photoURL
-            : null);
+            : null) ??
+        session.profile?.avatarUrl;
 
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: _pendingStream,
@@ -75,6 +81,7 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
           _NavItem('Duyệt nhóm & Đề tài', Icons.inbox_outlined, badge: pendingCount > 0 ? '$pendingCount' : null),
           const _NavItem('Nhóm & Đề tài', Icons.layers_outlined),
           const _NavItem('Sinh viên', Icons.people_outline),
+          const _NavItem('Giảng viên Mentor', Icons.school_outlined),
           const _NavItem('Học kỳ', Icons.calendar_month_outlined),
           const _NavItem('Phát thông báo', Icons.campaign_outlined),
         ];
@@ -93,37 +100,27 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
                 bottom: false,
                 child: Center(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1240),
+                    constraints: const BoxConstraints(maxWidth: 1440),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
-                          final compact = constraints.maxWidth < 1050;
+                          final compact = constraints.maxWidth < 1180;
                           return Row(
                             children: [
                               const _Brand(),
                               if (!compact) ...[
-                                const SizedBox(width: 16),
+                                const SizedBox(width: 12),
                                 Expanded(
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    physics: const BouncingScrollPhysics(),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: List.generate(
-                                        items.length,
-                                        (index) => _HeaderNav(
-                                          item: items[index],
-                                          active: index == _selected,
-                                          onTap: () => setState(() => _selected = index),
-                                        ),
-                                      ),
-                                    ),
+                                  child: _SlidingHeaderNav(
+                                    items: items,
+                                    selectedIndex: _selected,
+                                    onSelected: (index) => setState(() => _selected = index),
                                   ),
                                 ),
                               ],
                               if (compact) const Spacer(),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 12),
                               _ProfileBadge(name: name, photoUrl: photoUrl),
                               const SizedBox(width: 6),
                               IconButton(
@@ -144,7 +141,7 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
           body: Column(
             children: [
               LayoutBuilder(
-                builder: (context, constraints) => constraints.maxWidth >= 1050
+                builder: (context, constraints) => constraints.maxWidth >= 1180
                     ? const SizedBox.shrink()
                     : Container(
                         color: AdminPalette.surface,
@@ -222,6 +219,116 @@ class _Brand extends StatelessWidget {
   );
 }
 
+class _SlidingHeaderNav extends StatefulWidget {
+  const _SlidingHeaderNav({
+    required this.items,
+    required this.selectedIndex,
+    required this.onSelected,
+  });
+
+  final List<_NavItem> items;
+  final int selectedIndex;
+  final ValueChanged<int> onSelected;
+
+  @override
+  State<_SlidingHeaderNav> createState() => _SlidingHeaderNavState();
+}
+
+class _SlidingHeaderNavState extends State<_SlidingHeaderNav> {
+  final _scrollController = ScrollController();
+  bool _canScrollLeft = false;
+  bool _canScrollRight = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_updateScrollButtons);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateScrollButtons());
+  }
+
+  void _updateScrollButtons() {
+    if (!_scrollController.hasClients) return;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.offset;
+    final canLeft = currentScroll > 8;
+    final canRight = currentScroll < maxScroll - 8;
+    if (canLeft != _canScrollLeft || canRight != _canScrollRight) {
+      setState(() {
+        _canScrollLeft = canLeft;
+        _canScrollRight = canRight;
+      });
+    }
+  }
+
+  void _scroll(double delta) {
+    if (!_scrollController.hasClients) return;
+    _scrollController.animateTo(
+      (_scrollController.offset + delta).clamp(0.0, _scrollController.position.maxScrollExtent),
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        if (_canScrollLeft)
+          IconButton(
+            tooltip: 'Trượt sang trái',
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+            icon: const Icon(Icons.chevron_left, size: 22, color: AdminPalette.ink),
+            onPressed: () => _scroll(-220),
+          ),
+        Expanded(
+          child: ScrollConfiguration(
+            behavior: ScrollConfiguration.of(context).copyWith(
+              dragDevices: {
+                PointerDeviceKind.touch,
+                PointerDeviceKind.mouse,
+                PointerDeviceKind.trackpad,
+              },
+            ),
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(
+                  widget.items.length,
+                  (index) => _HeaderNav(
+                    item: widget.items[index],
+                    active: index == widget.selectedIndex,
+                    onTap: () => widget.onSelected(index),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (_canScrollRight)
+          IconButton(
+            tooltip: 'Trượt sang phải',
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+            icon: const Icon(Icons.chevron_right, size: 22, color: AdminPalette.ink),
+            onPressed: () => _scroll(220),
+          ),
+      ],
+    );
+  }
+}
+
 class _HeaderNav extends StatelessWidget {
   const _HeaderNav({required this.item, required this.active, required this.onTap});
   final _NavItem item;
@@ -233,25 +340,27 @@ class _HeaderNav extends StatelessWidget {
     onTap: onTap,
     child: Container(
       height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 13),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: active ? AdminPalette.primary : Colors.transparent, width: 2)),
+        border: Border(bottom: BorderSide(color: active ? AdminPalette.primary : Colors.transparent, width: 2.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(item.icon, size: 16, color: active ? AdminPalette.primary : AdminPalette.muted),
+          Icon(item.icon, size: 16.5, color: active ? AdminPalette.primary : AdminPalette.muted),
           const SizedBox(width: 6),
           Text(
             item.label,
+            maxLines: 1,
+            softWrap: false,
             style: TextStyle(
               fontSize: 13.5,
-              fontWeight: active ? FontWeight.w600 : FontWeight.w500,
+              fontWeight: active ? FontWeight.w700 : FontWeight.w500,
               color: active ? AdminPalette.primary : AdminPalette.muted,
             ),
           ),
           if (item.badge != null) ...[
-            const SizedBox(width: 6),
+            const SizedBox(width: 5),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
@@ -262,7 +371,7 @@ class _HeaderNav extends StatelessWidget {
               child: Text(
                 item.badge!,
                 style: const TextStyle(
-                  fontSize: 11,
+                  fontSize: 10.5,
                   fontWeight: FontWeight.w700,
                   color: AdminPalette.warning,
                   height: 1,

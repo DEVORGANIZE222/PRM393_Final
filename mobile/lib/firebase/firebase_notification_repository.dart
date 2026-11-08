@@ -61,7 +61,17 @@ class FirebaseNotificationRepository implements NotificationRepository {
 
     void emitMerged() {
       if (controller.isClosed) return;
-      final merged = [...personalNotifs, ...announcements]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      final readIds = personalNotifs.where((p) => p.read).map((p) => p.id).toSet();
+      final adjustedAnnouncements = announcements.map((a) {
+        if (readIds.contains(a.id)) {
+          return a.copyWith(read: true);
+        }
+        return a;
+      }).toList();
+      final merged = [
+        ...personalNotifs.where((p) => !p.id.startsWith('ann_')),
+        ...adjustedAnnouncements,
+      ]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
       controller.add(merged);
     }
 
@@ -80,18 +90,18 @@ class FirebaseNotificationRepository implements NotificationRepository {
 
     final sub2 = _db
         .collection('announcements')
-        .where('status', isEqualTo: 'published')
         .orderBy('createdAt', descending: true)
-        .limit(20)
+        .limit(25)
         .snapshots()
         .listen(
           (s) {
-            announcements = s.docs.map(_fromAnnouncement).toList();
+            announcements = s.docs
+                .where((d) => (d.data()['status'] as String? ?? 'published') == 'published')
+                .map(_fromAnnouncement)
+                .toList();
             emitMerged();
           },
-          onError: (_) {
-            // Announcements listener falls back gracefully if collection not yet created
-          },
+          onError: (_) {},
         );
 
     controller.onCancel = () {
@@ -104,7 +114,13 @@ class FirebaseNotificationRepository implements NotificationRepository {
 
   @override
   Future<void> markRead(String studentId, String notificationId) async {
-    if (notificationId.startsWith('ann_')) return;
+    if (notificationId.startsWith('ann_')) {
+      await _items(studentId).doc(notificationId).set({
+        'read': true,
+        'createdAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+      return;
+    }
     await _items(studentId).doc(notificationId).update({'read': true});
   }
 
@@ -114,18 +130,24 @@ class FirebaseNotificationRepository implements NotificationRepository {
     for (final d in (await _items(studentId).where('read', isEqualTo: false).get()).docs) {
       b.update(d.reference, {'read': true});
     }
+    // Also mark recent announcements as read for this student
+    final recentAnn = await _db.collection('announcements').orderBy('createdAt', descending: true).limit(25).get();
+    for (final ann in recentAnn.docs) {
+      b.set(_items(studentId).doc('ann_${ann.id}'), {
+        'read': true,
+        'createdAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    }
     await b.commit();
   }
 
   @override
   Future<void> remove(String studentId, String notificationId) async {
-    if (notificationId.startsWith('ann_')) return;
     await _items(studentId).doc(notificationId).delete();
   }
 
   @override
   Future<void> restore(String studentId, AppNotification notification) async {
-    if (notification.id.startsWith('ann_')) return;
     await _items(studentId).doc(notification.id).set(_to(notification));
   }
 }
