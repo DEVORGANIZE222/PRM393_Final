@@ -146,7 +146,7 @@ abstract final class ConfigKeys {
     'banner_announcement': 'Registration deadline is approaching.',
     registrationClosed: false,
     'enable_ai_feature': true,
-    'ai_model_name': 'gemini-2.5-flash',
+    'ai_model_name': 'gemini-flash-lite-latest',
     'gemini_api_key': '',
   };
 }

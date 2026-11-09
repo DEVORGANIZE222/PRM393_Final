@@ -4,12 +4,14 @@ import 'package:flutter/foundation.dart';
 import 'services.dart';
 
 class AiTopicProposal {
+  final String teamName;
   final String refinedTitle;
   final String description;
   final List<String> suggestedTags;
   final List<String> suggestedRoles;
 
   const AiTopicProposal({
+    this.teamName = '',
     required this.refinedTitle,
     required this.description,
     required this.suggestedTags,
@@ -17,8 +19,14 @@ class AiTopicProposal {
   });
 
   factory AiTopicProposal.fromJson(Map<String, dynamic> json) {
+    final title = json['refinedTitle'] as String? ?? '';
+    final rawName = json['teamName'] as String? ?? '';
+    final name = rawName.isNotEmpty
+        ? rawName
+        : (title.isNotEmpty ? title.split(' ').take(2).join('') : 'EcoSmart');
     return AiTopicProposal(
-      refinedTitle: json['refinedTitle'] as String? ?? '',
+      teamName: name,
+      refinedTitle: title,
       description: json['description'] as String? ?? '',
       suggestedTags: (json['suggestedTags'] as List<dynamic>?)
               ?.map((e) => e.toString())
@@ -32,6 +40,7 @@ class AiTopicProposal {
   }
 
   Map<String, dynamic> toJson() => {
+        'teamName': teamName,
         'refinedTitle': refinedTitle,
         'description': description,
         'suggestedTags': suggestedTags,
@@ -40,7 +49,21 @@ class AiTopicProposal {
 }
 
 class AiTopicAdvisorService {
-  static const defaultApiKey = '';
+  static const defaultApiKey = 'AQ.Ab8RN6ItdExVkCIHMs4o5xE_K0sOk05ro2VfRBo3a88lwDcYYA';
+
+  static int _themeCounter = 0;
+  static const _subThemes = [
+    'Smart Healthcare, Patient Telemetry & Telemedicine',
+    'Interactive E-Learning, Skill Development & Gamified Education',
+    'E-Commerce, Live Bidding & Digital Marketplaces',
+    'Green Energy, CleanTech & Carbon Tracking',
+    'Logistics, Supply Chain & Fleet Telemetry',
+    'Cybersecurity, Identity Verification & Zero-Trust Access',
+    'Smart Urban Transit, Tourism & Navigation',
+    'Smart Agriculture, Precision Farming & Food Quality',
+    'Media Streaming, Collaborative Content Creation & Entertainment',
+    'FinTech, Micro-Investment & Fraud Detection',
+  ];
 
   final ConfigService _remoteConfig;
   final AnalyticsService _analytics;
@@ -55,7 +78,9 @@ class AiTopicAdvisorService {
         _apiKey = apiKey ??
             (const String.fromEnvironment('GEMINI_API_KEY').isNotEmpty
                 ? const String.fromEnvironment('GEMINI_API_KEY')
-                : remoteConfig.getString('gemini_api_key'));
+                : (remoteConfig.getString('gemini_api_key').isNotEmpty
+                    ? remoteConfig.getString('gemini_api_key')
+                    : defaultApiKey));
 
   /// Sanitizes text to strictly prevent sending personal data (PII) to Gemini API
   static String sanitizePii(String input) {
@@ -91,9 +116,10 @@ class AiTopicAdvisorService {
       throw Exception('AI feature is currently disabled by administrator via Remote Config.');
     }
 
-    final model = _remoteConfig.getString('ai_model_name').isNotEmpty
-        ? _remoteConfig.getString('ai_model_name')
-        : 'gemini-2.5-flash';
+    var model = _remoteConfig.getString('ai_model_name');
+    if (model.isEmpty || model == 'gemini-2.5-flash' || model == 'gemini-2.5-flash-lite') {
+      model = 'gemini-flash-lite-latest';
+    }
     await _analytics.logAiRequest(feature: 'topic_advisor', model: model);
 
     final cleanTitle = sanitizePii(rawTitle);
@@ -106,18 +132,30 @@ class AiTopicAdvisorService {
           'https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$_apiKey',
         );
 
+        final theme = _subThemes[(_themeCounter++) % _subThemes.length];
+        final seed = DateTime.now().millisecondsSinceEpoch % 100000;
         final prompt = '''
-You are an expert capstone mentor at FPT University. Generate a structured JSON proposal for a student graduation project.
-Return ONLY valid JSON matching this exact schema:
+You are an expert capstone project mentor at FPT University.
+Generate a COMPLETELY NEW, UNIQUE, and INNOVATIVE graduation project proposal for students in category "$category", focused on the domain sub-theme: "$theme".
+Session Seed: $seed.
+
+CRITICAL INSTRUCTIONS:
+1. Do NOT reuse formulas, patterns, or repetitive phrases like "Decentralized Edge-Cloud Platform".
+2. The topic MUST be completely distinct and specific to the "$theme" sub-theme.
+3. "teamName": Short catchy brand/startup name (1-2 words, e.g. "PulseCare", "SkillForge", "GreenRoute", "BidWave", "AgriSense").
+4. "refinedTitle": A fresh, professional project topic title in English (5-10 words).
+5. "description": An inspiring 2-sentence description explaining the problem solved and core technologies in English.
+6. "suggestedTags": 3 to 5 relevant technical tags (e.g. Flutter, Firebase, FastAPI, Docker, PyTorch).
+7. "suggestedRoles": 3 to 4 team member roles needed.
+
+Return ONLY valid JSON matching this schema:
 {
-  "refinedTitle": "string (clear, professional English or Vietnamese topic title)",
-  "description": "string (2-3 sentences explaining problem, methodology, and expected result)",
+  "teamName": "string",
+  "refinedTitle": "string",
+  "description": "string",
   "suggestedTags": ["tag1", "tag2", "tag3"],
   "suggestedRoles": ["role1", "role2", "role3"]
 }
-Input category: $category
-Input title: $cleanTitle
-Input description: $cleanDesc
 ''';
 
         final client = HttpClient();
@@ -131,11 +169,11 @@ Input description: $cleanDesc
           ],
           'generationConfig': {
             'responseMimeType': 'application/json',
-            'temperature': 0.7,
+            'temperature': 0.85,
           }
         }));
 
-        final response = await request.close().timeout(const Duration(seconds: 10));
+        final response = await request.close().timeout(const Duration(seconds: 15));
         final responseBody = await response.transform(utf8.decoder).join();
         client.close();
 
@@ -165,7 +203,7 @@ Input description: $cleanDesc
       );
     }
 
-    // Graceful Fallback (deterministic high-quality structured output)
+    // Graceful Fallback (deterministic rotating structured catalog)
     return _generateFallback(cleanTitle, cleanDesc, category);
   }
 
@@ -173,162 +211,170 @@ Input description: $cleanDesc
 
   static List<AiTopicProposal> _defaultCatalog(String category) => [
         AiTopicProposal(
-          refinedTitle: 'NextGen $category Platform',
+          teamName: 'NextGenLab',
+          refinedTitle: 'Smart $category Collaborative Platform with Real-Time Sync',
           description:
-              'A modern cloud-enabled $category capstone project built with Flutter and Firebase, featuring secure role-based access control and real-time collaboration.',
+              'A modern cloud-enabled capstone project built with Flutter and Firebase, featuring secure role-based access control and live telemetry.',
           suggestedTags: const ['Cloud', 'Mobile', 'Firebase', 'Flutter'],
-          suggestedRoles: const ['Frontend Dev', 'Backend Dev', 'UI/UX Designer'],
+          suggestedRoles: const ['Frontend Dev', 'Backend Dev', 'UI/UX Designer', 'QA Tester'],
         ),
         AiTopicProposal(
-          refinedTitle: 'Smart Enterprise $category Management Suite',
+          teamName: 'SmartEnterprise',
+          refinedTitle: 'Multi-Tenant Cloud Resource & Analytics Management Suite',
           description:
-              'A scalable multi-tenant $category solution with real-time audit trails, automated reporting, and role-based permissions.',
+              'A scalable cloud solution with real-time audit logging, automated reporting pipelines, and cross-departmental coordination.',
           suggestedTags: const ['Web/Cloud', 'Microservices', 'PostgreSQL', 'Docker'],
-          suggestedRoles: const ['Backend Dev', 'Fullstack Dev', 'DevOps Engineer'],
+          suggestedRoles: const ['Backend Dev', 'Fullstack Dev', 'DevOps Engineer', 'Security Dev'],
         ),
       ];
 
   static final Map<String, List<AiTopicProposal>> _domainCatalog = {
     'webcloud': [
       const AiTopicProposal(
-        refinedTitle: 'NextGen Web & Cloud Platform',
+        teamName: 'CapstoneHub',
+        refinedTitle: 'Collaborative University Capstone & Mentor Allocation Hub',
         description:
-            'A modern cloud-enabled Web/Cloud capstone project built with Flutter and Firebase, featuring secure role-based access control and real-time collaboration.',
-        suggestedTags: ['Cloud', 'Flutter', 'Firebase', 'Docker'],
-        suggestedRoles: ['Frontend Dev', 'Backend Dev', 'UI/UX Designer'],
+            'A multi-tenant cloud platform optimizing student team formation, weekly milestone tracking, and automated accreditation reporting.',
+        suggestedTags: ['Web/Cloud', 'Flutter Web', 'Firebase', 'Docker', 'PostgreSQL'],
+        suggestedRoles: ['Frontend Dev', 'Backend Dev', 'DevOps Engineer', 'UI/UX Designer'],
       ),
       const AiTopicProposal(
-        refinedTitle: 'Smart Enterprise Resource & Cloud Suite',
+        teamName: 'MicroTransit',
+        refinedTitle: 'Smart Campus Electric Shuttle Dispatch & Route Optimization',
         description:
-            'A scalable multi-tenant cloud application offering real-time distributed telemetry, role-based auditing, and automated reporting pipelines.',
-        suggestedTags: ['Web/Cloud', 'Microservices', 'PostgreSQL', 'NodeJS'],
-        suggestedRoles: ['Backend Dev', 'Fullstack Dev', 'DevOps Engineer'],
+            'Processing real-time GPS telemetry from electric vehicles with graph routing algorithms to minimize passenger wait times across campuses.',
+        suggestedTags: ['Web/Cloud', 'Microservices', 'FastAPI', 'Redis', 'Google Maps'],
+        suggestedRoles: ['Backend Dev', 'Cloud Architect', 'Mobile Dev', 'QA Engineer'],
       ),
       const AiTopicProposal(
-        refinedTitle: 'Collaborative Student Capstone Portal',
+        teamName: 'EventPass',
+        refinedTitle: 'Secure Scalable Event Management with Dynamic QR Check-in',
         description:
-            'An end-to-end digital collaboration hub connecting university students, mentors, and administrators with instant notifications and progress tracking.',
-        suggestedTags: ['Web/Cloud', 'Firebase', 'Flutter', 'CI/CD'],
-        suggestedRoles: ['Fullstack Dev', 'UI/UX Designer', 'QA/Tester'],
+            'High-throughput distributed event ticketing engine preventing ticket scalping and fraudulent sharing through rolling dynamic QR tokens.',
+        suggestedTags: ['Web/Cloud', 'Security', 'NodeJS', 'MongoDB', 'Flutter'],
+        suggestedRoles: ['Fullstack Dev', 'Security Specialist', 'Mobile Dev', 'UI/UX Designer'],
+      ),
+      const AiTopicProposal(
+        teamName: 'LogiChain',
+        refinedTitle: 'Multi-Tenant Cloud Warehouse & End-to-End Logistics Tracking',
+        description:
+            'Cloud platform featuring real-time telemetry dashboards and order synchronization across regional transit hubs.',
+        suggestedTags: ['Web/Cloud', 'Cloud Run', 'GCP', 'PostgreSQL', 'Flutter'],
+        suggestedRoles: ['Backend Dev', 'Frontend Dev', 'Database Admin', 'DevOps'],
       ),
     ],
     'aiml': [
       const AiTopicProposal(
+        teamName: 'AeroDeliver',
         refinedTitle: 'Autonomous Campus Micro-Drone Delivery System',
         description:
-            'An autonomous micro-drone network designed to deliver educational supplies across university campuses with real-time waypoint routing and telemetry.',
-        suggestedTags: ['AI/ML', 'Computer Vision', 'Python', 'Flutter', 'IoT'],
-        suggestedRoles: ['AI/ML Engineer', 'Mobile Dev', 'Backend Dev'],
+            'An autonomous micro-drone network delivering educational supplies and emergency kits across campus using real-time computer vision routing.',
+        suggestedTags: ['AI/ML', 'Computer Vision', 'IoT', 'Flutter', 'ROS2'],
+        suggestedRoles: ['AI/ML Engineer', 'Embedded Engineer', 'Backend Dev', 'Mobile Dev'],
       ),
       const AiTopicProposal(
-        refinedTitle: 'Intelligent Adaptive Learning & Exam Proctoring Platform',
+        teamName: 'EduNova',
+        refinedTitle: 'AI-Powered Adaptive Learning & Code Review Assistant',
         description:
-            'An AI-driven educational platform providing personalized study paths, knowledge gap analysis, and real-time student engagement analytics.',
+            'Leveraging large language models to assess student knowledge gaps, generate customized exercises, and provide instant code feedback.',
         suggestedTags: ['AI/ML', 'Gemini API', 'FastAPI', 'Python', 'Flutter'],
-        suggestedRoles: ['AI/ML Engineer', 'Fullstack Dev', 'UI/UX Designer'],
+        suggestedRoles: ['AI Engineer', 'Fullstack Dev', 'UI/UX Designer', 'QA Engineer'],
+      ),
+      const AiTopicProposal(
+        teamName: 'HealthPulse',
+        refinedTitle: 'Smart Healthcare Telemetry & Cardiac Anomaly Detection',
+        description:
+            'Collecting real-time ECG and vital telemetry from wearable sensors with deep learning models predicting cardiac irregularities.',
+        suggestedTags: ['AI/ML', 'HealthTech', 'Deep Learning', 'Firebase', 'Flutter'],
+        suggestedRoles: ['Data Scientist', 'Mobile Dev', 'Backend Dev', 'Medical Advisor'],
+      ),
+      const AiTopicProposal(
+        teamName: 'AgriVision',
+        refinedTitle: 'Edge AI Crop Disease Detection & Automated Irrigation',
+        description:
+            'Deploying computer vision models to identify crop diseases in real time and trigger precision pesticide micro-spraying to reduce chemical waste.',
+        suggestedTags: ['AI/ML', 'Edge AI', 'IoT', 'Python', 'Mobile'],
+        suggestedRoles: ['Computer Vision Dev', 'IoT Engineer', 'Backend Dev', 'Mobile Dev'],
+      ),
+      const AiTopicProposal(
+        teamName: 'SignBridge',
+        refinedTitle: 'Real-Time Sign Language Interpretation for Accessibility',
+        description:
+            'Translating hand gestures and facial expressions into spoken audio and text bidirectionally with sub-200ms latency.',
+        suggestedTags: ['AI/ML', 'MediaPipe', 'Flutter', 'TensorFlow Lite', 'Python'],
+        suggestedRoles: ['AI Engineer', 'Flutter Mobile Dev', 'UI/UX Designer', 'Tester'],
       ),
     ],
     'mobile': [
       const AiTopicProposal(
-        refinedTitle: 'CampusLife: Real-Time Student Community & Service Hub',
+        teamName: 'CampusGo',
+        refinedTitle: 'Interactive Campus Navigation & Study Partner Matcher',
         description:
-            'A cross-platform mobile application delivering instant campus announcements, student team formation, peer mentoring, and interactive event coordination.',
-        suggestedTags: ['Mobile', 'Flutter', 'Firebase', 'Figma'],
-        suggestedRoles: ['Mobile Dev', 'UI/UX Designer', 'Backend Dev'],
+            'Indoor micro-navigation mobile app assisting freshmen in locating classrooms and discovering peer study groups nearby.',
+        suggestedTags: ['Mobile', 'Flutter', 'Firebase', 'Google Maps', 'Figma'],
+        suggestedRoles: ['Mobile Dev', 'UI/UX Designer', 'Backend Dev', 'Tester'],
       ),
       const AiTopicProposal(
-        refinedTitle: 'Smart Transit & Campus Navigation Assistant',
+        teamName: 'GreenHabit',
+        refinedTitle: 'Gamified Eco-Friendly Habit Tracker & Recycling Rewards',
         description:
-            'An interactive mobile routing system featuring indoor campus maps, bus schedule tracking, and proximity-based peer meetup notifications.',
-        suggestedTags: ['Mobile', 'Flutter', 'Google Maps', 'Firebase'],
-        suggestedRoles: ['Mobile Dev', 'Frontend Dev', 'QA/Tester'],
+            'Rewarding students with redeemable points for recycling and utilizing green transit, featuring live community leaderboards.',
+        suggestedTags: ['Mobile', 'Flutter', 'Gamification', 'Firebase', 'REST API'],
+        suggestedRoles: ['Mobile Dev', 'Game Designer', 'Frontend Dev', 'Backend Dev'],
+      ),
+      const AiTopicProposal(
+        teamName: 'StudyTogether',
+        refinedTitle: 'Virtual Co-Working Space & Group Focus Management',
+        description:
+            'A cross-platform mobile app offering shared Pomodoro focus rooms, ambient soundscapes, and distraction-blocking capabilities.',
+        suggestedTags: ['Mobile', 'Flutter', 'WebRTC', 'Firebase', 'Bloc'],
+        suggestedRoles: ['Mobile Dev', 'Backend Dev', 'UI/UX Designer', 'QA/QC'],
       ),
     ],
     'fintech': [
       const AiTopicProposal(
-        refinedTitle: 'Decentralized Micro-Payment Platform for Student Services',
+        teamName: 'FinSmart',
+        refinedTitle: 'Student Personal Finance & Smart Budget Allocation Assistant',
         description:
-            'A secure, low-latency digital payment ecosystem enabling instant peer-to-peer settlements and automated merchant reconciliations for university campuses.',
-        suggestedTags: ['FinTech', 'Security', 'Payment Gateway', 'PostgreSQL'],
-        suggestedRoles: ['Security Specialist', 'Fullstack Dev', 'QA/Tester'],
+            'Scanning receipts using OCR and categorizing expenses into financial buckets with predictive month-end saving recommendations.',
+        suggestedTags: ['FinTech', 'OCR', 'Flutter', 'Firebase', 'Python'],
+        suggestedRoles: ['Mobile Dev', 'Backend Dev', 'Data Analyst', 'Security Dev'],
+      ),
+      const AiTopicProposal(
+        teamName: 'SafePay',
+        refinedTitle: 'Contactless Campus Wallet with Biometric & OTP Verification',
+        description:
+            'Low-latency digital payment ecosystem enabling secure cashless transactions at university cafeterias and libraries.',
+        suggestedTags: ['FinTech', 'Security', 'Cryptography', 'PostgreSQL', 'Flutter'],
+        suggestedRoles: ['Security Specialist', 'Backend Dev', 'Fullstack Dev', 'QA/Tester'],
       ),
     ],
     'iot': [
       const AiTopicProposal(
-        refinedTitle: 'Smart Campus Environmental Telemetry & Energy Monitoring',
+        teamName: 'EcoGrid',
+        refinedTitle: 'Smart Campus Power Monitoring & Automated Classroom Shutdown',
         description:
-            'An IoT sensing network monitoring power usage, ambient temperature, and classroom air quality with predictive maintenance alerts.',
-        suggestedTags: ['IoT', 'Hardware', 'MQTT', 'Flutter', 'Firebase'],
-        suggestedRoles: ['IoT / Hardware', 'Backend Dev', 'Mobile Dev'],
+            'An IoT sensing mesh detecting unoccupied classrooms to automatically power down air conditioning and lighting, saving up to 35% energy.',
+        suggestedTags: ['IoT', 'Hardware', 'MQTT', 'ESP32', 'Flutter', 'Firebase'],
+        suggestedRoles: ['IoT / Hardware', 'Firmware Dev', 'Mobile Dev', 'Backend Dev'],
+      ),
+      const AiTopicProposal(
+        teamName: 'AgriSense',
+        refinedTitle: 'High-Tech Automated Greenhouse Environmental Controller',
+        description:
+            'Regulating temperature, soil humidity, and drip irrigation via real-time telemetry with predictive pest alerts.',
+        suggestedTags: ['IoT', 'MQTT', 'Flutter', 'Arduino', 'Cloud'],
+        suggestedRoles: ['Embedded Engineer', 'Mobile Dev', 'Backend Dev', 'Tester'],
       ),
     ],
   };
 
   AiTopicProposal _generateFallback(String title, String desc, String category) {
-    // 1. Strip any previous "Refined scope:" or "Refined:" prefixes
-    final strippedTitle = title
-        .replaceAll(RegExp(r'^(Refined(\s+scope)?:\s*)+', caseSensitive: false), '')
-        .trim();
-    var strippedDesc = desc
-        .replaceAll(RegExp(r'^(Refined(\s+scope)?:\s*)+', caseSensitive: false), '')
-        .trim();
-
-    // 2. Strip previous boilerplate suffixes if already present
-    final suffixes = [
-      'Implementing core architectures, data synchronizations, and scalable microservices.',
-      'Implementing core architectures, real-time collaboration, and scalable cloud microservices.',
-      'Implementing modern system architecture, secure role-based access control, and real-time cloud data synchronization.',
-    ];
-    for (final s in suffixes) {
-      if (strippedDesc.endsWith(s)) {
-        strippedDesc = strippedDesc.substring(0, strippedDesc.length - s.length).trim();
-      }
-    }
-    while (strippedDesc.endsWith('.')) {
-      strippedDesc = strippedDesc.substring(0, strippedDesc.length - 1).trim();
-    }
-
-    // 3. Select category ideas catalog
     final catKey = category.toLowerCase().replaceAll(RegExp(r'[^a-z]'), '');
     final catalog = _domainCatalog[catKey] ?? _defaultCatalog(category);
 
-    // If user clicked suggest without typing or is re-tapping on an existing generated proposal,
-    // cycle to the next idea in the catalog
-    final isCatalogIdea = catalog.any((e) => e.refinedTitle == strippedTitle);
-    final isGeneratedText = strippedTitle.isEmpty || isCatalogIdea;
-
-    if (isGeneratedText) {
-      final index = (_fallbackCounter++) % catalog.length;
-      return catalog[index];
-    }
-
-    // 4. If user provided their own custom keywords, build a polished proposal WITHOUT "Refined scope:"
-    final titleText = strippedTitle.isNotEmpty ? strippedTitle : 'Smart $category Solution';
-    final descText =
-        '$strippedDesc. Implementing modern system architecture, secure role-based access control, and real-time cloud data synchronization.';
-
-    List<String> tags = ['Cloud', 'Mobile', 'Firebase'];
-    List<String> roles = ['Frontend Dev', 'Backend Dev', 'UI/UX Designer'];
-
-    if (catKey.contains('ai')) {
-      tags = ['AI/ML', 'Gemini API', 'Python', 'Flutter'];
-      roles = ['AI/ML Engineer', 'Flutter Mobile Dev', 'Backend Dev'];
-    } else if (catKey.contains('fintech')) {
-      tags = ['FinTech', 'Security', 'Payment Gateway', 'PostgreSQL'];
-      roles = ['Security Specialist', 'Fullstack Dev', 'QA/Tester'];
-    } else if (catKey.contains('iot')) {
-      tags = ['IoT', 'Hardware', 'MQTT', 'Flutter'];
-      roles = ['IoT / Hardware', 'Backend Dev', 'Mobile Dev'];
-    } else if (catKey.contains('mobile')) {
-      tags = ['Mobile', 'Flutter', 'Firebase', 'Figma'];
-      roles = ['Mobile Dev', 'UI/UX Designer', 'Backend Dev'];
-    }
-
-    return AiTopicProposal(
-      refinedTitle: titleText,
-      description: descText,
-      suggestedTags: tags,
-      suggestedRoles: roles,
-    );
+    // ALWAYS advance to the next distinct idea so every click yields a completely DIFFERENT topic!
+    final index = (_fallbackCounter++) % catalog.length;
+    return catalog[index];
   }
 }
