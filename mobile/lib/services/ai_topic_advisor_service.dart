@@ -40,7 +40,7 @@ class AiTopicProposal {
 }
 
 class AiTopicAdvisorService {
-  static const defaultApiKey = 'AQ.Ab8RN6ItdExVkCIHMs4o5xE_K0sOk05ro2VfRBo3a88lwDcYYA';
+  static const defaultApiKey = '';
 
   final ConfigService _remoteConfig;
   final AnalyticsService _analytics;
@@ -55,9 +55,7 @@ class AiTopicAdvisorService {
         _apiKey = apiKey ??
             (const String.fromEnvironment('GEMINI_API_KEY').isNotEmpty
                 ? const String.fromEnvironment('GEMINI_API_KEY')
-                : (remoteConfig.getString('gemini_api_key').isNotEmpty
-                    ? remoteConfig.getString('gemini_api_key')
-                    : defaultApiKey));
+                : remoteConfig.getString('gemini_api_key'));
 
   /// Sanitizes text to strictly prevent sending personal data (PII) to Gemini API
   static String sanitizePii(String input) {
@@ -296,14 +294,8 @@ Input description: $cleanDesc
 
     // If user clicked suggest without typing or is re-tapping on an existing generated proposal,
     // cycle to the next idea in the catalog
-    final isGeneratedText = strippedTitle.startsWith('NextGen') ||
-        strippedTitle.startsWith('Smart') ||
-        strippedTitle.startsWith('Autonomous') ||
-        strippedTitle.startsWith('CampusLife') ||
-        strippedTitle.startsWith('Collaborative') ||
-        strippedDesc.startsWith('A modern cloud-enabled') ||
-        strippedDesc.startsWith('A scalable multi-tenant') ||
-        strippedDesc.isEmpty;
+    final isCatalogIdea = catalog.any((e) => e.refinedTitle == strippedTitle);
+    final isGeneratedText = strippedTitle.isEmpty || isCatalogIdea;
 
     if (isGeneratedText) {
       final index = (_fallbackCounter++) % catalog.length;

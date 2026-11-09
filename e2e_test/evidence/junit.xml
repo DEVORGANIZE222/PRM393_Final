@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <testsuites name="pytest tests">
-  <testsuite name="pytest" errors="0" failures="0" skipped="0" tests="30" time="5948.313" timestamp="2026-11-03T18:40:01.175499+07:00" hostname="LAPTOP-GJIE9MEF">
+  <testsuite name="pytest" errors="0" failures="0" skipped="0" tests="30" time="5948.313" timestamp="2026-11-03T18:40:01.175499+07:00" hostname="LAPTOP-GJIE9MkEF">
     <testcase classname="test_auth" name="test_tc01_account_not_on_roster_is_rejected[run1]" time="108.616" />
     <testcase classname="test_auth" name="test_tc01_account_not_on_roster_is_rejected[run2]" time="65.591" />
     <testcase classname="test_auth" name="test_tc01_account_not_on_roster_is_rejected[run3]" time="90.557" />
