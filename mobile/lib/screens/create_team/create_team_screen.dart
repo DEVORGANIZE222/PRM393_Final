@@ -42,25 +42,27 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
 
     setState(() => _isGeneratingAi = true);
 
-    final advisor = AiTopicAdvisorService(
-      remoteConfig: config,
-      analytics: analytics,
-    );
+    final advisor = AiTopicAdvisorService(remoteConfig: config, analytics: analytics);
 
     try {
       final proposal = await advisor.adviseTopic(
-        rawTitle: _nameController.text.trim(),
-        rawDescription: _topicController.text.trim(),
+        rawTitle: _aiDraftApplied ? '' : _nameController.text.trim(),
+        rawDescription: _aiDraftApplied ? '' : _topicController.text.trim(),
         category: _selectedCategory,
       );
 
       if (!mounted) return;
       setState(() {
+        if (proposal.teamName.isNotEmpty) {
+          _nameController.text = proposal.teamName;
+        } else if (proposal.refinedTitle.isNotEmpty) {
+          final words = proposal.refinedTitle.split(' ');
+          _nameController.text = words.take(2).join('');
+        }
         if (proposal.refinedTitle.isNotEmpty) {
-          _nameController.text = proposal.refinedTitle;
+          _topicController.text = proposal.refinedTitle;
         }
         if (proposal.description.isNotEmpty) {
-          _topicController.text = proposal.description;
           _descController.text = proposal.description;
         }
         if (proposal.suggestedTags.isNotEmpty) {
@@ -78,15 +80,14 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('✨ AI draft generated! You can edit any field before submitting.'),
+          content: Text('AI draft generated! You can edit any field before creating the team.'),
           backgroundColor: Color(0xFF107C41),
         ),
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('AI Helper: $e'), backgroundColor: Colors.red.shade700),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('AI Helper: $e'), backgroundColor: Colors.red.shade700));
     } finally {
       if (mounted) setState(() => _isGeneratingAi = false);
     }
@@ -109,9 +110,7 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
       name: _nameController.text.trim(),
       topic: _topicController.text.trim(),
       category: _selectedCategory,
-      description: _descController.text.trim().isNotEmpty
-          ? _descController.text.trim()
-          : _topicController.text.trim(),
+      description: _descController.text.trim().isNotEmpty ? _descController.text.trim() : _topicController.text.trim(),
       tags: _selectedTags.toList(),
       openRoles: _selectedRoles.toList(),
     );
@@ -206,14 +205,17 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
                           const Icon(Icons.auto_awesome, color: Color(0xFF107C41), size: 20),
                           const SizedBox(width: 8),
                           Text(
-                            'Gemini Topic Advisor (AI Level 2)',
-                            style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: const Color(0xFF166534)),
+                            'Gemini Topic Advisor',
+                            style: context.text.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF166534),
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Generate structured topic summary, tags, and open roles without sending personal data. Fallback active.',
+                        'Automatically suggests project topic, description, tags, and member roles based on category.',
                         style: context.text.bodySmall?.copyWith(color: const Color(0xFF15803D)),
                       ),
                       const SizedBox(height: 10),
@@ -226,14 +228,14 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                         ),
                         icon: _isGeneratingAi
-                            ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              )
                             : const Icon(Icons.auto_awesome, size: 16),
-                        label: Text(_isGeneratingAi ? 'Drafting proposal…' : '✨ Suggest with Gemini AI'),
+                        label: Text(_isGeneratingAi ? 'Drafting proposal…' : 'Suggest with Gemini AI'),
                       ),
-                      if (_aiDraftApplied) ...[
-                        const SizedBox(height: 8),
-                        const StatusBadge(label: 'AI Generated Draft · Editable', tone: Tone.neutral),
-                      ],
                     ],
                   ),
                 ),

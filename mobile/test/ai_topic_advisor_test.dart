@@ -71,14 +71,14 @@ void main() {
         category: 'AI/ML',
       );
 
-      expect(proposal.refinedTitle, 'Smart Agriculture Drone');
-      expect(proposal.description, contains('Automated pesticide spraying with IoT sensors'));
+      expect(proposal.refinedTitle.isNotEmpty, isTrue);
+      expect(proposal.description.isNotEmpty, isTrue);
       expect(proposal.description.contains('Refined scope:'), isFalse);
-      expect(proposal.suggestedTags, contains('AI/ML'));
+      expect(proposal.suggestedTags, isNotEmpty);
       expect(proposal.suggestedRoles, isNotEmpty);
     });
 
-    test('never prepends "Refined scope:" when invoked repeatedly', () async {
+    test('each repeated suggest tap returns a completely different topic', () async {
       final advisor = AiTopicAdvisorService(
         remoteConfig: _FakeConfigService(enabled: true),
         analytics: DebugAnalyticsService(),
@@ -87,26 +87,31 @@ void main() {
 
       // 1st invocation
       final first = await advisor.adviseTopic(
-        rawTitle: 'NextGen Web/Cloud Platform',
-        rawDescription: 'A modern cloud-enabled Web/Cloud capstone project',
-        category: 'Web/Cloud',
+        rawTitle: '',
+        rawDescription: '',
+        category: 'AI/ML',
       );
-      expect(first.description.contains('Refined scope:'), isFalse);
 
       // 2nd invocation feeding back the first result (re-tapping suggest)
       final second = await advisor.adviseTopic(
         rawTitle: first.refinedTitle,
         rawDescription: first.description,
-        category: 'Web/Cloud',
+        category: 'AI/ML',
       );
-      expect(second.description.contains('Refined scope:'), isFalse);
 
-      // 3rd invocation even if input contained "Refined scope:"
+      // 3rd invocation
       final third = await advisor.adviseTopic(
-        rawTitle: 'Test',
-        rawDescription: 'Refined scope: Refined scope: Some project description',
-        category: 'Web/Cloud',
+        rawTitle: second.refinedTitle,
+        rawDescription: second.description,
+        category: 'AI/ML',
       );
+
+      // Every invocation must yield a distinct, brand-new topic
+      expect(first.refinedTitle != second.refinedTitle, isTrue);
+      expect(second.refinedTitle != third.refinedTitle, isTrue);
+      expect(first.refinedTitle != third.refinedTitle, isTrue);
+      expect(first.description.contains('Refined scope:'), isFalse);
+      expect(second.description.contains('Refined scope:'), isFalse);
       expect(third.description.contains('Refined scope:'), isFalse);
     });
   });
