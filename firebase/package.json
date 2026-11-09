@@ -1,0 +1,13 @@
+{
+  "name": "prm393-firebase-tests",
+  "version": "1.0.0",
+  "description": "Security Rules unit tests for PRM393 Final",
+  "scripts": {
+    "test": "jest --testTimeout=10000"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^3.0.4",
+    "jest": "^29.7.0"
+  }
+}
+

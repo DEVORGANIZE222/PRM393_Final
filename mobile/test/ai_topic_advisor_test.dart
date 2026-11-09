@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:exematching/services/ai_topic_advisor_service.dart';
 import 'package:exematching/services/services.dart';
+import 'package:exematching/services/local/local_services.dart';
 
 class _FakeConfigService implements ConfigService {
   _FakeConfigService({this.enabled = true, this.model = 'gemini-2.5-flash'});

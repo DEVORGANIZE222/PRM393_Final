@@ -31,6 +31,7 @@ service cloud.firestore {
 
     // Web administration has one privileged role: admin. Roles are assigned
     // only through the Firebase Console during bootstrap, never by the web UI.
+    //R03: Cấm người dùng tự sửa đổi quyền (role) để tránh chiếm quyền admin
     match /users/{userId} {
       allow read: if request.auth != null && (request.auth.uid == userId || isStaff());
       allow create: if request.auth != null && request.auth.uid == userId
@@ -46,7 +47,7 @@ service cloud.firestore {
       allow create, update: if isStaff();
       allow delete: if false; // soft delete / archive instead
     }
-
+//R01:  Cấm sinh viên tự sửa trạng thái đơn duyệt nhóm (teamSubmissions).
     // A leader submits an already locked roster. Only admins can make the
     // pending -> approved/rejected decision; rejection must explain why.
     match /teamSubmissions/{teamId} {
@@ -64,6 +65,7 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/teams/$(teamId)).data.leaderId == request.auth.uid;
       allow read: if isAdmin()
           || (isRosterMember() && resource.data.leaderId == request.auth.uid);
+          //R02:Cho phép Admin/Staff phê duyệt đơn trong Review Queue
       allow update: if isAdmin()
           && resource.data.status == 'pending'
           && request.resource.data.status in ['approved', 'rejected']

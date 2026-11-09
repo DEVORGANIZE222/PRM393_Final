@@ -10,10 +10,13 @@ const fs = require('fs');
 let testEnv;
 
 beforeAll(async () => {
+  const rulesPath = fs.existsSync('firebase/firestore.rules')
+    ? 'firebase/firestore.rules'
+    : (fs.existsSync('firestore.rules') ? 'firestore.rules' : '../firestore.rules');
   testEnv = await initializeTestEnvironment({
     projectId: 'prm393-final-exematching',
     firestore: {
-      rules: fs.readFileSync('firebase/firestore.rules', 'utf8'),
+      rules: fs.readFileSync(rulesPath, 'utf8'),
       host: '127.0.0.1',
       port: 8080,
     },
