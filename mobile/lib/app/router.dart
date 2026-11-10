@@ -29,7 +29,6 @@ import '../viewmodels/mentor_list_viewmodel.dart';
 import '../viewmodels/mentor_portal_viewmodel.dart';
 import '../viewmodels/mentor_team_viewmodel.dart';
 import '../viewmodels/my_team_viewmodel.dart';
-import '../viewmodels/notifications_viewmodel.dart';
 import '../viewmodels/pool_status_viewmodel.dart';
 import '../viewmodels/profile_viewmodel.dart';
 import '../viewmodels/session_viewmodel.dart';
@@ -88,6 +87,8 @@ GoRouter buildRouter(SessionViewModel session) {
             c.read<MentorRepository>(),
             c.read<AnalyticsService>(),
             c.read<CrashReporter>(),
+            registration: c.read<RegistrationService>(),
+            config: c.read<ConfigService>(),
           )..load(),
           child: const MentorPortalScreen(),
         ),

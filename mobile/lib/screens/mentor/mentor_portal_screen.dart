@@ -7,6 +7,7 @@ import '../../models/mentor.dart';
 import '../../models/team.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_tokens.dart';
+import '../../utils/format.dart';
 import '../../viewmodels/mentor_portal_viewmodel.dart';
 import '../../viewmodels/session_viewmodel.dart';
 import '../../widgets/app_button.dart';
@@ -89,6 +90,22 @@ class _MentorPortalScreenState extends State<MentorPortalScreen> with SingleTick
                 const _AnnouncementBanner(),
                 _MentorProfileCard(mentor: mentor),
                 const SizedBox(height: AppSpacing.md),
+                if (vm.registrationClosed)
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: AppSpacing.md),
+                    child: InfoBanner(
+                      semanticId: 'banner_registration_closed',
+                      icon: Icons.lock_clock_outlined,
+                      tone: Tone.warning,
+                      title: 'Registration is closed',
+                      message: 'Changes to supervised teams now go through the Academic Office.',
+                    ),
+                  )
+                else if (vm.window != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                    child: _MentorDeadlineCard(vm: vm),
+                  ),
                 _QuotaStatsRow(mentor: mentor, pendingCount: vm.pendingCount),
                 const SizedBox(height: AppSpacing.lg),
                 TabBar(
@@ -594,6 +611,117 @@ class _AnnouncementBanner extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _MentorDeadlineCard extends StatelessWidget {
+  const _MentorDeadlineCard({required this.vm});
+
+  final MentorPortalViewModel vm;
+
+  @override
+  Widget build(BuildContext context) {
+    final window = vm.window!;
+    final timeLeft = vm.timeLeft ?? Duration.zero;
+    final remainingFraction = vm.remainingFraction;
+    final isUrgent = vm.urgent || remainingFraction < 0.15;
+    final accentColor = isUrgent ? context.colors.error : context.colors.primary;
+
+    return AppCard(
+      semanticId: 'card_mentor_deadline',
+      color: isUrgent ? const Color(0xFFFEF2F2) : context.appColors.warningContainer,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.schedule,
+                size: 20,
+                color: isUrgent ? context.colors.error : context.appColors.warning,
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  isUrgent ? 'Registration deadline closing soon!' : 'Registration deadline',
+                  style: context.text.titleSmall?.copyWith(
+                    color: isUrgent ? context.colors.error : context.appColors.warning,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              if (isUrgent) const StatusBadge(label: 'Urgent', tone: Tone.error),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            Fmt.countdown(timeLeft),
+            style: context.text.headlineLarge?.copyWith(color: accentColor, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text('System locks on ${Fmt.dateTime(window.closesAt)}', style: context.text.bodyMedium),
+          const SizedBox(height: AppSpacing.lg),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                '${window.semester} Timeline',
+                style: context.text.labelMedium?.copyWith(
+                  color: context.colors.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                decoration: BoxDecoration(
+                  color: isUrgent ? const Color(0xFFFEE2E2) : const Color(0xFFDCFCE7),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isUrgent ? const Color(0xFFFCA5A5) : const Color(0xFF86EFAC),
+                    width: 0.8,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isUrgent ? Icons.warning_amber_rounded : Icons.hourglass_bottom,
+                      size: 12,
+                      color: isUrgent ? const Color(0xFFDC2626) : const Color(0xFF15803D),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${(remainingFraction * 100).round()}% time left',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: isUrgent ? const Color(0xFFDC2626) : const Color(0xFF15803D),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Semantics(
+            label: 'Registration period',
+            value: '${(remainingFraction * 100).round()} percent remaining',
+            excludeSemantics: true,
+            child: ClipRRect(
+              borderRadius: AppRadius.fullAll,
+              child: LinearProgressIndicator(
+                value: remainingFraction,
+                minHeight: AppSize.progress,
+                color: accentColor,
+                backgroundColor: isUrgent ? const Color(0xFFFEE2E2) : context.colors.surfaceContainerLowest,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
