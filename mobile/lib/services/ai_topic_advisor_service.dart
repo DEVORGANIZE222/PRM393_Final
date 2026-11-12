@@ -49,8 +49,6 @@ class AiTopicProposal {
 }
 
 class AiTopicAdvisorService {
-  static const defaultApiKey = 'AQ.Ab8RN6ItdExVkCIHMs4o5xE_K0sOk05ro2VfRBo3a88lwDcYYA';
-
   static int _themeCounter = 0;
   static const _subThemes = [
     'Smart Healthcare, Patient Telemetry & Telemedicine',
@@ -67,20 +65,13 @@ class AiTopicAdvisorService {
 
   final ConfigService _remoteConfig;
   final AnalyticsService _analytics;
-  final String _apiKey;
+  final String? _apiKeyOverride;
 
   AiTopicAdvisorService({
-    required ConfigService remoteConfig,
-    required AnalyticsService analytics,
+    required this._remoteConfig,
+    required this._analytics,
     String? apiKey,
-  })  : _remoteConfig = remoteConfig,
-        _analytics = analytics,
-        _apiKey = apiKey ??
-            (const String.fromEnvironment('GEMINI_API_KEY').isNotEmpty
-                ? const String.fromEnvironment('GEMINI_API_KEY')
-                : (remoteConfig.getString('gemini_api_key').isNotEmpty
-                    ? remoteConfig.getString('gemini_api_key')
-                    : defaultApiKey));
+  }) : _apiKeyOverride = apiKey;
 
   /// Sanitizes text to strictly prevent sending personal data (PII) to Gemini API
   static String sanitizePii(String input) {
@@ -125,16 +116,31 @@ class AiTopicAdvisorService {
     final cleanTitle = sanitizePii(rawTitle);
     final cleanDesc = sanitizePii(rawDescription);
 
-    // If Gemini API key is configured, call Gemini API via native HttpClient
-    try {
-      if (_apiKey.isNotEmpty) {
-        final uri = Uri.parse(
-          'https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$_apiKey',
-        );
+    // Fetch Gemini API key strictly from Firebase Remote Config (or explicit test override)
+    var apiKey = (_apiKeyOverride ?? _remoteConfig.getString('gemini_api_key')).trim();
+    if (apiKey.isEmpty && _apiKeyOverride == null) {
+      try {
+        await _remoteConfig.refresh();
+        apiKey = _remoteConfig.getString('gemini_api_key').trim();
+      } catch (e) {
+        debugPrint('Remote Config refresh failed while fetching Gemini API key: $e');
+      }
+    }
 
-        final theme = _subThemes[(_themeCounter++) % _subThemes.length];
-        final seed = DateTime.now().millisecondsSinceEpoch % 100000;
-        final prompt = '''
+    if (apiKey.isEmpty) {
+      debugPrint('Gemini API key not configured in Firebase Remote Config; using local fallback.');
+      return _generateFallback(cleanTitle, cleanDesc, category);
+    }
+
+    // Call Gemini API via native HttpClient
+    try {
+      final uri = Uri.parse(
+        'https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey',
+      );
+
+      final theme = _subThemes[(_themeCounter++) % _subThemes.length];
+      final seed = DateTime.now().millisecondsSinceEpoch % 100000;
+      final prompt = '''
 You are an expert capstone project mentor at FPT University.
 Generate a COMPLETELY NEW, UNIQUE, and INNOVATIVE graduation project proposal for students in category "$category", focused on the domain sub-theme: "$theme".
 Session Seed: $seed.
@@ -158,7 +164,8 @@ Return ONLY valid JSON matching this schema:
 }
 ''';
 
-        final client = HttpClient();
+      final client = HttpClient();
+      try {
         final request = await client.postUrl(uri);
         request.headers.contentType = ContentType.json;
         request.write(jsonEncode({
@@ -175,7 +182,6 @@ Return ONLY valid JSON matching this schema:
 
         final response = await request.close().timeout(const Duration(seconds: 15));
         final responseBody = await response.transform(utf8.decoder).join();
-        client.close();
 
         if (response.statusCode == 200) {
           final data = jsonDecode(responseBody);
@@ -194,7 +200,13 @@ Return ONLY valid JSON matching this schema:
           return AiTopicProposal.fromJson(parsed);
         } else {
           debugPrint('Gemini API returned status ${response.statusCode}: $responseBody');
+          await _analytics.logAiError(
+            feature: 'topic_advisor',
+            errorReason: 'http_${response.statusCode}',
+          );
         }
+      } finally {
+        client.close();
       }
     } catch (e) {
       await _analytics.logAiError(

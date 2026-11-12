@@ -4,10 +4,15 @@ import 'package:exematching/services/services.dart';
 import 'package:exematching/services/local/local_services.dart';
 
 class _FakeConfigService implements ConfigService {
-  _FakeConfigService({this.enabled = true, this.model = 'gemini-2.5-flash'});
+  _FakeConfigService({
+    this.enabled = true,
+    this.geminiApiKey = '',
+  });
 
   final bool enabled;
-  final String model;
+  final String geminiApiKey;
+  int refreshCount = 0;
+  final List<String> requestedStringKeys = [];
 
   @override
   bool getBool(String key) => key == 'enable_ai_feature' ? enabled : true;
@@ -16,10 +21,18 @@ class _FakeConfigService implements ConfigService {
   int getInt(String key) => 5;
 
   @override
-  String getString(String key) => key == 'ai_model_name' ? model : '';
+  String getString(String key) {
+    requestedStringKeys.add(key);
+    if (key == 'ai_model_name') return 'gemini-2.5-flash';
+    if (key == 'gemini_api_key') return geminiApiKey;
+    return '';
+  }
 
   @override
-  Future<bool> refresh() async => false;
+  Future<bool> refresh() async {
+    refreshCount++;
+    return false;
+  }
 
   @override
   Stream<void> get changes => const Stream.empty();
@@ -113,6 +126,24 @@ void main() {
       expect(first.description.contains('Refined scope:'), isFalse);
       expect(second.description.contains('Refined scope:'), isFalse);
       expect(third.description.contains('Refined scope:'), isFalse);
+    });
+
+    test('fetches gemini_api_key exclusively from Remote Config when no override passed', () async {
+      final config = _FakeConfigService(enabled: true, geminiApiKey: '');
+      final advisor = AiTopicAdvisorService(
+        remoteConfig: config,
+        analytics: DebugAnalyticsService(),
+      );
+
+      final proposal = await advisor.adviseTopic(
+        rawTitle: 'Campus Food Rescue',
+        rawDescription: 'Connect surplus canteen meals with students',
+        category: 'Web/Cloud',
+      );
+
+      expect(config.requestedStringKeys, contains('gemini_api_key'));
+      expect(config.refreshCount, 1);
+      expect(proposal.refinedTitle.isNotEmpty, isTrue);
     });
   });
 }
